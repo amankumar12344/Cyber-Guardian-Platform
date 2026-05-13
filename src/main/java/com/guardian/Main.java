@@ -304,7 +304,7 @@ public class Main {
             }
             else if (command.equals("/screenshot")) {
                 sendTelegramMessage("📸 *Capturing screenshot...*");
-                takeScreenshot();
+                takeScreenshot("manual_" + System.currentTimeMillis() + ".jpg");
             }
             else if (command.equals("/shutdown")) {
                 sendTelegramMessage("🔌 *Shutting down the PC...* Goodbye! 👋");
