@@ -36,18 +36,32 @@
         <!-- Telegram Config Card -->
         <div class="card">
             <h3 style="color: #00f2ff; margin-bottom: 15px;">Remote Alerts (Telegram)</h3>
-            <form th:action="@{/save-telegram}" method="post">
-                <input type="hidden" name="apiKey" th:value="${user.apiKey}">
-                <div class="input-group">
-                    <label>Bot Token</label>
-                    <input type="text" name="botToken" th:value="${user.telegramBotToken}" placeholder="Enter Bot Token">
-                </div>
-                <div class="input-group">
-                    <label>Chat ID</label>
-                    <input type="text" name="chatId" th:value="${user.telegramChatId}" placeholder="Enter Chat ID">
-                </div>
-                <button type="submit" class="btn" style="margin-top: 0;">Save Settings</button>
-            </form>
+            
+            <div style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                <p style="font-size: 14px; margin-bottom: 15px;">🚀 <strong>One-Click Connection:</strong></p>
+                <a th:href="'https://t.me/GuardianPlatformBot?start=' + ${user.email}" target="_blank" class="btn" style="text-decoration: none; display: block; text-align: center; background: linear-gradient(135deg, #0088cc 0%, #00a2ff 100%);">
+                    🔗 Link Telegram Automatically
+                </a>
+                <p style="font-size: 11px; color: #888; margin-top: 10px; line-height: 1.4;">
+                    Click the button above, then press "Start" in Telegram. Your account will be linked instantly.
+                </p>
+            </div>
+
+            <details>
+                <summary style="color: #555; cursor: pointer; font-size: 13px; margin-bottom: 10px;">Advanced: Manual Configuration</summary>
+                <form th:action="@{/save-telegram}" method="post" style="margin-top: 15px;">
+                    <input type="hidden" name="apiKey" th:value="${user.apiKey}">
+                    <div class="input-group">
+                        <label>Bot Token</label>
+                        <input type="text" name="botToken" th:value="${user.telegramBotToken}" placeholder="Enter Bot Token">
+                    </div>
+                    <div class="input-group">
+                        <label>Chat ID</label>
+                        <input type="text" name="chatId" th:value="${user.telegramChatId}" placeholder="Enter Chat ID">
+                    </div>
+                    <button type="submit" class="btn" style="margin-top: 0; background: #333;">Save Manual Settings</button>
+                </form>
+            </details>
         </div>
 
         <!-- Logs Card -->
