@@ -231,8 +231,14 @@ public class Main {
             System.out.println("📱 Official Telegram Listener ACTIVE...");
             while (true) {
                 try {
-                    // Always listen using the Platform Bot Token
-                    String url = "https://api.telegram.org/bot" + PLATFORM_BOT_TOKEN + "/getUpdates?offset=" + (lastUpdateId + 1);
+                    // Use user's own bot token if set, otherwise fallback to platform bot
+                    String activeToken = (botToken != null && !botToken.isEmpty()) ? botToken : PLATFORM_BOT_TOKEN;
+                    if (activeToken == null || activeToken.isEmpty()) {
+                        Thread.sleep(5000);
+                        continue;
+                    }
+
+                    String url = "https://api.telegram.org/bot" + activeToken + "/getUpdates?offset=" + (lastUpdateId + 1);
                     HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
                     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                     
