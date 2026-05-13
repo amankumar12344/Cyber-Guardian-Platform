@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Guardian | User Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        body { overflow: auto; padding: 50px 20px; flex-direction: column; height: auto; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 1200px; margin-top: 30px; }
+        .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 15px; text-align: left; }
+        .api-badge { background: rgba(0, 242, 255, 0.1); color: #00f2ff; padding: 10px 15px; border-radius: 5px; font-family: 'Consolas', monospace; font-size: 18px; border: 1px dashed #00f2ff; display: inline-block; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th { color: #00f2ff; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; text-align: left; }
+        td { padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #ccc; }
+        .status-tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .tag-terminated { background: rgba(255, 0, 0, 0.2); color: #ff6b6b; }
+        .full-width { grid-column: span 2; }
+        .success-banner { background: rgba(0, 255, 0, 0.1); color: #6bff6b; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid green; width: 100%; max-width: 1200px; }
+    </style>
+</head>
+<body>
+    <h2 style="margin-bottom: 5px;">COMMAND CENTER</h2>
+    <p style="color: #888;">Welcome back, <span th:text="${user.email}" style="color: white;"></span></p>
+
+    <div th:if="${param.success}" class="success-banner">
+        ✅ Telegram settings updated successfully!
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- API Key Card -->
+        <div class="card">
+            <h3 style="color: #00f2ff; margin-bottom: 15px;">Your Protection Key</h3>
+            <p style="font-size: 14px; color: #aaa;">Use this key in your Desktop Agent to link this account.</p>
+            <div class="api-badge" th:text="${user.apiKey}">XXXX-XXXX</div>
+        </div>
+
+        <!-- Telegram Config Card -->
+        <div class="card">
+            <h3 style="color: #00f2ff; margin-bottom: 15px;">Remote Alerts (Telegram)</h3>
+            <form th:action="@{/save-telegram}" method="post">
+                <input type="hidden" name="apiKey" th:value="${user.apiKey}">
+                <div class="input-group">
+                    <label>Bot Token</label>
+                    <input type="text" name="botToken" th:value="${user.telegramBotToken}" placeholder="Enter Bot Token">
+                </div>
+                <div class="input-group">
+                    <label>Chat ID</label>
+                    <input type="text" name="chatId" th:value="${user.telegramChatId}" placeholder="Enter Chat ID">
+                </div>
+                <button type="submit" class="btn" style="margin-top: 0;">Save Settings</button>
+            </form>
+        </div>
+
+        <!-- Logs Card -->
+        <div class="card full-width">
+            <h3 style="color: #00f2ff; margin-bottom: 10px;">Live Security Logs</h3>
+            <p style="font-size: 14px; color: #aaa;">All security events from your linked PC(s).</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Application</th>
+                        <th>Action</th>
+                        <th>Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td th:text="${log.appName}" style="font-weight: bold; color: white;"></td>
+                        <td><span class="status-tag tag-terminated" th:text="${log.action}"></span></td>
+                        <td th:text="${log.details}" style="font-size: 12px; color: #888;"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(logs)}">
+                        <td colspan="4" style="text-align: center; padding: 40px; color: #555;">No security breaches detected yet. You are safe!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <a href="/login" style="margin-top: 30px; color: #555; text-decoration: none; font-size: 14px;">Logout from Session</a>
+</body>
+</html>

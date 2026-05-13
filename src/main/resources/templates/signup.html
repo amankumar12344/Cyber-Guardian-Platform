@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Guardian | Sign Up</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="glass-container">
+        <h2>GUARDIAN</h2>
+        <p style="margin-bottom: 20px; color: #888;">Create your security account</p>
+        
+        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+        
+        <form th:action="@{/signup}" method="post">
+            <div class="input-group">
+                <label>Email or Phone Number</label>
+                <input type="text" id="identifier" name="identifier" placeholder="example@mail.com or +91..." required>
+            </div>
+            <div class="input-group">
+                <label>Set Master Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="pass" name="password" placeholder="••••••••" required>
+                    <span onclick="togglePass()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6;">👁️</span>
+                </div>
+            </div>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+
+        <script>
+            function togglePass() {
+                var x = document.getElementById("pass");
+                x.type = (x.type === "password") ? "text" : "password";
+            }
+        </script>
+        
+        <div class="link-text">
+            Already have an account? <a href="/login">Login here</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Guardian | Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="glass-container">
+        <h2>GUARDIAN</h2>
+        <p style="margin-bottom: 20px; color: #888;">Secure Access Control</p>
+        
+        <div th:if="${param.success}" style="background: rgba(0, 255, 0, 0.1); border: 1px solid green; color: #6bff6b; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 14px;">
+            Account created! Please login.
+        </div>
+        
+        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+        
+        <div th:if="${param.resetSuccess}" style="background: rgba(0, 242, 254, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 14px;">
+            Password reset successful! Please login.
+        </div>
+        
+        <form th:action="@{/login}" method="post">
+            <div class="input-group">
+                <label>Email or Phone Number</label>
+                <input type="text" name="identifier" placeholder="example@mail.com or +91..." required>
+            </div>
+            <div class="input-group">
+                <label>Master Password</label>
+                <div style="position: relative;">
+                    <input type="password" id="pass" name="password" placeholder="••••••••" required>
+                    <span onclick="togglePass()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6;">👁️</span>
+                </div>
+            </div>
+            <button type="submit" class="btn">Login to Dashboard</button>
+        </form>
+        
+        <div class="link-text" style="margin-top: 25px;">
+            <a href="/forgot-password" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: bold; display: block; margin-bottom: 15px;">Forgot your password?</a>
+            <span style="color: #888;">New here?</span> <a href="/signup" style="color: white; text-decoration: underline;">Create Account</a>
+        </div>
+
+        <script>
+            function togglePass() {
+                var x = document.getElementById("pass");
+                x.type = (x.type === "password") ? "text" : "password";
+            }
+        </script>
+    </div>
+</body>
+</html>

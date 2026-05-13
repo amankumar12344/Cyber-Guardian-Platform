@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Cyber Guardian Control",
+  "version": "1.0",
+  "description": "Remote control and monitoring for Cyber Guardian Security Shield.",
+  "permissions": ["storage", "notifications"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icons/icon128.png"
+  },
+  "icons": {
+    "16": "icons/icon128.png",
+    "48": "icons/icon128.png",
+    "128": "icons/icon128.png"
+  },
+  "host_permissions": ["http://localhost:8081/*"]
+}

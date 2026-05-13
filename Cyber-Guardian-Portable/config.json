@@ -1,0 +1,17 @@
+{
+  "blacklist": [
+    "whatsapp",
+    "instagram",
+    "gmail",
+    "telegram",
+    "chrome"
+  ],
+  "autoKill": true,
+  "scanInterval": 2000,
+  "enableLogging": true,
+  "logFile": "guardian_breaches.log",
+  "password": "admin",
+  "isLocked": false,
+  "botToken": "",
+  "chatId": ""
+}

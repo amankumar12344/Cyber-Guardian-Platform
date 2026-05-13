@@ -1,0 +1,39 @@
+# Java and Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Database (Keep local)
+*.db
+*.db-shm
+*.db-wal
+
+# Screenshots (Large files)
+screenshots/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Portable App build
+Cyber-Guardian-Portable/app/*.jar
+Cyber-Guardian-Portable/runtime/
+Cyber-Guardian-Portable/runtime_linux/
+Cyber-Guardian-Portable/runtime_windows/
+
+# Logs
+logs/
+*.log
+
+# Build & Media
+*.zip
+*.mp4
+*.jpg
+*.png
+linux_jre.tar.gz

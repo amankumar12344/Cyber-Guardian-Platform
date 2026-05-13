@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            width: 300px;
+            padding: 20px;
+            background: #0f172a;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            margin: 0;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .logo-text {
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .status-card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+        .status-text {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        #status-value {
+            font-size: 16px;
+            font-weight: bold;
+            display: block;
+            margin-top: 5px;
+        }
+        .locked { color: #f87171; }
+        .unlocked { color: #4ade80; }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-lock {
+            background: #ef4444;
+            color: white;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
+        .btn-unlock {
+            background: #22c55e;
+            color: white;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.2);
+        }
+        .footer {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 20px;
+        }
+        input {
+            width: 85%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: white;
+            outline: none;
+        }
+        input:focus {
+            border-color: #60a5fa;
+        }
+    </style>
+</head>
+<body>
+    <div id="login-view">
+        <div class="header">
+            <span class="logo-text">CYBER GUARDIAN</span>
+        </div>
+        <div class="status-card">
+            <span class="status-text">Please Login to Continue</span>
+            <input type="email" id="email" placeholder="Email Address">
+            <input type="password" id="password" placeholder="Master Password">
+        </div>
+        <button id="loginBtn" class="btn btn-unlock">Login to Dashboard</button>
+        <button id="showSignupBtn" style="background: transparent; border: none; color: #60a5fa; cursor: pointer; font-size: 12px; margin-top: 10px; text-decoration: underline;">New User? Create Account</button>
+    </div>
+
+    <div id="signup-view" style="display: none;">
+        <div class="header">
+            <span class="logo-text">CREATE ACCOUNT</span>
+        </div>
+        <div class="status-card">
+            <span class="status-text">Setup Security Credentials</span>
+            <input type="email" id="regEmail" placeholder="Email Address">
+            <input type="password" id="regPassword" placeholder="Master Password">
+        </div>
+        <button id="signupBtn" class="btn btn-unlock" style="background: #10b981;">CREATE & START SECURITY</button>
+        <button id="showLoginBtn" style="background: transparent; border: none; color: #64748b; cursor: pointer; font-size: 11px; margin-top: 10px; width: 100%;">Already have an account? Login</button>
+    </div>
+
+    <div id="control-view" style="display: none;">
+        <div class="header">
+            <span class="logo-text">CYBER GUARDIAN</span>
+        </div>
+
+        <div class="status-card">
+            <span class="status-text">System Status</span>
+            <span id="status-value" class="locked">LOCKED</span>
+        </div>
+
+        <button id="lockBtn" class="btn btn-lock">Lock System</button>
+        <button id="unlockBtn" class="btn btn-unlock">Unlock System</button>
+        
+        <button id="viewLogsBtn" style="background: #334155; border: none; color: white; cursor: pointer; padding: 10px; border-radius: 5px; width: 100%; margin-top: 10px;">View Activity Gallery 🖼️</button>
+        <button id="linkTelegramBtn" style="background: #0088cc; border: none; color: white; cursor: pointer; padding: 10px; border-radius: 5px; width: 100%; margin-top: 10px; font-weight: bold;">Link Telegram Bot 📲</button>
+        
+        <button id="logoutBtn" style="background: transparent; border: none; color: #64748b; cursor: pointer; font-size: 11px; margin-top: 10px;">Logout from Extension</button>
+    </div>
+
+    <div id="logs-view" style="display: none; height: 400px; overflow-y: auto;">
+        <div class="header" style="position: sticky; top: 0; background: #0f172a; padding: 10px; z-index: 10;">
+            <span class="logo-text">ACTIVITY GALLERY</span>
+            <button id="backToControlBtn" style="background: transparent; border: none; color: #60a5fa; cursor: pointer;">Back</button>
+        </div>
+        <div id="logs-container" style="padding: 10px;">
+            <!-- Logs will appear here -->
+        </div>
+    </div>
+
+    <div class="footer">
+        Cloud Security Active 🛡️
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
