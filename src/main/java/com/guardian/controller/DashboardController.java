@@ -137,9 +137,6 @@ public class DashboardController {
     @ResponseBody
     @CrossOrigin
     public String toggleKavach(@RequestParam boolean active, @RequestParam(required = false, defaultValue = "ADMIN") String role) {
-        if ("POLICE".equalsIgnoreCase(role)) {
-            return "KAVACH_UNAUTHORIZED";
-        }
         securityService.setKavachActive(active);
         return "KAVACH_" + (active ? "ACTIVATED" : "DEACTIVATED");
     }
@@ -152,9 +149,6 @@ public class DashboardController {
             @RequestParam(required = false) String apiKey,
             @RequestParam(required = false, defaultValue = "ADMIN") String role,
             @RequestParam(required = false, defaultValue = "ALL") String targetId) {
-        if ("POLICE".equalsIgnoreCase(role)) {
-            return "ERROR: Unauthorized role";
-        }
 
         String uppercaseAction = action.toUpperCase();
         if ("lock".equalsIgnoreCase(action)) {

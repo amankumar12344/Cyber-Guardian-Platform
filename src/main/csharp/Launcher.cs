@@ -108,7 +108,7 @@ namespace CyberGuardian
 
                 ProcessStartInfo psi = new ProcessStartInfo();
                 psi.FileName = javaBinPath;
-                psi.Arguments = "-jar \"" + jarPath + "\"";
+                psi.Arguments = "-jar \"" + jarPath + "\" --agent";
                 psi.WorkingDirectory = tempFolder;
                 psi.WindowStyle = ProcessWindowStyle.Hidden;
                 psi.CreateNoWindow = true;
