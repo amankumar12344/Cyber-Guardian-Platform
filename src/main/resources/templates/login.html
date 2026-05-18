@@ -1,50 +1,241 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Guardian | Login</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>3rd AI | Operations Gateway Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --accent: #9d4edd;
+            --bg-dark: #06070a;
+            --card-bg: rgba(13, 17, 28, 0.45);
+            --border: rgba(255, 255, 255, 0.05);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --danger: #ff3b30;
+            --success: #10b981;
+            --text-dim: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(157, 78, 221, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 10% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
+            background-size: cover;
+            background-attachment: fixed;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .ambient-glow {
+            position: absolute; width: 350px; height: 350px; border-radius: 50%;
+            background: var(--primary); opacity: 0.03; filter: blur(100px); pointer-events: none; z-index: 1;
+        }
+
+        /* Glassmorphic Login Card */
+        .login-card {
+            width: 440px;
+            padding: 50px 40px;
+            background: rgba(13, 17, 28, 0.5);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 242, 254, 0.03);
+            position: relative;
+            z-index: 10;
+            transition: all 0.4s ease;
+        }
+
+        .login-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.3));
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.1);
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-top: 6px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 22px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+        }
+
+        /* Buttons styling */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, #0072ff 100%);
+            color: #000;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.3);
+            filter: brightness(1.05);
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #a7f3d0;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            margin-bottom: 25px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-dim);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <div class="glass-container">
-        <h2>GUARDIAN</h2>
-        <p style="margin-bottom: 20px; color: #888;">Secure Access Control</p>
-        
-        <div th:if="${param.success}" style="background: rgba(0, 255, 0, 0.1); border: 1px solid green; color: #6bff6b; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 14px;">
-            Account created! Please login.
-        </div>
-        
-        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
-        
-        <div th:if="${param.resetSuccess}" style="background: rgba(0, 242, 254, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 14px;">
-            Password reset successful! Please login.
-        </div>
-        
-        <form th:action="@{/login}" method="post">
-            <div class="input-group">
-                <label>Email or Phone Number</label>
-                <input type="text" name="identifier" placeholder="example@mail.com or +91..." required>
-            </div>
-            <div class="input-group">
-                <label>Master Password</label>
-                <div style="position: relative;">
-                    <input type="password" id="pass" name="password" placeholder="••••••••" required>
-                    <span onclick="togglePass()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6;">👁️</span>
-                </div>
-            </div>
-            <button type="submit" class="btn">Login to Dashboard</button>
-        </form>
-        
-        <div class="link-text" style="margin-top: 25px;">
-            <a href="/forgot-password" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: bold; display: block; margin-bottom: 15px;">Forgot your password?</a>
-            <span style="color: #888;">New here?</span> <a href="/signup" style="color: white; text-decoration: underline;">Create Account</a>
+
+    <div class="ambient-glow" style="top: 10%; left: 10%;"></div>
+    <div class="ambient-glow" style="bottom: 10%; right: 10%; background: var(--accent);"></div>
+
+    <div class="login-card">
+        <div class="logo-container">
+            <span class="logo-icon">🛡️</span>
+            <h1 class="logo-text">3RD AI</h1>
+            <p class="logo-sub">Operations Gateway Login</p>
         </div>
 
-        <script>
-            function togglePass() {
-                var x = document.getElementById("pass");
-                x.type = (x.type === "password") ? "text" : "password";
-            }
-        </script>
+        <!-- Success & Error Banners -->
+        <div th:if="${param.success}" class="alert-success">
+            ✅ Identity Verified! Access Granted. Please login.
+        </div>
+        <div th:if="${error}" class="error-msg" th:text="${error}">
+            ⚠️ Invalid Security Credentials.
+        </div>
+        <div th:if="${param.resetSuccess}" class="alert-success" style="border-color: var(--primary); color: var(--primary); background: rgba(0, 242, 254, 0.05);">
+            🔑 Access Key Reset Successful.
+        </div>
+
+        <!-- Login Form -->
+        <form th:action="@{/login}" method="post">
+            <div class="input-group">
+                <label>Identifier (Email/Phone)</label>
+                <input type="text" name="identifier" placeholder="admin@3rdai.gov" required>
+            </div>
+            <div class="input-group">
+                <label>Security Key (Password)</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-submit">Authenticate Terminal</button>
+        </form>
+
+        <div class="footer-links">
+            <p><a href="/forgot-password">Recover Access Key?</a></p>
+            <p>New Node Installation? <a href="/signup">Register Admin Node</a></p>
+        </div>
     </div>
+
 </body>
 </html>

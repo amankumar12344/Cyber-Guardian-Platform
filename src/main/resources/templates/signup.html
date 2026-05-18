@@ -1,40 +1,67 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Guardian | Sign Up</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --bg-dark: #020406;
+        }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #000;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background-image: radial-gradient(circle at center, #001a2e 0%, #000 100%);
+        }
+        .signup-card {
+            width: 400px;
+            padding: 40px;
+            background: rgba(10, 20, 30, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(0, 242, 254, 0.1);
+            text-align: center;
+        }
+        .logo-text { font-size: 24px; font-weight: 800; letter-spacing: 3px; color: var(--primary); margin-bottom: 30px; }
+        .input-group { margin-bottom: 20px; text-align: left; }
+        label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 8px; display: block; }
+        input, select {
+            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px; border-radius: 8px; color: white; outline: none;
+        }
+        input:focus, select:focus { border-color: var(--primary); }
+        .btn {
+            width: 100%; background: var(--primary); color: #000; border: none; padding: 14px;
+            border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 10px;
+        }
+        .footer-link { margin-top: 20px; font-size: 13px; color: #64748b; }
+        .footer-link a { color: var(--primary); text-decoration: none; }
+    </style>
 </head>
 <body>
-    <div class="glass-container">
-        <h2>GUARDIAN</h2>
-        <p style="margin-bottom: 20px; color: #888;">Create your security account</p>
+    <div class="signup-card">
+        <div class="logo-text">🛡️ 3RD AI KAVACH</div>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 25px;">Create Secure Admin Account</p>
         
-        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
-        
-        <form th:action="@{/signup}" method="post">
+        <form action="/signup" method="post">
             <div class="input-group">
-                <label>Email or Phone Number</label>
-                <input type="text" id="identifier" name="identifier" placeholder="example@mail.com or +91..." required>
+                <label>Email or Phone</label>
+                <input type="text" name="identifier" placeholder="admin@secure.com" required>
             </div>
             <div class="input-group">
-                <label>Set Master Password</label>
-                <div style="position: relative;">
-                    <input type="password" id="pass" name="password" placeholder="••••••••" required>
-                    <span onclick="togglePass()" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6;">👁️</span>
-                </div>
+                <label>Master Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn">Create Account</button>
+            <button type="submit" class="btn">CREATE ADMIN ACCOUNT</button>
         </form>
-
-        <script>
-            function togglePass() {
-                var x = document.getElementById("pass");
-                x.type = (x.type === "password") ? "text" : "password";
-            }
-        </script>
         
-        <div class="link-text">
-            Already have an account? <a href="/login">Login here</a>
+        <div class="footer-link">
+            Already have an account? <a href="/login">Login</a>
         </div>
     </div>
 </body>

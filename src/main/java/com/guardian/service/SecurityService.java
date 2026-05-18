@@ -17,7 +17,32 @@ public class SecurityService {
 
     private List<String> blacklist = new ArrayList<>();
     private boolean isLocked = true;
+    private boolean isKavachActive = false;
     private java.util.function.Consumer<String> alertCallback;
+
+    public void setKavachActive(boolean active) {
+        this.isKavachActive = active;
+    }
+
+    public boolean isKavachActive() {
+        return isKavachActive;
+    }
+
+    public void addLog(String appName, String action, String details, String screenshotPath, String targetId) {
+        LogEntry log = new LogEntry(appName, action, details, screenshotPath, targetId);
+        logRepository.save(log);
+    }
+
+    public List<LogEntry> getLogsByTargetId(String targetId) {
+        if (targetId == null || targetId.isEmpty() || "ALL".equals(targetId)) {
+            return logRepository.findAll();
+        }
+        return logRepository.findByTargetId(targetId);
+    }
+
+    public List<String> getAllTargetIds() {
+        return logRepository.findDistinctTargetIds();
+    }
 
     public void setBlacklist(List<String> list) {
         this.blacklist = list;
@@ -42,10 +67,7 @@ public class SecurityService {
                     if (cmd.contains(app.toLowerCase())) {
                         boolean killed = ph.destroy();
                         if (killed) {
-                            // 1. Show On-Screen Warning
-                            showWarningPopup(app.toUpperCase());
-
-                            // 2. Trigger Alert Callback (Main.java handles logging + screenshots + telegram)
+                            // Trigger Alert Callback (Main.java handles logging + screenshots + telegram)
                             if (alertCallback != null) alertCallback.accept(app.toUpperCase());
                         }
                     }
@@ -53,26 +75,11 @@ public class SecurityService {
             });
     }
 
-    private void showWarningPopup(String appName) {
-        javax.swing.SwingUtilities.invokeLater(() -> {
-            javax.swing.JFrame frame = new javax.swing.JFrame();
-            frame.setUndecorated(true);
-            frame.setAlwaysOnTop(true);
-            frame.setSize(400, 100);
-            frame.setLocationRelativeTo(null);
-            frame.setBackground(new java.awt.Color(150, 0, 0, 200));
-
-            javax.swing.JLabel label = new javax.swing.JLabel("🚫 ACCESS DENIED: " + appName + " is blocked!", javax.swing.SwingConstants.CENTER);
-            label.setForeground(java.awt.Color.WHITE);
-            label.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 16));
-            frame.add(label);
-
-            frame.setVisible(true);
-            new javax.swing.Timer(3000, e -> frame.dispose()).start();
-        });
-    }
-
     public List<LogEntry> getAllLogs() {
         return logRepository.findAll();
+    }
+
+    public void clearAllLogs() {
+        logRepository.deleteAll();
     }
 }

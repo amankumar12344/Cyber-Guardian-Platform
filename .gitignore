@@ -21,11 +21,9 @@ screenshots/
 .classpath
 .settings/
 
-# Portable App build
-Cyber-Guardian-Portable/app/*.jar
-Cyber-Guardian-Portable/runtime/
-Cyber-Guardian-Portable/runtime_linux/
-Cyber-Guardian-Portable/runtime_windows/
+# Portable & Silent Packages (Exclude from git, compile locally or publish in Releases)
+Cyber-Guardian-Portable/
+Cyber-Guardian-Silent-Package/
 
 # Logs
 logs/

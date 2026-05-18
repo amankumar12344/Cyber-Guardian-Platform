@@ -1,17 +1,7 @@
 {
-  "blacklist": [
-    "whatsapp",
-    "instagram",
-    "gmail",
-    "telegram",
-    "chrome"
-  ],
-  "autoKill": true,
-  "scanInterval": 2000,
-  "enableLogging": true,
-  "logFile": "guardian_breaches.log",
-  "password": "admin",
-  "isLocked": true,
   "botToken": "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk",
-  "chatId": "1123697239"
+  "chatId": "1123697239",
+  "scanInterval": 1500,
+  "server_url": "http://localhost:8081",
+  "api_key": "ADMIN-777"
 }

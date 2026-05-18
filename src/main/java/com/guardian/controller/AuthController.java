@@ -25,10 +25,7 @@ public class AuthController {
 
     @GetMapping("/")
     public String index() {
-        if (userRepository.count() == 0) {
-            return "redirect:/signup";
-        }
-        return "redirect:/login";
+        return "welcome";
     }
 
     @GetMapping("/login")
@@ -74,6 +71,11 @@ public class AuthController {
         return "signup";
     }
 
+    @GetMapping("/police/signup")
+    public String showPoliceSignupPage() {
+        return "police_signup";
+    }
+
     @PostMapping("/send-otp")
     @ResponseBody
     public String sendOtp(@RequestParam String identifier) {
@@ -111,7 +113,7 @@ public class AuthController {
     @PostMapping("/signup")
     public String registerUser(@RequestParam String identifier, @RequestParam String password, Model model) {
         if (userRepository.findByEmail(identifier).isPresent()) {
-            model.addAttribute("error", "User with this Email/Phone already exists!");
+            model.addAttribute("error", "User already exists!");
             return "signup";
         }
         User user = new User(identifier, password);
@@ -151,9 +153,40 @@ public class AuthController {
     public String loginUser(@RequestParam String identifier, @RequestParam String password, Model model) {
         Optional<User> user = userRepository.findByEmail(identifier);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
-            return "redirect:/dashboard?apiKey=" + user.get().getApiKey();
+            String role = "ADMIN";
+            if (identifier.toLowerCase().contains("police") || user.get().getApiKey().startsWith("POLICE")) {
+                role = "POLICE";
+            }
+            return "redirect:/dashboard?apiKey=" + user.get().getApiKey() + "&role=" + role;
         }
         model.addAttribute("error", "Invalid Credentials!");
         return "login";
+    }
+
+    @PostMapping("/police/signup")
+    public String registerPoliceUser(@RequestParam String identifier, @RequestParam String password, Model model) {
+        if (userRepository.findByEmail(identifier).isPresent()) {
+            model.addAttribute("error", "Officer already registered!");
+            return "police_signup";
+        }
+        User user = new User(identifier, password);
+        user.setPhoneNumber(identifier); // just for storing
+        userRepository.save(user);
+        return "redirect:/login?success";
+    }
+
+    @GetMapping("/police/login")
+    public String showPoliceLogin() {
+        return "redirect:/login";
+    }
+
+    @PostMapping("/police/login")
+    public String loginPoliceUser(@RequestParam String identifier, @RequestParam String password, Model model) {
+        return "redirect:/login";
+    }
+
+    @GetMapping("/logout")
+    public String logoutUser() {
+        return "redirect:/";
     }
 }

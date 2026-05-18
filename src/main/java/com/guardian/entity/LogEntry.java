@@ -14,15 +14,17 @@ public class LogEntry {
     private String action;
     private String details;
     private String screenshotPath;
+    private String targetId;
     private LocalDateTime timestamp;
 
     public LogEntry() {}
 
-    public LogEntry(String appName, String action, String details, String screenshotPath) {
+    public LogEntry(String appName, String action, String details, String screenshotPath, String targetId) {
         this.appName = appName;
         this.action = action;
         this.details = details;
         this.screenshotPath = screenshotPath;
+        this.targetId = targetId;
         this.timestamp = LocalDateTime.now();
     }
 
@@ -32,5 +34,7 @@ public class LogEntry {
     public String getAction() { return action; }
     public String getDetails() { return details; }
     public String getScreenshotPath() { return screenshotPath; }
+    public String getTargetId() { return targetId; }
+    public void setTargetId(String targetId) { this.targetId = targetId; }
     public LocalDateTime getTimestamp() { return timestamp; }
 }

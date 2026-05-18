@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>3RD AI POLICE | OFFICER REGISTRATION</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --police-blue: #0066ff;
+            --bg-dark: #010204;
+            --glass-bg: rgba(10, 20, 40, 0.85);
+            --border: rgba(0, 102, 255, 0.3);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #000;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: white;
+            background-image: radial-gradient(circle at center, #001133 0%, #000 100%);
+        }
+
+        .signup-card {
+            width: 450px;
+            padding: 50px 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(0, 102, 255, 0.2);
+            text-align: center;
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: var(--police-blue);
+            margin-bottom: 5px;
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+        }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--police-blue); margin-bottom: 8px; font-weight: 600; }
+        
+        input, select {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus, select:focus { border-color: var(--police-blue); box-shadow: 0 0 10px rgba(0, 102, 255, 0.3); }
+
+        .btn {
+            width: 100%;
+            background: var(--police-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 102, 255, 0.4); }
+
+        .footer-link { margin-top: 25px; font-size: 13px; color: #64748b; }
+        .footer-link a { color: var(--police-blue); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="signup-card">
+        <div class="logo-text">🛡️ 3RD AI POLICE</div>
+        <div class="logo-sub">OFFICER ONBOARDING PORTAL</div>
+
+        <form action="/signup" method="POST">
+            <input type="hidden" name="role" value="POLICE">
+            
+            <div class="input-group">
+                <label>Officer Email / ID</label>
+                <input type="text" name="identifier" placeholder="officer@3rdai.gov" required>
+            </div>
+
+            <div class="input-group">
+                <label>Assigned Branch</label>
+                <select name="branch" required>
+                    <option value="DELHI">DELHI BRANCH</option>
+                    <option value="KOLKATA">KOLKATA BRANCH</option>
+                    <option value="MUMBAI">MUMBAI BRANCH</option>
+                    <option value="CHENNAI">CHENNAI BRANCH</option>
+                    <option value="BANGALORE">BANGALORE BRANCH</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>Access Password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn">INITIALIZE ACCOUNT</button>
+        </form>
+
+        <div class="footer-link">
+            Already registered? <a href="/login">Officer Login</a>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AI Police | Threat Intelligence Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --police-blue: #0066ff;
+            --alert-red: #ff3b30;
+            --bg-dark: #010204;
+            --panel-bg: rgba(5, 10, 20, 0.75);
+            --text-dim: #94a3b8;
+            --border-glow: rgba(0, 102, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #000;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(0, 102, 255, 0.05) 0%, transparent 70%),
+                url('/images/police_bg.png');
+            background-size: cover;
+            background-attachment: fixed;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Scanline Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 3px, 3px 100%;
+            z-index: 100; pointer-events: none; opacity: 0.3;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(5, 10, 20, 0.85);
+            padding: 15px 30px;
+            border-bottom: 2px solid var(--police-blue);
+            box-shadow: 0 0 30px rgba(0, 102, 255, 0.2);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--police-blue);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .badge-live {
+            background: rgba(255, 59, 48, 0.2);
+            color: var(--alert-red);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            border: 1px solid var(--alert-red);
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 59, 48, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover { border-color: var(--police-blue); box-shadow: 0 10px 30px rgba(0, 102, 255, 0.15); transform: translateY(-3px); }
+
+        .stat-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--police-blue);
+            box-shadow: 0 0 15px var(--police-blue);
+        }
+
+        .stat-label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+        .stat-value { font-size: 36px; font-weight: 800; color: white; margin-top: 10px; }
+        .stat-alert { color: var(--alert-red); text-shadow: 0 0 10px rgba(255,59,48,0.5); }
+
+        .log-table-container {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .table-header {
+            background: rgba(0,0,0,0.5);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { padding: 15px 20px; font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        td { padding: 15px 20px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        tr:hover { background: rgba(255,255,255,0.02); }
+
+        .status-pill {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .status-critical { background: rgba(255, 59, 48, 0.2); color: var(--alert-red); border: 1px solid var(--alert-red); }
+        .status-mitigated { background: rgba(0, 102, 255, 0.2); color: var(--police-blue); border: 1px solid var(--police-blue); }
+
+        .screenshot-link {
+            color: var(--police-blue);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--police-blue);
+        }
+
+        .screenshot-link:hover { color: white; border-color: white; }
+
+        .evidence-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .evidence-card {
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: 0.3s;
+            height: 150px;
+        }
+
+        .evidence-card:hover {
+            border-color: var(--police-blue);
+            box-shadow: 0 0 20px rgba(0,102,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .evidence-card img, .evidence-card video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+            transition: 0.3s;
+        }
+
+        .evidence-card:hover img { opacity: 1; }
+
+        .intel-stream {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #0f0;
+            padding: 20px;
+            background: #000;
+            height: 250px;
+            overflow-y: auto;
+            border-top: 1px solid var(--alert-red);
+            box-shadow: inset 0 0 20px rgba(0,255,0,0.1);
+        }
+
+        .intel-row { margin-bottom: 8px; border-bottom: 1px dashed rgba(0,255,0,0.2); padding-bottom: 4px; }
+        .intel-row.critical { color: var(--alert-red); border-bottom-color: rgba(255,59,48,0.3); font-weight: bold; }
+        
+        .scanning-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: rgba(0, 242, 254, 0.8);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 1);
+            animation: scan 3s linear infinite;
+            z-index: 5;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+    <script>
+        let lastLogCount = 0;
+        function updateIntelStream() {
+            fetch('/api/logs')
+                .then(r => r.json())
+                .then(logs => {
+                    if (logs.length > lastLogCount) {
+                        const stream = document.getElementById('intelStream');
+                        for (let i = lastLogCount; i < logs.length; i++) {
+                            const log = logs[i];
+                            const div = document.createElement('div');
+                            div.innerHTML = `<span style="color: var(--text-dim);">[${new Date(log.timestamp).toLocaleTimeString()}]</span> <span style="color: var(--alert-red);">${log.action}:</span> ${log.details}`;
+                            stream.appendChild(div);
+                        }
+                        stream.scrollTop = stream.scrollHeight;
+                        lastLogCount = logs.length;
+                    }
+                });
+        }
+
+        // Auto-refresh the page every 60 seconds to refresh the full tables
+        setTimeout(function() {
+            location.reload();
+        }, 60000);
+
+        // Update live stream every 2 seconds
+        setInterval(updateIntelStream, 2000);
+        updateIntelStream();
+
+        // Live Stream Monitor Refresh (Every 1.5 seconds)
+        setInterval(() => {
+            const monitor = document.getElementById('forensicMonitor');
+            const targetIdSelect = document.querySelector('select[name="targetId"]');
+            const targetId = targetIdSelect ? targetIdSelect.value : 'ALL';
+            if (monitor) {
+                monitor.src = '/api/live-stream?targetId=' + targetId + '&t=' + new Date().getTime();
+            }
+        }, 1500);
+    </script>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo">🛡️ 3RD AI POLICE HQ</div>
+        
+        <!-- Target Selector -->
+        <form id="targetForm" method="GET" action="/police/dashboard" style="display: flex; align-items: center; gap: 10px;">
+            <input type="hidden" name="apiKey" th:value="${param.apiKey}">
+            <label style="color: var(--police-blue); font-weight: bold;">TARGET SYSTEM:</label>
+            <select name="targetId" onchange="document.getElementById('targetForm').submit();" style="padding: 8px 15px; border-radius: 5px; background: rgba(0, 113, 227, 0.2); color: white; border: 1px solid var(--police-blue); outline: none;">
+                <option value="ALL" th:selected="${currentTarget == 'ALL'}">🔍 ALL TARGETS</option>
+                <option th:each="t : ${targets}" th:value="${t}" th:text="${t}" th:selected="${t == currentTarget}"></option>
+            </select>
+        </form>
+        
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="badge-live">LIVE INTELLIGENCE FEED</div>
+            <a href="/police/login" style="text-decoration: none; background: rgba(255, 71, 87, 0.2); color: #ff4757; padding: 8px 15px; border-radius: 5px; border: 1px solid #ff4757; font-size: 12px; font-weight: bold; transition: all 0.3s;">
+                🚪 LOGOUT
+            </a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <!-- Live Forensic Monitor -->
+        <div class="log-table-container" style="grid-column: span 2; margin-bottom: 30px; border-color: var(--police-blue); background: #000; padding: 10px; position: relative;">
+            <div class="table-header" style="background: rgba(0, 122, 255, 0.1); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 18px; color: var(--police-blue); display: flex; align-items: center; gap: 10px;">
+                    🕵️‍♂️ LIVE FORENSIC MONITOR (REAL-TIME VIEW)
+                </h3>
+                <div class="badge-live">LIVE FEED</div>
+            </div>
+            <div style="background: #000; padding: 10px; display: flex; justify-content: center; position: relative; min-height: 400px; border-radius: 0 0 10px 10px;">
+                <div class="scanning-line"></div>
+                <img id="liveMonitor" th:src="@{'/api/live-stream?targetId=' + ${currentTarget}}" style="max-width: 100%; height: auto; object-fit: contain; border: 1px solid var(--police-blue); border-radius: 8px;">
+                <div style="position: absolute; bottom: 20px; left: 30px; font-family: monospace; font-size: 12px; color: var(--alert-red); text-shadow: 0 0 5px #000; z-index: 10;">
+                    🔴 REC: <span th:text="${currentTarget}">TARGET</span>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Live Stream Refresh (Every 1.5 seconds)
+            setInterval(() => {
+                const monitor = document.getElementById('liveMonitor');
+                const targetId = "[[${currentTarget}]]" || 'ALL';
+                if (monitor) {
+                    monitor.src = '/api/live-stream?targetId=' + targetId + '&t=' + new Date().getTime();
+                }
+            }, 1500);
+        </script>
+
+        <!-- Evidence Gallery -->
+        <div class="log-table-container" style="grid-column: span 2;">
+            <div class="table-header">
+                <h3 style="margin: 0; font-size: 18px;">Forensic Evidence Gallery</h3>
+            </div>
+            <div class="evidence-grid">
+                <div th:each="log : ${logs}" th:if="${log.screenshotPath != null}" class="evidence-card">
+                    <img th:if="${!log.screenshotPath.endsWith('.mp4')}" th:src="@{'/api/screenshots/' + ${log.screenshotPath} + '?targetId=' + ${currentTarget}}" onclick="window.open(this.src)">
+                    <video th:if="${log.screenshotPath.endsWith('.mp4')}" controls>
+                        <source th:src="@{'/api/screenshots/' + ${log.screenshotPath} + '?targetId=' + ${currentTarget}}" type="video/mp4">
+                    </video>
+                </div>
+            </div>
+        </div>
+   </div>
+
+        <div class="log-table-container" style="margin-bottom: 40px;">
+            <div class="table-header">
+                <h3 style="margin: 0; font-size: 18px;">Monitored Systems (Live Status)</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>System ID</th>
+                        <th>Admin Email</th>
+                        <th>Last Activity</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="u : ${users}">
+                        <td th:text="${u.apiKey}">ID</td>
+                        <td th:text="${u.email}">Email</td>
+                        <td th:text="${u.lastSeen != null ? #temporals.format(u.lastSeen, 'HH:mm:ss') : 'Never'}">Time</td>
+                        <td>
+                            <span th:if="${u.lastSeen != null and T(java.time.Duration).between(u.lastSeen, T(java.time.LocalDateTime).now()).toMinutes() < 1}" 
+                                  class="status-pill status-mitigated">ONLINE</span>
+                            <span th:unless="${u.lastSeen != null and T(java.time.Duration).between(u.lastSeen, T(java.time.LocalDateTime).now()).toMinutes() < 1}" 
+                                  class="status-pill status-critical">OFFLINE</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="log-table-container">
+            <div class="table-header">
+                <h3 style="margin: 0; font-size: 18px;">Threat Activity Log</h3>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>User/Device</th>
+                        <th>Threat App</th>
+                        <th>Action Detected</th>
+                        <th>Status</th>
+                        <th>Evidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="log : ${logs}">
+                        <td th:text="${#temporals.format(log.timestamp, 'yyyy-MM-dd HH:mm:ss')}">2024-05-15 22:00</td>
+                        <td th:text="${log.details}">User-PC</td>
+                        <td th:text="${log.appName}">Kockroach</td>
+                        <td th:text="${log.action}">Remote Screenshot</td>
+                        <td>
+                            <span th:class="${log.appName == 'KOCKROACH' ? 'status-pill status-critical' : 'status-pill status-mitigated'}"
+                                  th:text="${log.appName == 'KOCKROACH' ? 'CRITICAL' : 'MITIGATED'}">
+                                CRITICAL
+                            </span>
+                        </td>
+                        <td>
+                            <div th:if="${log.screenshotPath}">
+                                <!-- Image Preview -->
+                                <a th:if="${log.screenshotPath.endsWith('.jpg') or log.screenshotPath.endsWith('.png')}" 
+                                   th:href="@{'/api/screenshots/' + ${log.screenshotPath}}" target="_blank">
+                                    <img th:src="@{'/api/screenshots/' + ${log.screenshotPath}}" style="width: 80px; border-radius: 4px; border: 1px solid var(--alert-red);">
+                                </a>
+                                <!-- Video Preview -->
+                                <div th:if="${log.screenshotPath.endsWith('.mp4')}">
+                                    <video width="120" controls style="border-radius: 4px; border: 1px solid var(--alert-red);">
+                                        <source th:src="@{'/api/screenshots/' + ${log.screenshotPath}}" type="video/mp4">
+                                    </video>
+                                    <br>
+                                    <a th:href="@{'/api/screenshots/' + ${log.screenshotPath}}" target="_blank" style="font-size: 10px; color: var(--police-blue);">Open Video</a>
+                                </div>
+                            </div>
+                            <span th:unless="${log.screenshotPath}" style="color: var(--text-dim);">No Proof</span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(logs)}">
+                        <td colspan="6" style="text-align: center; padding: 50px; color: var(--text-dim);">No suspicious activity detected by AI Police.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
