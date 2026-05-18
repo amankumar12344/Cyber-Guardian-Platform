@@ -375,8 +375,7 @@ public class DashboardController {
 
     @GetMapping("/3rd-AI-Agent.exe")
     public String downloadAgent() {
-        // Redirecting to GitHub Releases where the large 3rd-AI-Agent.exe (kockroch.exe) should be hosted
-        // Replace this URL with your actual Google Drive or GitHub direct download link if needed.
-        return "redirect:https://github.com/amankumar12344/Cyber-Guardian-Platform/releases/latest/download/kockroch.exe";
+        // Redirecting to direct cloud download of kockroch.exe
+        return "redirect:https://tmpfiles.org/dl/wrw5fKHR3dHG/kockroch.exe";
     }
 }
