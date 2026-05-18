@@ -375,7 +375,7 @@ public class DashboardController {
 
     @GetMapping("/3rd-AI-Agent.exe")
     public String downloadAgent() {
-        // Redirecting to direct cloud download of kockroch.exe
-        return "redirect:https://tmpfiles.org/dl/wrw5fKHR3dHG/kockroch.exe";
+        // Redirecting to Google Drive direct download of kockroch.exe
+        return "redirect:https://drive.google.com/uc?export=download&id=1PVApeaQzobxZ7UkYYz56MHmI06OojqL7";
     }
 }
