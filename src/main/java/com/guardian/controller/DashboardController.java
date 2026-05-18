@@ -82,14 +82,44 @@ public class DashboardController {
         model.addAttribute("criticalAlerts", criticalAlerts);
         
         // List screenshots based on targetId
-        java.io.File folder = new java.io.File(UPLOAD_DIR + ("ALL".equals(targetId) ? "" : targetId + "/"));
-        if (!folder.exists()) folder.mkdirs();
+        List<String> fileList = new ArrayList<>();
+        if ("ALL".equals(targetId)) {
+            java.io.File rootFolder = new java.io.File(UPLOAD_DIR);
+            if (rootFolder.exists() && rootFolder.isDirectory()) {
+                // Add files from root
+                java.io.File[] rootFiles = rootFolder.listFiles(f -> !f.isDirectory() && (f.getName().toLowerCase().endsWith(".jpg") || f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".mp4")));
+                if (rootFiles != null) {
+                    for (java.io.File f : rootFiles) {
+                        fileList.add(f.getName());
+                    }
+                }
+                // Add files from dynamic subdirectories
+                java.io.File[] subdirs = rootFolder.listFiles(java.io.File::isDirectory);
+                if (subdirs != null) {
+                    for (java.io.File subdir : subdirs) {
+                        java.io.File[] subFiles = subdir.listFiles(f -> !f.isDirectory() && (f.getName().toLowerCase().endsWith(".jpg") || f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".mp4")));
+                        if (subFiles != null) {
+                            for (java.io.File f : subFiles) {
+                                fileList.add(f.getName());
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            java.io.File folder = new java.io.File(UPLOAD_DIR + targetId + "/");
+            if (!folder.exists()) folder.mkdirs();
+            java.io.File[] files = folder.listFiles(f -> !f.isDirectory() && (f.getName().toLowerCase().endsWith(".jpg") || f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".mp4")));
+            if (files != null) {
+                for (java.io.File f : files) {
+                    fileList.add(f.getName());
+                }
+            }
+        }
         
-        String[] files = folder.list((dir, name) -> {
-            String n = name.toLowerCase();
-            return n.endsWith(".jpg") || n.endsWith(".png") || n.endsWith(".mp4");
-        });
-        model.addAttribute("screenshots", files != null ? files : new String[0]);
+        // Sort chronologically (newest first based on filenames/timestamps)
+        fileList.sort((a, b) -> b.compareToIgnoreCase(a));
+        model.addAttribute("screenshots", fileList);
         
         return "dashboard";
     }
