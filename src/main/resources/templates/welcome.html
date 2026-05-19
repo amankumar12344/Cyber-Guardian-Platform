@@ -159,46 +159,120 @@
                     <span class="text-gray-600 hover:text-white transition cursor-pointer text-sm">✕</span>
                 </div>
 
-                <!-- Sparkline indicator -->
-                <div class="h-6 w-32 mb-4">
-                    <svg viewBox="0 0 100 20" class="w-full h-full text-green-400 stroke-current stroke-2 fill-none">
-                        <path d="M0,15 L10,12 L20,16 L30,10 L40,14 L50,8 L60,11 L70,5 L80,9 L90,3 L100,7"/>
-                    </svg>
+                <!-- Sparkline indicator and Map Selectors Layout -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div class="h-6 w-32 shrink-0">
+                        <svg viewBox="0 0 100 20" class="w-full h-full text-green-400 stroke-current stroke-2 fill-none">
+                            <path d="M0,15 L10,12 L20,16 L30,10 L40,14 L50,8 L60,11 L70,5 L80,9 L90,3 L100,7"/>
+                        </svg>
+                    </div>
+
+                    <!-- Map Type Selector Tabs -->
+                    <div class="flex gap-1 bg-black/45 p-1 rounded-xl border border-cyan-500/10 w-full sm:w-auto">
+                        <button onclick="switchMapType('vector')" id="btn-map-vector" class="flex-1 sm:flex-none py-1 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest transition bg-cyan-500/15 text-[#00f2fe] border border-cyan-500/30">
+                            Vector
+                        </button>
+                        <button onclick="switchMapType('dotted')" id="btn-map-dotted" class="flex-1 sm:flex-none py-1 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest transition text-gray-500 hover:text-white border border-transparent">
+                            Dotted
+                        </button>
+                        <button onclick="switchMapType('cyber')" id="btn-map-cyber" class="flex-1 sm:flex-none py-1 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest transition text-gray-500 hover:text-white border border-transparent">
+                            Cyber
+                        </button>
+                    </div>
                 </div>
 
                 <!-- SVG World Attack Map -->
                 <div class="h-[280px] rounded-2xl border border-cyan-500/10 bg-black/40 relative overflow-hidden flex items-center justify-center">
-                    <svg viewBox="0 0 1000 500" class="w-full h-full opacity-60">
+                    <svg viewBox="0 0 1000 500" class="w-full h-full opacity-70">
                         <defs>
                             <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.9"/>
-                                <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.1"/>
+                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.95"/>
+                                <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.15"/>
                             </linearGradient>
+                            <pattern id="dot-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="3" cy="3" r="1.2" fill="#00f2fe" opacity="0.3" />
+                            </pattern>
+                            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
                         </defs>
 
-                        <!-- Continental Paths -->
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M120,80 L220,100 L240,150 L270,180 L290,200 L220,230 L180,240 L160,200 L110,160 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M260,260 L290,280 L320,330 L340,390 L320,430 L290,390 L260,330 L250,290 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M460,220 L510,210 L540,250 L560,310 L540,360 L500,380 L480,330 L450,290 L440,240 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M450,120 L550,100 L650,90 L750,110 L850,130 L880,180 L800,200 L730,190 L680,220 L600,220 L550,180 L480,160 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M780,320 L840,330 L860,370 L820,400 L760,360 Z"/>
+                        <!-- LAYER 1: Vector Outline Map (Default Active) -->
+                        <g id="map-vector" stroke="#1f2937" stroke-width="0.8" fill="#111827">
+                            <path d="M120,80 L220,100 L240,150 L270,180 L290,200 L220,230 L180,240 L160,200 L110,160 Z"/>
+                            <path d="M260,260 L290,280 L320,330 L340,390 L320,430 L290,390 L260,330 L250,290 Z"/>
+                            <path d="M460,220 L510,210 L540,250 L560,310 L540,360 L500,380 L480,330 L450,290 L440,240 Z"/>
+                            <path d="M450,120 L550,100 L650,90 L750,110 L850,130 L880,180 L800,200 L730,190 L680,220 L600,220 L550,180 L480,160 Z"/>
+                            <path d="M780,320 L840,330 L860,370 L820,400 L760,360 Z"/>
+                        </g>
 
-                        <!-- Active Threat Arcs -->
+                        <!-- LAYER 2: Dotted Grid Map (Hidden Initially) -->
+                        <g id="map-dotted" class="hidden" stroke="#00f2fe" stroke-width="0.8" stroke-opacity="0.35" fill="url(#dot-pattern)">
+                            <path d="M 80,120 C 90,95 130,65 180,65 C 210,65 220,80 230,90 C 240,100 260,90 280,75 C 290,70 310,85 300,105 C 290,125 260,135 250,145 C 240,155 230,175 210,195 C 190,215 170,235 160,255 C 155,260 150,245 150,235 C 150,225 160,215 160,195 C 160,175 140,165 120,165 C 100,165 90,155 80,135 Z"/>
+                            <path d="M 280,55 C 295,45 325,45 335,65 C 345,85 325,105 305,110 C 285,115 265,95 280,55 Z"/>
+                            <path d="M 160,255 C 170,255 180,275 200,295 C 220,315 240,335 250,365 C 260,395 250,435 230,465 C 210,495 190,505 180,505 C 175,505 170,485 170,455 C 170,425 160,395 150,365 C 140,335 130,305 140,285 C 145,275 155,265 160,255 Z"/>
+                            <path d="M 420,195 C 440,185 480,185 510,205 C 540,225 560,255 570,285 C 580,315 580,345 560,375 C 540,405 520,435 500,445 C 490,450 480,435 480,415 C 480,395 470,375 460,355 C 450,335 420,315 410,285 C 400,255 405,225 420,195 Z"/>
+                            <path d="M 575,355 C 585,355 590,375 585,395 C 580,415 570,415 575,355 Z"/>
+                            <path d="M 360,125 C 380,105 420,100 450,95 C 500,85 550,75 600,75 C 650,75 700,85 750,85 C 800,85 850,95 900,110 C 930,120 950,140 940,160 C 930,180 900,200 870,220 C 840,240 820,260 800,271 C 780,281 750,271 720,260 C 690,250 670,280 640,290 C 610,300 580,290 560,270 C 540,250 500,240 470,240 C 440,240 420,250 400,260 C 380,270 370,260 365,240 C 360,220 370,200 380,180 C 390,160 380,140 360,125 Z"/>
+                            <path d="M 625,280 L 640,315 L 655,280 Z"/>
+                            <path d="M 710,260 L 725,305 L 740,260 Z"/>
+                            <path d="M 780,345 C 800,335 830,335 850,345 C 870,355 880,375 870,405 C 860,435 830,445 800,425 C 780,405 770,375 780,345 Z"/>
+                            <path d="M 890,155 C 900,165 900,185 890,195 C 880,185 880,165 890,155 Z"/>
+                            <path d="M 410,105 C 420,105 420,125 410,125 C 400,125 400,105 410,105 Z"/>
+                        </g>
+
+                        <!-- LAYER 3: Cyber Matrix Map (Hidden Initially) -->
+                        <g id="map-cyber" class="hidden">
+                            <!-- Glowing Outlines -->
+                            <g stroke="#00f2fe" stroke-width="1.2" fill="none" opacity="0.75" filter="url(#glow)">
+                                <path d="M 80,120 C 90,95 130,65 180,65 C 210,65 220,80 230,90 C 240,100 260,90 280,75 C 290,70 310,85 300,105 C 290,125 260,135 250,145 C 240,155 230,175 210,195 C 190,215 170,235 160,255 C 155,260 150,245 150,235 C 150,225 160,215 160,195 C 160,175 140,165 120,165 C 100,165 90,155 80,135 Z"/>
+                                <path d="M 280,55 C 295,45 325,45 335,65 C 345,85 325,105 305,110 C 285,115 265,95 280,55 Z"/>
+                                <path d="M 160,255 C 170,255 180,275 200,295 C 220,315 240,335 250,365 C 260,395 250,435 230,465 C 210,495 190,505 180,505 C 175,505 170,485 170,455 C 170,425 160,395 150,365 C 140,335 130,305 140,285 C 145,275 155,265 160,255 Z"/>
+                                <path d="M 420,195 C 440,185 480,185 510,205 C 540,225 560,255 570,285 C 580,315 580,345 560,375 C 540,405 520,435 500,445 C 490,450 480,435 480,415 C 480,395 470,375 460,355 C 450,335 420,315 410,285 C 400,255 405,225 420,195 Z"/>
+                                <path d="M 575,355 C 585,355 590,375 585,395 C 580,415 570,415 575,355 Z"/>
+                                <path d="M 360,125 C 380,105 420,100 450,95 C 500,85 550,75 600,75 C 650,75 700,85 750,85 C 800,85 850,95 900,110 C 930,120 950,140 940,160 C 930,180 900,200 870,220 C 840,240 820,260 800,271 C 780,281 750,271 720,260 C 690,250 670,280 640,290 C 610,300 580,290 560,270 C 540,250 500,240 470,240 C 440,240 420,250 400,260 C 380,270 370,260 365,240 C 360,220 370,200 380,180 C 390,160 380,140 360,125 Z"/>
+                                <path d="M 625,280 L 640,315 L 655,280 Z"/>
+                                <path d="M 710,260 L 725,305 L 740,260 Z"/>
+                                <path d="M 780,345 C 800,335 830,335 850,345 C 870,355 880,375 870,405 C 860,435 830,445 800,425 C 780,405 770,375 780,345 Z"/>
+                                <path d="M 890,155 C 900,165 900,185 890,195 C 880,185 880,165 890,155 Z"/>
+                                <path d="M 410,105 C 420,105 420,125 410,125 C 400,125 400,105 410,105 Z"/>
+                            </g>
+                            <!-- Grid Mesh -->
+                            <g stroke="#00f2fe" stroke-width="0.35" opacity="0.18">
+                                <line x1="100" y1="0" x2="100" y2="500" />
+                                <line x1="200" y1="0" x2="200" y2="500" />
+                                <line x1="300" y1="0" x2="300" y2="500" />
+                                <line x1="400" y1="0" x2="400" y2="500" />
+                                <line x1="500" y1="0" x2="500" y2="500" />
+                                <line x1="600" y1="0" x2="600" y2="500" />
+                                <line x1="700" y1="0" x2="700" y2="500" />
+                                <line x1="800" y1="0" x2="800" y2="500" />
+                                <line x1="900" y1="0" x2="900" y2="500" />
+                                
+                                <line x1="0" y1="100" x2="1000" y2="100" />
+                                <line x1="0" y1="200" x2="1000" y2="200" />
+                                <line x1="0" y1="300" x2="1000" y2="300" />
+                                <line x1="0" y1="400" x2="1000" y2="400" />
+                            </g>
+                        </g>
+
+                        <!-- Active Threat Arcs (always overlayed on top) -->
                         <path class="threat-line" d="M150,140 Q350,160 520,280"/>
                         <path class="threat-line" style="animation-delay: 1.8s;" d="M680,160 Q500,180 300,320"/>
                         <path class="threat-line" style="animation-delay: 3.2s;" d="M800,350 Q600,250 480,260"/>
 
-                        <!-- Nodes with Pulsing Rings -->
+                        <!-- Nodes with Pulsing Rings (always overlayed on top) -->
                         <g transform="translate(520, 280)">
                             <circle class="threat-pulse-ring" r="14" fill="#ef4444" opacity="0.35"/>
-                            <circle class="threat-dot" r="4.5"/>
+                            <circle class="threat-dot" r="4.5" fill="#ef4444"/>
                         </g>
                         <g transform="translate(300, 320)">
                             <circle class="threat-pulse-ring" r="12" fill="#ef4444" opacity="0.35" style="animation-delay: 0.8s;"/>
-                            <circle class="threat-dot" r="4"/>
+                            <circle class="threat-dot" r="4" fill="#ef4444"/>
                         </g>
-                        <g transform="translate(150, 140)"><circle class="protected-dot" r="4"/></g>
-                        <g transform="translate(680, 160)"><circle class="protected-dot" r="4"/></g>
+                        <g transform="translate(150, 140)"><circle class="protected-dot" cx="0" cy="0" r="4" fill="#00f2fe"/></g>
+                        <g transform="translate(680, 160)"><circle class="protected-dot" cx="0" cy="0" r="4" fill="#00f2fe"/></g>
                     </svg>
 
                     <div class="absolute bottom-4 left-4 flex gap-4 text-[10px] font-bold tracking-wider text-gray-500">
@@ -406,6 +480,7 @@
         ];
 
         function addLog() {
+            if (!term) return;
             const temp = templates[Math.floor(Math.random() * templates.length)];
             const div = document.createElement("div");
             div.className = `mb-1 ${temp.type}`;
@@ -418,7 +493,42 @@
             }
             setTimeout(addLog, 2500 + Math.random() * 2500);
         }
-        setTimeout(addLog, 2000);
+        if (term) setTimeout(addLog, 2000);
+
+        function switchMapType(type) {
+            const layers = {
+                vector: document.getElementById('map-vector'),
+                dotted: document.getElementById('map-dotted'),
+                cyber: document.getElementById('map-cyber')
+            };
+            const buttons = {
+                vector: document.getElementById('btn-map-vector'),
+                dotted: document.getElementById('btn-map-dotted'),
+                cyber: document.getElementById('btn-map-cyber')
+            };
+
+            // Toggle visibility of layers
+            Object.keys(layers).forEach(key => {
+                if (layers[key]) {
+                    if (key === type) {
+                        layers[key].classList.remove('hidden');
+                    } else {
+                        layers[key].classList.add('hidden');
+                    }
+                }
+            });
+
+            // Toggle button active classes
+            Object.keys(buttons).forEach(key => {
+                if (buttons[key]) {
+                    if (key === type) {
+                        buttons[key].className = "flex-1 sm:flex-none py-1 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest transition bg-cyan-500/15 text-[#00f2fe] border border-cyan-500/30";
+                    } else {
+                        buttons[key].className = "flex-1 sm:flex-none py-1 px-3 rounded-lg text-[9px] font-black uppercase tracking-widest transition text-gray-500 hover:text-white border border-transparent";
+                    }
+                }
+            });
+        }
     </script>
 </body>
 </html>
