@@ -38,7 +38,15 @@
         .threat-line {
             fill: none;
             stroke: url(#line-gradient);
-            stroke-width: 1.5;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 5s linear infinite;
+        }
+
+        .threat-line-glow {
+            fill: none;
             stroke-linecap: round;
             stroke-dasharray: 1000;
             stroke-dashoffset: 1000;
@@ -48,6 +56,7 @@
         .threat-pulse-ring {
             animation: pulse-ring 2s ease-out infinite;
             transform-origin: center;
+            filter: drop-shadow(0 0 6px #ef4444);
         }
 
         .threat-dot {
@@ -258,21 +267,29 @@
                         </g>
 
                         <!-- Active Threat Arcs (always overlayed on top) -->
+                        <!-- Arc 1 -->
+                        <path class="threat-line-glow" d="M150,140 Q350,160 520,280" stroke="#ef4444" stroke-width="5" opacity="0.3" fill="none" filter="url(#glow)"/>
                         <path class="threat-line" d="M150,140 Q350,160 520,280"/>
+
+                        <!-- Arc 2 -->
+                        <path class="threat-line-glow" style="animation-delay: 1.8s;" d="M680,160 Q500,180 300,320" stroke="#ef4444" stroke-width="5" opacity="0.3" fill="none" filter="url(#glow)"/>
                         <path class="threat-line" style="animation-delay: 1.8s;" d="M680,160 Q500,180 300,320"/>
+
+                        <!-- Arc 3 -->
+                        <path class="threat-line-glow" style="animation-delay: 3.2s;" d="M800,350 Q600,250 480,260" stroke="#ef4444" stroke-width="5" opacity="0.3" fill="none" filter="url(#glow)"/>
                         <path class="threat-line" style="animation-delay: 3.2s;" d="M800,350 Q600,250 480,260"/>
 
                         <!-- Nodes with Pulsing Rings (always overlayed on top) -->
                         <g transform="translate(520, 280)">
                             <circle class="threat-pulse-ring" r="14" fill="#ef4444" opacity="0.35"/>
-                            <circle class="threat-dot" r="4.5" fill="#ef4444"/>
+                            <circle class="threat-dot" r="4.5" fill="#ef4444" style="filter: drop-shadow(0px 0px 8px #ef4444);"/>
                         </g>
                         <g transform="translate(300, 320)">
                             <circle class="threat-pulse-ring" r="12" fill="#ef4444" opacity="0.35" style="animation-delay: 0.8s;"/>
-                            <circle class="threat-dot" r="4" fill="#ef4444"/>
+                            <circle class="threat-dot" r="4" fill="#ef4444" style="filter: drop-shadow(0px 0px 8px #ef4444);"/>
                         </g>
-                        <g transform="translate(150, 140)"><circle class="protected-dot" cx="0" cy="0" r="4" fill="#00f2fe"/></g>
-                        <g transform="translate(680, 160)"><circle class="protected-dot" cx="0" cy="0" r="4" fill="#00f2fe"/></g>
+                        <g transform="translate(150, 140)"><circle class="protected-dot" cx="0" cy="0" r="4" fill="#00f2fe" style="filter: drop-shadow(0px 0px 8px #00f2fe);"/></g>
+                        <g transform="translate(680, 160)"><circle class="protected-dot" cx="0" cy="0" r="4" fill="#00f2fe" style="filter: drop-shadow(0px 0px 8px #00f2fe);"/></g>
                     </svg>
 
                     <div class="absolute bottom-4 left-4 flex gap-4 text-[10px] font-bold tracking-wider text-gray-500">
