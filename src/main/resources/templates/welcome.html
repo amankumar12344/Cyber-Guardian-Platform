@@ -5,371 +5,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #00f2fe;
-            --secondary: #0072ff;
-            --accent: #9d4edd;
-            --danger: #ef4444;
-            --success: #10b981;
-            --bg-dark: #03050c;
-            --card-bg: rgba(6, 11, 25, 0.55);
-            --border: rgba(0, 242, 254, 0.1);
-            --border-glow: rgba(0, 242, 254, 0.25);
-            --text-dim: #64748b;
-            --text-light: #f1f5f9;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        bgDark: '#030712',
+                        cardBg: 'rgba(7, 16, 31, 0.8)',
+                    }
+                }
+            }
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-light);
-            min-height: 100vh;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* Scanline & Grid Effect */
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(rgba(18, 24, 45, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(18, 24, 45, 0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Ambient Glows */
-        .glow-sphere {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-            filter: blur(130px);
-            opacity: 0.15;
-        }
-
-        /* Header Navigation */
-        header {
-            width: 100%;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 24px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-        }
-
-        .logo-group {
-            display: flex;
-            flex-direction: column;
-            text-decoration: none;
-        }
-
-        .logo-main {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo-shield {
-            font-size: 26px;
-            filter: drop-shadow(0 0 8px var(--primary));
-            animation: float 3s ease-in-out infinite;
-        }
-
-        .logo-title {
-            font-size: 21px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(to right, #ffffff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .logo-status {
-            font-size: 9px;
-            color: var(--success);
-            font-weight: 700;
-            letter-spacing: 3.5px;
-            text-transform: uppercase;
-            margin-top: 2px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .status-pulse-dot {
-            width: 6px;
-            height: 6px;
-            background: var(--success);
-            border-radius: 50%;
-            box-shadow: 0 0 8px var(--success);
-            animation: pulse-dot 1.5s infinite;
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-
-        nav a {
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        nav a:hover {
-            color: #ffffff;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
-
-        nav a.active::after {
-            content: "";
-            position: absolute;
-            bottom: -6px; left: 0; width: 100%; height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 8px var(--primary);
-        }
-
-        .header-buttons {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .btn-outline {
-            border: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.02);
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 700;
-            padding: 10px 22px;
-            border-radius: 10px;
-            text-decoration: none;
-            transition: all 0.3s;
-            backdrop-filter: blur(5px);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
-            background: rgba(0, 242, 254, 0.04);
-        }
-
-        .btn-solid {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: #030712;
-            font-size: 13px;
-            font-weight: 800;
-            padding: 10px 24px;
-            border-radius: 10px;
-            text-decoration: none;
-            transition: all 0.3s;
-            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.3);
-            border: none;
-        }
-
-        .btn-solid:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.55);
-            filter: brightness(1.05);
-        }
-
-        /* Container grid for Hero Layout */
-        .hero-section {
-            max-width: 1400px;
-            margin: 40px auto 30px auto;
-            padding: 0 40px;
-            display: grid;
-            grid-template-columns: 1.1fr 1fr;
-            gap: 40px;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-        }
-
-        .hero-content {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .badge-ai {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0, 242, 254, 0.05);
-            border: 1px solid rgba(0, 242, 254, 0.2);
-            color: var(--primary);
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            padding: 8px 16px;
-            border-radius: 100px;
-            margin-bottom: 25px;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.05);
-        }
-
-        .hero-content h1 {
-            font-size: 54px;
-            font-weight: 900;
-            line-height: 1.1;
-            letter-spacing: -1.5px;
-            margin-bottom: 25px;
-            background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(0, 242, 254, 0.05);
-        }
-
-        .hero-content p {
-            font-size: 16px;
-            color: #94a3b8;
-            line-height: 1.6;
-            margin-bottom: 35px;
-            max-width: 580px;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 20px;
-        }
-
-        .hero-btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: #030712;
-            font-size: 15px;
-            font-weight: 800;
-            padding: 16px 32px;
-            border-radius: 12px;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
-            box-shadow: 0 5px 25px rgba(0, 242, 254, 0.35);
-        }
-
-        .hero-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 35px rgba(0, 242, 254, 0.55);
-            filter: brightness(1.08);
-        }
-
-        .hero-btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border);
-            color: #ffffff;
-            font-size: 15px;
-            font-weight: 700;
-            padding: 16px 32px;
-            border-radius: 12px;
-            text-decoration: none;
-            transition: all 0.3s;
-            backdrop-filter: blur(5px);
-        }
-
-        .hero-btn-secondary:hover {
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
-            background: rgba(0, 242, 254, 0.04);
-        }
-
-        /* Threat Map Component */
-        .threat-map-container {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 24px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 25px rgba(0, 242, 254, 0.02);
-            backdrop-filter: blur(20px);
-            position: relative;
-            height: 380px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .map-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-            z-index: 5;
-        }
-
-        .map-badge {
-            background: rgba(239, 68, 68, 0.08);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-            font-size: 10px;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            padding: 5px 12px;
-            border-radius: 6px;
-            text-transform: uppercase;
-        }
-
-        .map-header-right {
-            text-align: right;
-        }
-
-        .map-stat-val {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary);
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
-        }
-
-        .map-stat-lbl {
-            font-size: 10px;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .world-map-svg {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 40px;
-            left: 0;
-            opacity: 0.6;
-        }
-
-        /* SVG Map paths styling */
-        .map-continent {
-            fill: #111827;
-            stroke: #1f2937;
-            stroke-width: 0.8;
-        }
-
+    </script>
+    <style type="text/css">
         /* SVG Threat Lines & Nodes animation */
         .threat-line {
             fill: none;
@@ -387,423 +40,13 @@
         }
 
         .threat-dot {
-            fill: var(--danger);
+            fill: #ef4444;
             animation: blink-dot 1s infinite alternate;
         }
 
         .protected-dot {
-            fill: var(--primary);
+            fill: #22d3ee;
             animation: blink-dot 1.5s infinite alternate;
-        }
-
-        .map-legend {
-            position: absolute;
-            bottom: 20px;
-            left: 24px;
-            display: flex;
-            gap: 15px;
-            font-size: 11px;
-            font-weight: 700;
-            z-index: 5;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            color: #94a3b8;
-        }
-
-        .legend-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        /* Telemetry Cards */
-        .telemetry-row {
-            max-width: 1400px;
-            margin: 20px auto 40px auto;
-            padding: 0 40px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .telemetry-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 24px;
-            border-radius: 16px;
-            backdrop-filter: blur(15px);
-            transition: all 0.3s;
-        }
-
-        .telemetry-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .telemetry-val {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 32px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 6px;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
-        }
-
-        .telemetry-card:nth-child(1) .telemetry-val { color: var(--primary); }
-        .telemetry-card:nth-child(2) .telemetry-val { color: var(--primary); }
-        .telemetry-card:nth-child(3) .telemetry-val { color: var(--primary); }
-        .telemetry-card:nth-child(4) .telemetry-val { color: var(--primary); }
-
-        .telemetry-lbl {
-            font-size: 11px;
-            color: #ffffff;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 2px;
-        }
-
-        .telemetry-desc {
-            font-size: 11px;
-            color: #64748b;
-            font-weight: 600;
-        }
-
-        /* Capabilities Grid */
-        .capabilities-section {
-            max-width: 1400px;
-            margin: 20px auto 40px auto;
-            padding: 0 40px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .cap-title {
-            text-align: center;
-            font-size: 20px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 10px;
-            color: #ffffff;
-        }
-
-        .cap-subtitle {
-            text-align: center;
-            font-size: 12px;
-            color: #64748b;
-            margin-bottom: 40px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .capabilities-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        .cap-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 30px 24px;
-            border-radius: 16px;
-            backdrop-filter: blur(15px);
-            transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .cap-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.08);
-            transform: translateY(-2px);
-        }
-
-        .cap-icon {
-            width: 46px;
-            height: 46px;
-            background: rgba(0, 242, 254, 0.03);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            color: var(--primary);
-            margin-bottom: 20px;
-            filter: drop-shadow(0 0 5px rgba(0, 242, 254, 0.15));
-        }
-
-        .cap-card h3 {
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 12px;
-        }
-
-        .cap-card p {
-            font-size: 13px;
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            flex-grow: 1;
-        }
-
-        .cap-link {
-            font-size: 12px;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.3s;
-        }
-
-        .cap-link:hover {
-            color: #ffffff;
-            text-shadow: 0 0 8px var(--primary);
-        }
-
-        /* Bottom Row: Live Terminal & Threat Pie Chart */
-        .bottom-dashboard-row {
-            max-width: 1400px;
-            margin: 10px auto 60px auto;
-            padding: 0 40px;
-            display: grid;
-            grid-template-columns: 1.4fr 1fr;
-            gap: 25px;
-            position: relative;
-            z-index: 10;
-        }
-
-        .terminal-panel {
-            background: rgba(3, 5, 12, 0.85);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            height: 340px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .terminal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 10px;
-        }
-
-        .terminal-title {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .terminal-status {
-            font-size: 9px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--success);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .terminal-body {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 12px;
-            color: #10b981;
-            line-height: 1.8;
-            overflow-y: auto;
-            flex-grow: 1;
-            padding-right: 5px;
-        }
-
-        .terminal-line {
-            margin-bottom: 4px;
-            opacity: 0.9;
-        }
-
-        .terminal-line.info { color: #10b981; }
-        .terminal-line.warn { color: #f59e0b; }
-        .terminal-line.alert { color: var(--danger); }
-        .terminal-line.dim { color: #475569; }
-
-        /* Donut Chart Panel */
-        .chart-panel {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            height: 340px;
-            backdrop-filter: blur(20px);
-        }
-
-        .chart-header {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #ffffff;
-            margin-bottom: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 10px;
-        }
-
-        .chart-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            flex-grow: 1;
-        }
-
-        .chart-visual {
-            position: relative;
-            width: 140px;
-            height: 140px;
-        }
-
-        .chart-inner-text {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-
-        .inner-val {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 18px;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .inner-lbl {
-            font-size: 9px;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .chart-legend {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .legend-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 30px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .legend-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #94a3b8;
-        }
-
-        .legend-circle {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .legend-val {
-            font-family: 'JetBrains Mono', monospace;
-            color: #ffffff;
-        }
-
-        /* Trusted Partners Slider */
-        .partners-bar {
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-            background: rgba(3, 5, 12, 0.4);
-            padding: 40px 0;
-            text-align: center;
-            margin-top: auto;
-        }
-
-        .partners-title {
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: #475569;
-            margin-bottom: 25px;
-        }
-
-        .partners-logos {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            opacity: 0.65;
-            flex-wrap: wrap;
-            gap: 30px;
-        }
-
-        .logo-item {
-            font-size: 14px;
-            font-weight: 800;
-            color: #94a3b8;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .logo-item span {
-            color: var(--primary);
-        }
-
-        /* Footer */
-        footer {
-            background: rgba(2, 4, 9, 0.85);
-            padding: 24px;
-            text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
-            font-size: 12px;
-            color: #475569;
-            font-weight: 600;
-        }
-
-        /* Keyframe Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        @keyframes pulse-dot {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.4); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
         }
 
         @keyframes drawLine {
@@ -820,7 +63,15 @@
             100% { opacity: 1; }
         }
 
-        /* Scrollbar styling */
+        /* Scanline & Grid Effect */
+        .grid-overlay {
+            background-image: 
+                linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -828,355 +79,328 @@
             background: rgba(0,0,0,0.1);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(0, 242, 254, 0.15);
+            background: rgba(34, 211, 238, 0.15);
             border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 242, 254, 0.35);
-        }
-
-        /* Responsive */
-        @media (max-width: 1100px) {
-            .hero-section { grid-template-columns: 1fr; gap: 30px; text-align: center; }
-            .hero-content { align-items: center; }
-            .hero-content p { margin-left: auto; margin-right: auto; }
-            .telemetry-row { grid-template-columns: repeat(2, 1fr); }
-            .capabilities-grid { grid-template-columns: repeat(2, 1fr); }
-            .bottom-dashboard-row { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 700px) {
-            .telemetry-row { grid-template-columns: 1fr; }
-            .capabilities-grid { grid-template-columns: 1fr; }
-            header { padding: 20px; }
-            .hero-section { padding: 0 20px; }
+            background: rgba(34, 211, 238, 0.35);
         }
     </style>
 </head>
-<body>
+<body class="bg-bgDark text-white font-sans overflow-x-hidden min-h-screen relative">
 
-    <!-- Glow Spheres background -->
-    <div class="glow-sphere" style="width: 500px; height: 500px; background: var(--primary); top: -200px; left: -100px;"></div>
-    <div class="glow-sphere" style="width: 450px; height: 450px; background: var(--accent); bottom: -100px; right: -150px;"></div>
+    <!-- Background Grid and Glows -->
+    <div class="absolute inset-0 grid-overlay pointer-events-none z-0"></div>
+    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0"></div>
+    <div class="absolute bottom-10 right-1/4 w-[450px] h-[450px] bg-purple-500/10 blur-[130px] rounded-full pointer-events-none z-0"></div>
 
-    <!-- Header Section -->
-    <header>
-        <a href="/" class="logo-group">
-            <div class="logo-main">
-                <span class="logo-shield">🛡️</span>
-                <span class="logo-title">3RD AI KAVACH</span>
-            </div>
-            <div class="logo-status">
-                <span class="status-pulse-dot"></span>
-                Security Core Online
-            </div>
+    <!-- NAVBAR -->
+    <nav class="relative z-10 flex items-center justify-between px-10 py-6 border-b border-cyan-500/10 backdrop-blur-xl">
+        <a href="/" class="flex flex-col group">
+            <h1 class="text-3xl font-black tracking-widest text-cyan-400">
+                3RD AI KAVACH
+            </h1>
+            <p class="text-xs text-gray-400 tracking-[4px] mt-1 flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_#4ade80]"></span>
+                SECURITY CORE ONLINE
+            </p>
         </a>
-        
-        <nav>
-            <a href="/" class="active">Home</a>
-            <a href="#features">Features</a>
-            <a href="#solutions">Solutions</a>
-            <a href="/portal">Dashboard</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#docs">Docs</a>
-            <a href="#about">About</a>
-        </nav>
 
-        <div class="header-buttons">
-            <a href="/login" class="btn-outline">Login</a>
-            <a href="/signup" class="btn-solid">Get Started</a>
+        <div class="hidden md:flex gap-8 text-sm text-gray-300">
+            <a href="/" class="hover:text-cyan-400 transition text-cyan-400">Home</a>
+            <a href="#features" class="hover:text-cyan-400 transition">Features</a>
+            <a href="/portal" class="hover:text-cyan-400 transition">Dashboard</a>
+            <a href="#threats" class="hover:text-cyan-400 transition">Threats</a>
+            <a href="/portal" class="hover:text-cyan-400 transition">Docs</a>
         </div>
-    </header>
 
-    <!-- Main Hero layout -->
-    <main>
-        <section class="hero-section">
-            <div class="hero-content">
-                <div class="badge-ai">
-                    <span>⚡ AI-Powered Cyber Defense Platform</span>
-                </div>
-                <h1>Autonomous System Protection &amp; Remote Overrides</h1>
-                <p>
-                    AI-driven cybersecurity platform that monitors, detects and neutralizes threats in real-time. Secure endpoints, analyze behavior and respond automatically.
-                </p>
-                <div class="hero-actions">
-                    <a href="/signup" class="hero-btn-primary">Get Started ⚡</a>
-                    <a href="/portal" class="hero-btn-secondary">View Dashboard 📊</a>
-                </div>
+        <div class="flex gap-4">
+            <a href="/login" class="px-5 py-2 border border-cyan-400/30 rounded-xl hover:border-cyan-400 text-sm font-semibold transition flex items-center justify-center">
+                Login
+            </a>
+            <a href="/signup" class="px-6 py-2 rounded-xl bg-cyan-400 text-black font-bold text-sm shadow-[0_0_25px_rgba(34,211,238,0.7)] hover:scale-105 transition flex items-center justify-center">
+                Get Started
+            </a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="relative z-10 px-10 py-16 grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
+        <div>
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300 text-sm mb-6">
+                ● AI POWERED CYBER DEFENSE PLATFORM
             </div>
 
-            <!-- Threat Map Card -->
-            <div class="threat-map-container">
-                <div class="map-header">
-                    <span class="map-badge">Live Threat Map</span>
-                    <div class="map-header-right">
-                        <div class="map-stat-val">24,891</div>
-                        <div class="map-stat-lbl">Threats Blocked Today</div>
-                    </div>
-                </div>
+            <h2 class="text-5xl md:text-6xl font-black leading-tight">
+                AUTONOMOUS SYSTEM
+                <span class="block text-cyan-400">
+                    PROTECTION
+                </span>
+                &amp; REMOTE OVERRIDES
+            </h2>
 
-                <!-- World Map SVG -->
-                <svg class="world-map-svg" viewBox="0 0 1000 500">
-                    <defs>
-                        <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="var(--danger)" stop-opacity="0.8"/>
-                            <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.2"/>
-                        </linearGradient>
-                    </defs>
+            <p class="text-gray-400 text-lg mt-6 leading-8 max-w-2xl">
+                Advanced AI-powered cybersecurity operations platform for live telemetry, threat intelligence, incident response and secure endpoint monitoring.
+            </p>
 
-                    <!-- Continental Silhouette paths -->
-                    <!-- North America -->
-                    <path class="map-continent" d="M120,80 L220,100 L240,150 L270,180 L290,200 L220,230 L180,240 L160,200 L110,160 Z"/>
-                    <!-- South America -->
-                    <path class="map-continent" d="M260,260 L290,280 L320,330 L340,390 L320,430 L290,390 L260,330 L250,290 Z"/>
-                    <!-- Africa -->
-                    <path class="map-continent" d="M460,220 L510,210 L540,250 L560,310 L540,360 L500,380 L480,330 L450,290 L440,240 Z"/>
-                    <!-- Europe / Asia -->
-                    <path class="map-continent" d="M450,120 L550,100 L650,90 L750,110 L850,130 L880,180 L800,200 L730,190 L680,220 L600,220 L550,180 L480,160 Z"/>
-                    <!-- Australia -->
-                    <path class="map-continent" d="M780,320 L840,330 L860,370 L820,400 L760,360 Z"/>
-
-                    <!-- Attack Flow Lines -->
-                    <path class="threat-line" d="M150,140 Q350,160 520,280"/>
-                    <path class="threat-line" style="animation-delay: 1.5s;" d="M680,160 Q500,180 300,320"/>
-                    <path class="threat-line" style="animation-delay: 3s;" d="M800,350 Q600,250 480,260"/>
-                    <path class="threat-line" style="animation-delay: 2.2s;" d="M520,140 Q400,250 180,200"/>
-
-                    <!-- Blinking Attack Nodes -->
-                    <!-- Destination points -->
-                    <g transform="translate(520, 280)">
-                        <circle class="threat-pulse-ring" r="16" fill="var(--danger)" opacity="0.4"/>
-                        <circle class="threat-dot" r="5"/>
-                    </g>
-                    <g transform="translate(300, 320)">
-                        <circle class="threat-pulse-ring" r="14" fill="var(--danger)" opacity="0.4" style="animation-delay: 0.5s;"/>
-                        <circle class="threat-dot" r="4.5"/>
-                    </g>
-                    <!-- Safe nodes -->
-                    <g transform="translate(150, 140)">
-                        <circle class="protected-dot" r="4"/>
-                    </g>
-                    <g transform="translate(680, 160)">
-                        <circle class="protected-dot" r="4"/>
-                    </g>
-                    <g transform="translate(480, 260)">
-                        <circle class="protected-dot" r="4.5"/>
-                    </g>
-                </svg>
-
-                <div class="map-legend">
-                    <div class="legend-item">
-                        <span class="legend-dot" style="background: var(--danger);"></span>
-                        <span>ATTACKS</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot" style="background: var(--primary);"></span>
-                        <span>PROTECTED</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Stats Bar -->
-        <section class="telemetry-row">
-            <div class="telemetry-card">
-                <div class="telemetry-val">1,428+</div>
-                <div class="telemetry-lbl">Secure Nodes</div>
-                <div class="telemetry-desc">Online &amp; Protected</div>
-            </div>
-            <div class="telemetry-card">
-                <div class="telemetry-val">99.98%</div>
-                <div class="telemetry-lbl">Audit Accuracy</div>
-                <div class="telemetry-desc">AI Detection Rate</div>
-            </div>
-            <div class="telemetry-card">
-                <div class="telemetry-val">&lt; 50ms</div>
-                <div class="telemetry-lbl">Command Latency</div>
-                <div class="telemetry-desc">Lightning Fast</div>
-            </div>
-            <div class="telemetry-card">
-                <div class="telemetry-val">12,482+</div>
-                <div class="telemetry-lbl">Threats Blocked</div>
-                <div class="telemetry-desc">24H Protection</div>
-            </div>
-        </section>
-
-        <!-- Capabilities Section -->
-        <section class="capabilities-section" id="features">
-            <h2 class="cap-title">Core Capabilities</h2>
-            <p class="cap-subtitle">Advanced features to secure, monitor and respond in real-time</p>
-            
-            <div class="capabilities-grid">
-                <div class="cap-card">
-                    <div class="cap-icon">🔌</div>
-                    <h3>Remote System Overrides</h3>
-                    <p>Execute safe power commands like shutdown, lock or hibernate with full admin privileges.</p>
-                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
-                </div>
-                <div class="cap-card">
-                    <div class="cap-icon">🛡️</div>
-                    <h3>Kavach Active Blocker</h3>
-                    <p>AI-powered system blocker that detects unauthorized access and neutralizes threats instantly.</p>
-                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
-                </div>
-                <div class="cap-card">
-                    <div class="cap-icon">📊</div>
-                    <h3>Real-time Telemetry</h3>
-                    <p>Monitor CPU, memory, disk, network and processes in real-time with advanced telemetry.</p>
-                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
-                </div>
-                <div class="cap-card">
-                    <div class="cap-icon">✉️</div>
-                    <h3>Telegram Alert Bot</h3>
-                    <p>Instant alerts and logs delivered directly to your Telegram for quick action.</p>
-                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Bottom Dashboard: Terminal & Threat Distribution -->
-        <section class="bottom-dashboard-row">
-            <!-- Terminal Panel -->
-            <div class="terminal-panel">
-                <div class="terminal-header">
-                    <div class="terminal-title">
-                        <span>⌨️ Live Terminal Console</span>
-                    </div>
-                    <div class="terminal-status">
-                        <span class="status-pulse-dot"></span>
-                        <span>Online</span>
-                    </div>
-                </div>
-                <div class="terminal-body" id="termBody">
-                    <div class="terminal-line dim">&gt; Connection established with core telemetry listener...</div>
-                    <div class="terminal-line info">&gt; Initializing 3RD AI KAVACH Security Agent...</div>
-                    <div class="terminal-line info">&gt; Checking integrity hashes... Done (100% OK)</div>
-                    <div class="terminal-line info">&gt; Kavach active protection shield fully activated.</div>
-                    <div class="terminal-line dim">&gt; Monitoring threads and system interrupts...</div>
-                </div>
+            <div class="flex gap-5 mt-10">
+                <a href="/portal" class="px-8 py-4 rounded-2xl bg-cyan-400 text-black font-bold shadow-[0_0_35px_rgba(0,255,255,0.5)] hover:scale-105 transition flex items-center gap-2">
+                    Launch Console ⚡
+                </a>
+                <a href="/portal" class="px-8 py-4 rounded-2xl border border-cyan-400/30 hover:border-cyan-400 transition text-white font-semibold flex items-center">
+                    View Dashboard
+                </a>
             </div>
 
-            <!-- Threat Distribution Pie Chart -->
-            <div class="chart-panel">
-                <div class="chart-header">Threat Overview (24H)</div>
-                <div class="chart-content">
-                    <div class="chart-visual">
-                        <!-- SVG Ring Donut Chart -->
-                        <svg viewBox="0 0 42 42" width="140" height="140">
-                            <!-- 1. Gray background track -->
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#111827" stroke-width="3"></circle>
-                            
-                            <!-- 2. Malware (Cyan) - Value: 42% -->
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--primary)" stroke-width="4.2" 
-                                    stroke-dasharray="42 58" stroke-dashoffset="100"></circle>
-                            
-                            <!-- 3. Intrusion (Blue) - Value: 27% -->
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--secondary)" stroke-width="4.2" 
-                                    stroke-dasharray="27 73" stroke-dashoffset="58"></circle>
-                            
-                            <!-- 4. Suspicious (Purple) - Value: 18% -->
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--accent)" stroke-width="4.2" 
-                                    stroke-dasharray="18 82" stroke-dashoffset="31"></circle>
-                            
-                            <!-- 5. Exploits (Red) - Value: 13% -->
-                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--danger)" stroke-width="4.2" 
-                                    stroke-dasharray="13 87" stroke-dashoffset="13"></circle>
-                        </svg>
-                        <div class="chart-inner-text">
-                            <div class="inner-val">12,482</div>
-                            <div class="inner-lbl">Total Blocked</div>
+            <!-- STATS -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-5 mt-14">
+                <div class="p-5 rounded-2xl border border-cyan-500/20 bg-white/5 backdrop-blur-xl shadow-[0_0_30px_rgba(0,255,255,0.05)] hover:scale-105 transition">
+                    <h3 class="text-3xl font-black text-cyan-400">1,428+</h3>
+                    <p class="text-gray-400 text-xs mt-2 tracking-widest">SECURE NODES</p>
+                </div>
+                <div class="p-5 rounded-2xl border border-cyan-500/20 bg-white/5 backdrop-blur-xl shadow-[0_0_30px_rgba(0,255,255,0.05)] hover:scale-105 transition">
+                    <h3 class="text-3xl font-black text-cyan-400">99.98%</h3>
+                    <p class="text-gray-400 text-xs mt-2 tracking-widest">AI ACCURACY</p>
+                </div>
+                <div class="p-5 rounded-2xl border border-cyan-500/20 bg-white/5 backdrop-blur-xl shadow-[0_0_30px_rgba(0,255,255,0.05)] hover:scale-105 transition">
+                    <h3 class="text-3xl font-black text-cyan-400">&lt; 50ms</h3>
+                    <p class="text-gray-400 text-xs mt-2 tracking-widest">LATENCY</p>
+                </div>
+                <div class="p-5 rounded-2xl border border-cyan-500/20 bg-white/5 backdrop-blur-xl shadow-[0_0_30px_rgba(0,255,255,0.05)] hover:scale-105 transition">
+                    <h3 class="text-3xl font-black text-cyan-400">12,482+</h3>
+                    <p class="text-gray-400 text-xs mt-2 tracking-widest">THREATS BLOCKED</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDE: Dynamic Live Threat Map -->
+        <div class="relative">
+            <div class="absolute inset-0 bg-cyan-400/20 blur-[120px] rounded-full pointer-events-none"></div>
+
+            <div class="relative rounded-3xl border border-cyan-500/20 bg-[#07101f]/80 backdrop-blur-2xl p-8 shadow-[0_0_60px_rgba(0,255,255,0.12)]">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold tracking-wide">LIVE THREAT MAP</h3>
+                    <span class="text-green-400 text-sm flex items-center gap-1.5 font-semibold">
+                        <span class="w-2 h-2 bg-green-400 rounded-full animate-ping"></span>
+                        ● ONLINE
+                    </span>
+                </div>
+
+                <!-- SVG Interactive Threat Visualization -->
+                <div class="h-[340px] rounded-2xl border border-cyan-500/10 bg-black/40 relative overflow-hidden">
+                    <svg viewBox="0 0 1000 500" class="w-full h-full opacity-70">
+                        <defs>
+                            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
+                                <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.2"/>
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Silhouette of Continents -->
+                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M120,80 L220,100 L240,150 L270,180 L290,200 L220,230 L180,240 L160,200 L110,160 Z"/>
+                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M260,260 L290,280 L320,330 L340,390 L320,430 L290,390 L260,330 L250,290 Z"/>
+                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M460,220 L510,210 L540,250 L560,310 L540,360 L500,380 L480,330 L450,290 L440,240 Z"/>
+                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M450,120 L550,100 L650,90 L750,110 L850,130 L880,180 L800,200 L730,190 L680,220 L600,220 L550,180 L480,160 Z"/>
+                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M780,320 L840,330 L860,370 L820,400 L760,360 Z"/>
+
+                        <!-- Threat Arcs -->
+                        <path class="threat-line" d="M150,140 Q350,160 520,280"/>
+                        <path class="threat-line" style="animation-delay: 1.5s;" d="M680,160 Q500,180 300,320"/>
+                        <path class="threat-line" style="animation-delay: 3s;" d="M800,350 Q600,250 480,260"/>
+                        <path class="threat-line" style="animation-delay: 2.2s;" d="M520,140 Q400,250 180,200"/>
+
+                        <!-- Nodes -->
+                        <g transform="translate(520, 280)">
+                            <circle class="threat-pulse-ring" r="16" fill="#ef4444" opacity="0.4"/>
+                            <circle class="threat-dot" r="5"/>
+                        </g>
+                        <g transform="translate(300, 320)">
+                            <circle class="threat-pulse-ring" r="14" fill="#ef4444" opacity="0.4" style="animation-delay: 0.5s;"/>
+                            <circle class="threat-dot" r="4.5"/>
+                        </g>
+                        <g transform="translate(150, 140)"><circle class="protected-dot" r="4"/></g>
+                        <g transform="translate(680, 160)"><circle class="protected-dot" r="4"/></g>
+                    </svg>
+
+                    <!-- Overlay live stats overlay on map -->
+                    <div class="absolute bottom-4 left-4 flex gap-4 text-xs font-bold text-gray-400">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-red-500"></span> ATTACKS
                         </div>
-                    </div>
-
-                    <!-- Legend panel -->
-                    <div class="chart-legend">
-                        <div class="legend-row">
-                            <div class="legend-left">
-                                <span class="legend-circle" style="background: var(--primary);"></span>
-                                <span>Malware</span>
-                            </div>
-                            <div class="legend-val">5,248</div>
-                        </div>
-                        <div class="legend-row">
-                            <div class="legend-left">
-                                <span class="legend-circle" style="background: var(--secondary);"></span>
-                                <span>Intrusion</span>
-                            </div>
-                            <div class="legend-val">3,421</div>
-                        </div>
-                        <div class="legend-row">
-                            <div class="legend-left">
-                                <span class="legend-circle" style="background: var(--accent);"></span>
-                                <span>Suspicious</span>
-                            </div>
-                            <div class="legend-val">2,193</div>
-                        </div>
-                        <div class="legend-row">
-                            <div class="legend-left">
-                                <span class="legend-circle" style="background: var(--danger);"></span>
-                                <span>Exploits</span>
-                            </div>
-                            <div class="legend-val">1,620</div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span> SECURED
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- Partner Section -->
-        <section class="partners-bar">
-            <div class="partners-title">TRUSTED BY SECURITY ENTHUSIASTS &amp; ORGANIZATIONS</div>
-            <div class="partners-logos">
-                <div class="logo-item">💼 Hack The Box</div>
-                <div class="logo-item">🛡️ TryHackMe</div>
-                <div class="logo-item">⚡ <span>paloalto</span></div>
-                <div class="logo-item">🔴 CROWDSTRIKE</div>
-                <div class="logo-item">🌀 SENTINELONE</div>
-                <div class="logo-item">📊 DATADOG</div>
-            </div>
-        </section>
-    </main>
+                <div class="grid grid-cols-2 gap-4 mt-6">
+                    <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+                        <p class="text-red-400 text-sm font-semibold tracking-wider">ATTACKS DETECTED</p>
+                        <h4 class="text-3xl font-black mt-2 font-mono" id="attacksCount">248</h4>
+                    </div>
 
-    <!-- Footer -->
-    <footer>
+                    <div class="p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+                        <p class="text-green-400 text-sm font-semibold tracking-wider">SYSTEMS SECURED</p>
+                        <h4 class="text-3xl font-black mt-2 font-mono">1,027</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="relative z-10 px-10 pb-20 max-w-7xl mx-auto" id="features">
+        <h2 class="text-4xl font-black text-center mb-14 tracking-wide">
+            CORE CAPABILITIES
+        </h2>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="rounded-3xl border border-cyan-500/10 bg-white/5 backdrop-blur-xl p-6 hover:-translate-y-2 hover:border-cyan-400 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 text-2xl mb-6">
+                    🔌
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Remote Overrides</h3>
+                <p class="text-gray-400 leading-7">Execute secure system commands remotely like shutdown, lock, or hibernate.</p>
+            </div>
+
+            <div class="rounded-3xl border border-cyan-500/10 bg-white/5 backdrop-blur-xl p-6 hover:-translate-y-2 hover:border-cyan-400 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 text-2xl mb-6">
+                    🛡️
+                </div>
+                <h3 class="text-2xl font-bold mb-4">AI Threat Detection</h3>
+                <p class="text-gray-400 leading-7">Identify suspicious activities and background recording devices instantly.</p>
+            </div>
+
+            <div class="rounded-3xl border border-cyan-500/10 bg-white/5 backdrop-blur-xl p-6 hover:-translate-y-2 hover:border-cyan-400 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 text-2xl mb-6">
+                    📊
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Real-time Telemetry</h3>
+                <p class="text-gray-400 leading-7">Live monitoring with CPU metrics, system telemetry, and keystroke logs.</p>
+            </div>
+
+            <div class="rounded-3xl border border-cyan-500/10 bg-white/5 backdrop-blur-xl p-6 hover:-translate-y-2 hover:border-cyan-400 transition duration-300">
+                <div class="w-14 h-14 rounded-2xl bg-cyan-400/10 border border-cyan-400/20 flex items-center justify-center text-cyan-400 text-2xl mb-6">
+                    ✉️
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Telegram Alerts</h3>
+                <p class="text-gray-400 leading-7">Receive instant alerts and logs directly delivered to your Telegram.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- LIVE TERMINAL CONSOLE & THREAT DISTRIBUTION -->
+    <section class="relative z-10 px-10 pb-28 max-w-7xl mx-auto grid lg:grid-cols-2 gap-8" id="threats">
+        <!-- Terminal Panel -->
+        <div class="rounded-3xl border border-cyan-500/20 bg-black/60 backdrop-blur-2xl p-8 shadow-2xl flex flex-col h-[340px]">
+            <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+                <h3 class="text-sm font-bold tracking-widest text-gray-300 uppercase flex items-center gap-2">
+                    <span>⌨️</span> Live Terminal Console
+                </h3>
+                <span class="text-xs text-green-400 font-bold tracking-wider flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping"></span> ONLINE
+                </span>
+            </div>
+            <div class="font-mono text-xs text-green-400 space-y-2 overflow-y-auto flex-grow pr-2" id="terminalLogs">
+                <div class="text-gray-500">&gt; Connection established with core telemetry listener...</div>
+                <div class="text-green-400">&gt; Initializing 3RD AI KAVACH Security Agent...</div>
+                <div class="text-green-400">&gt; Checking integrity hashes... Done (100% OK)</div>
+                <div class="text-green-300">&gt; Kavach active protection shield fully activated.</div>
+                <div class="text-gray-500">&gt; Monitoring threads and system interrupts...</div>
+            </div>
+        </div>
+
+        <!-- Threat Distribution Pie Chart -->
+        <div class="rounded-3xl border border-cyan-500/20 bg-[#07101f]/80 backdrop-blur-2xl p-8 shadow-2xl flex flex-col h-[340px]">
+            <div class="text-sm font-bold tracking-widest text-gray-300 uppercase mb-6 border-b border-white/5 pb-3">
+                Threat Overview (24H)
+            </div>
+            <div class="flex items-center justify-around flex-grow">
+                <div class="relative w-36 h-36 flex items-center justify-center">
+                    <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#111827" stroke-width="3"></circle>
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#00f2fe" stroke-width="4.2" stroke-dasharray="42 58" stroke-dashoffset="100"></circle>
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#0072ff" stroke-width="4.2" stroke-dasharray="27 73" stroke-dashoffset="58"></circle>
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#9d4edd" stroke-width="4.2" stroke-dasharray="18 82" stroke-dashoffset="31"></circle>
+                        <circle cx="18" cy="18" r="15.915" fill="none" stroke="#ef4444" stroke-width="4.2" stroke-dasharray="13 87" stroke-dashoffset="13"></circle>
+                    </svg>
+                    <div class="absolute text-center">
+                        <div class="text-xl font-bold font-mono text-white">12,482</div>
+                        <div class="text-[9px] text-gray-500 uppercase tracking-wider font-semibold">Total Blocked</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3 text-xs font-semibold">
+                    <div class="flex items-center justify-between gap-10">
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> Malware
+                        </div>
+                        <span class="font-mono text-white">5,248</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-10">
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> Intrusion
+                        </div>
+                        <span class="font-mono text-white">3,421</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-10">
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> Suspicious
+                        </div>
+                        <span class="font-mono text-white">2,193</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-10">
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> Exploits
+                        </div>
+                        <span class="font-mono text-white">1,620</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-black/40 border-t border-white/5 py-8 text-center text-sm text-gray-500 font-semibold relative z-10">
         <p>© 2026 3RD AI KAVACH. Built for Advanced Endpoint Immunity.</p>
     </footer>
 
-    <!-- Interactive JS to simulate active terminal scanning -->
+    <!-- Terminal simulator scripts -->
     <script>
-        const terminalBody = document.getElementById("termBody");
+        const termBody = document.getElementById("terminalLogs");
+        const attacksHeader = document.getElementById("attacksCount");
         const logTemplates = [
-            { type: "info", text: "Scanning active file system threads..." },
-            { type: "info", text: "Verification: Integrity check passed." },
-            { type: "warn", text: "Warning: Potential memory leak detected in browser host." },
-            { type: "alert", text: "ALERT: Unauthorized process activity intercepted. neutralizing..." },
-            { type: "info", text: "Successfully blocked PID 10424. Threat cleaned." },
-            { type: "dim", text: "Sending threat intelligence packet to cloud API..." },
-            { type: "info", text: "Sync success: Telegram alert dispatched to security group." },
-            { type: "dim", text: "Sleeping for telemetry interval (1500ms)..." }
+            { type: "text-green-400", text: "Scanning active file system threads..." },
+            { type: "text-green-300", text: "Verification: Integrity check passed." },
+            { type: "text-yellow-500", text: "Warning: Potential memory leak detected in browser host." },
+            { type: "text-red-500", text: "ALERT: Unauthorized process activity intercepted. neutralizing..." },
+            { type: "text-green-400", text: "Successfully blocked PID 10424. Threat cleaned." },
+            { type: "text-gray-500", text: "Sending threat intelligence packet to cloud API..." },
+            { type: "text-green-300", text: "Sync success: Telegram alert dispatched to security group." },
+            { type: "text-gray-500", text: "Sleeping for telemetry interval (1500ms)..." }
         ];
 
         function simulateLogs() {
             const randomLog = logTemplates[Math.floor(Math.random() * logTemplates.length)];
             const logEl = document.createElement("div");
-            logEl.className = `terminal-line ${randomLog.type}`;
+            logEl.className = `mb-1 ${randomLog.type}`;
             logEl.innerText = `> [${new Date().toLocaleTimeString()}] ${randomLog.text}`;
             
-            terminalBody.appendChild(logEl);
-            
-            // Keep scroll at bottom
-            terminalBody.scrollTop = terminalBody.scrollHeight;
+            termBody.appendChild(logEl);
+            termBody.scrollTop = termBody.scrollHeight;
 
-            // Remove extra lines if they exceed 50
-            if (terminalBody.childElementCount > 40) {
-                terminalBody.removeChild(terminalBody.firstChild);
+            if (randomLog.type === "text-red-500") {
+                const currentVal = parseInt(attacksHeader.innerText);
+                attacksHeader.innerText = currentVal + 1;
             }
 
-            // Set next interval
-            setTimeout(simulateLogs, 2500 + Math.random() * 3000);
+            if (termBody.childElementCount > 40) {
+                termBody.removeChild(termBody.firstChild);
+            }
+
+            setTimeout(simulateLogs, 2000 + Math.random() * 3000);
         }
 
-        // Start log simulation
         setTimeout(simulateLogs, 1500);
     </script>
 </body>
