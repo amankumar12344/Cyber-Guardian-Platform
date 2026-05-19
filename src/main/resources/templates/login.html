@@ -1,241 +1,713 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>3rd AI | Operations Gateway Login</title>
+    <title>3RD AI KAVACH | Operations Gateway Login</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00f2fe;
+            --secondary: #0072ff;
             --accent: #9d4edd;
-            --bg-dark: #06070a;
-            --card-bg: rgba(13, 17, 28, 0.45);
-            --border: rgba(255, 255, 255, 0.05);
-            --border-glow: rgba(0, 242, 254, 0.25);
-            --danger: #ff3b30;
+            --danger: #ef4444;
             --success: #10b981;
-            --text-dim: #94a3b8;
+            --bg-dark: #02040a;
+            --card-bg: rgba(6, 11, 25, 0.5);
+            --border: rgba(0, 242, 254, 0.1);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --text-dim: #64748b;
+            --text-light: #f1f5f9;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 50% 10%, rgba(157, 78, 221, 0.08) 0%, transparent 60%),
-                radial-gradient(circle at 10% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
-            background-size: cover;
-            background-attachment: fixed;
-            color: #f8fafc;
+            color: var(--text-light);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
             position: relative;
+            padding: 40px 20px;
         }
 
-        .ambient-glow {
-            position: absolute; width: 350px; height: 350px; border-radius: 50%;
-            background: var(--primary); opacity: 0.03; filter: blur(100px); pointer-events: none; z-index: 1;
+        /* Scanline & Grid Effect */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(18, 24, 45, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 24, 45, 0.15) 1px, transparent 1px);
+            background-size: 35px 35px;
+            pointer-events: none;
+            z-index: 1;
         }
 
-        /* Glassmorphic Login Card */
-        .login-card {
-            width: 440px;
-            padding: 50px 40px;
-            background: rgba(13, 17, 28, 0.5);
-            backdrop-filter: blur(30px);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 242, 254, 0.03);
+        /* Ambient Glows */
+        .glow-sphere {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(120px);
+            opacity: 0.12;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 440px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             position: relative;
             z-index: 10;
-            transition: all 0.4s ease;
         }
 
-        .login-card::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), transparent);
-            opacity: 0.3;
+        /* Concentric Rings & Logo */
+        .concentric-logo-container {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .logo-container {
+        .ring-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 1.5px dashed rgba(0, 242, 254, 0.15);
+            animation: rotateClockwise 20s linear infinite;
+        }
+
+        .ring-middle {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            border-radius: 50%;
+            border: 1.5px solid rgba(0, 242, 254, 0.2);
+            border-left-color: transparent;
+            border-right-color: transparent;
+            animation: rotateCounterClockwise 8s linear infinite;
+        }
+
+        .ring-inner {
+            position: absolute;
+            width: 60%;
+            height: 60%;
+            border-radius: 50%;
+            border: 2px solid rgba(157, 78, 221, 0.3);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.2);
+        }
+
+        .logo-shield {
+            font-size: 32px;
+            z-index: 2;
+            filter: drop-shadow(0 0 8px var(--primary));
+            animation: floatLogo 3s ease-in-out infinite;
+        }
+
+        .welcome-title {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
 
-        .logo-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
-            display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.3));
-        }
-
-        .logo-text {
+        .welcome-title h1 {
             font-size: 26px;
-            font-weight: 900;
+            font-weight: 800;
             letter-spacing: 2px;
-            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 242, 254, 0.1);
         }
 
-        .logo-sub {
-            font-size: 11px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-top: 6px;
-            font-weight: 700;
+        .welcome-title p {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
-        .input-group {
-            margin-bottom: 22px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 700;
-        }
-
-        .input-group input {
+        /* Glassmorphic Card Panel */
+        .login-card {
             width: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: var(--card-bg);
             border: 1px solid var(--border);
-            padding: 14px 18px;
-            border-radius: 12px;
-            color: white;
-            outline: none;
-            font-family: 'Outfit', sans-serif;
-            font-size: 15px;
-            transition: all 0.3s;
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4), 0 0 25px rgba(0, 242, 254, 0.03);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        .input-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+        /* Top neon border glow */
+        .login-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
         }
 
-        /* Buttons styling */
-        .btn-submit {
-            width: 100%;
-            padding: 16px;
+        /* Top Navigation Tabs inside card */
+        .tab-menu {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 12px;
+        }
+
+        .tab-btn {
+            background: none;
             border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, #0072ff 100%);
-            color: #000;
-            font-weight: 800;
-            font-size: 15px;
+            color: #64748b;
+            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 10px;
+            padding: 6px 12px;
+            transition: all 0.3s;
+            position: relative;
         }
 
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.3);
-            filter: brightness(1.05);
+        .tab-btn:hover {
+            color: #ffffff;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        }
+
+        .tab-btn.active::after {
+            content: "";
+            position: absolute;
+            bottom: -13px; left: 0; width: 100%; height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        /* Alerts & Banners */
+        .alert-success {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #a7f3d0;
+            font-size: 13px;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .error-msg {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
             color: #fca5a5;
+            font-size: 13px;
+            font-weight: 600;
             padding: 12px;
             border-radius: 10px;
-            font-size: 13px;
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            margin-bottom: 25px;
             text-align: center;
-            font-weight: 600;
+            margin-bottom: 20px;
         }
 
-        .alert-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #a7f3d0;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 13px;
-            border: 1px solid rgba(16, 185, 129, 0.15);
-            margin-bottom: 25px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .footer-links {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-dim);
+        /* Input Styles */
+        .input-group {
+            margin-bottom: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
         }
 
-        .footer-links a {
+        .input-group label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 8px;
+        }
+
+        .input-field-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 14px;
+            font-size: 14px;
+            color: #64748b;
+            pointer-events: none;
+            transition: color 0.3s;
+        }
+
+        .input-field-wrapper input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 14px 14px 14px 42px;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .input-field-wrapper input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.1);
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        .input-field-wrapper input:focus + .input-icon-left {
             color: var(--primary);
+        }
+
+        .btn-toggle-pw {
+            position: absolute;
+            right: 14px;
+            font-size: 14px;
+            color: #64748b;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.3s;
+        }
+
+        .btn-toggle-pw:hover {
+            color: #ffffff;
+        }
+
+        .forgot-pw-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 25px;
+        }
+
+        .forgot-pw-link {
+            font-size: 12px;
+            color: #64748b;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s;
         }
 
-        .footer-links a:hover {
-            color: white;
+        .forgot-pw-link:hover {
+            color: var(--primary);
+        }
+
+        /* Buttons */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #030712;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 25px rgba(0, 242, 254, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(0, 242, 254, 0.5);
+            filter: brightness(1.05);
+        }
+
+        /* Social Divider */
+        .social-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 25px 0;
+            font-size: 11px;
+            color: #475569;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .social-divider::before,
+        .social-divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .social-divider:not(:empty)::before {
+            margin-right: 15px;
+        }
+
+        .social-divider:not(:empty)::after {
+            margin-left: 15px;
+        }
+
+        /* Social OAuth Buttons */
+        .social-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .social-btn {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .social-btn:hover {
+            border-color: rgba(255,255,255,0.2);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Secure Login Scan Checklist */
+        .secure-scan-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .scan-left {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scan-title {
+            font-size: 10px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 2px;
+        }
+
+        .scan-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            transition: color 0.3s;
+        }
+
+        .scan-item.complete {
+            color: #cbd5e1;
+        }
+
+        .scan-check-icon {
+            color: var(--success);
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .scan-item.complete .scan-check-icon {
+            opacity: 1;
+        }
+
+        /* Integrity Ring SVG */
+        .scan-right {
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .integrity-ring-container {
+            width: 70px;
+            height: 70px;
+            position: relative;
+        }
+
+        .integrity-inner-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .integrity-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .integrity-lbl {
+            font-size: 7px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Bottom Signup link */
+        .signup-row {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .signup-row a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s;
+        }
+
+        .signup-row a:hover {
+            color: #ffffff;
+            text-shadow: 0 0 8px var(--primary);
+        }
+
+        /* Bottom Copyright Footer */
+        .footer-copyright {
+            margin-top: 30px;
+            font-size: 11px;
+            color: #475569;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Animations */
+        @keyframes rotateClockwise {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rotateCounterClockwise {
+            to { transform: rotate(-360deg); }
+        }
+
+        @keyframes floatLogo {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-4px) scale(1.02); }
         }
     </style>
 </head>
 <body>
 
-    <div class="ambient-glow" style="top: 10%; left: 10%;"></div>
-    <div class="ambient-glow" style="bottom: 10%; right: 10%; background: var(--accent);"></div>
+    <!-- Glow background -->
+    <div class="glow-sphere" style="width: 450px; height: 450px; background: var(--primary); top: -100px; left: -100px;"></div>
+    <div class="glow-sphere" style="width: 400px; height: 400px; background: var(--accent); bottom: -100px; right: -100px;"></div>
 
-    <div class="login-card">
-        <div class="logo-container">
-            <span class="logo-icon">🛡️</span>
-            <h1 class="logo-text">3RD AI</h1>
-            <p class="logo-sub">Operations Gateway Login</p>
-        </div>
-
-        <!-- Success & Error Banners -->
-        <div th:if="${param.success}" class="alert-success">
-            ✅ Identity Verified! Access Granted. Please login.
-        </div>
-        <div th:if="${error}" class="error-msg" th:text="${error}">
-            ⚠️ Invalid Security Credentials.
-        </div>
-        <div th:if="${param.resetSuccess}" class="alert-success" style="border-color: var(--primary); color: var(--primary); background: rgba(0, 242, 254, 0.05);">
-            🔑 Access Key Reset Successful.
+    <div class="login-wrapper">
+        
+        <!-- Animated Security Shield Concentric Rings -->
+        <div class="concentric-logo-container">
+            <div class="ring-bg"></div>
+            <div class="ring-middle"></div>
+            <div class="ring-inner"></div>
+            <span class="logo-shield">🛡️</span>
         </div>
 
-        <!-- Login Form -->
-        <form th:action="@{/login}" method="post">
-            <div class="input-group">
-                <label>Identifier (Email/Phone)</label>
-                <input type="text" name="identifier" placeholder="admin@3rdai.gov" required>
+        <div class="welcome-title">
+            <h1>Welcome Back</h1>
+            <p>Login to your secure dashboard</p>
+        </div>
+
+        <!-- Glassmorphic Login Form Card -->
+        <div class="login-card">
+            
+            <!-- High-tech Menu Tabs -->
+            <div class="tab-menu">
+                <button class="tab-btn active" title="Admin User Accounts">👤 Admin</button>
+                <button class="tab-btn" onclick="location.href='/police/login'" title="Statutory Forensic HQ Portal">🚔 Police</button>
+                <button class="tab-btn" onclick="location.href='/portal'" title="Operations Portals Gateway">🛡️ Gateways</button>
             </div>
-            <div class="input-group">
-                <label>Security Key (Password)</label>
-                <input type="password" name="password" placeholder="••••••••" required>
-            </div>
-            <button type="submit" class="btn-submit">Authenticate Terminal</button>
-        </form>
 
-        <div class="footer-links">
-            <p><a href="/forgot-password">Recover Access Key?</a></p>
-            <p>New Node Installation? <a href="/signup">Register Admin Node</a></p>
+            <!-- Thymeleaf Success & Error Banners -->
+            <div th:if="${param.success}" class="alert-success">
+                ✅ Identity Verified! Access Granted. Please login.
+            </div>
+            <div th:if="${error}" class="error-msg" th:text="${error}">
+                ⚠️ Invalid Security Credentials.
+            </div>
+            <div th:if="${param.resetSuccess}" class="alert-success" style="border-color: var(--primary); color: var(--primary); background: rgba(0, 242, 254, 0.05);">
+                🔑 Access Key Reset Successful.
+            </div>
+
+            <!-- Standard Username / Password login form -->
+            <form th:action="@{/login}" method="post">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <div class="input-field-wrapper">
+                        <span class="input-icon-left">👤</span>
+                        <input type="text" name="identifier" id="identifierInput" placeholder="you@example.com" required autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-field-wrapper">
+                        <span class="input-icon-left">🔒</span>
+                        <input type="password" name="password" id="passwordInput" placeholder="••••••••" required>
+                        <span class="btn-toggle-pw" id="togglePwBtn" onclick="togglePasswordVisibility()">👁️</span>
+                    </div>
+                </div>
+
+                <div class="forgot-pw-wrapper">
+                    <a href="/forgot-password" class="forgot-pw-link">Forgot Password?</a>
+                </div>
+
+                <!-- Submit Auth Button -->
+                <button type="submit" class="btn-submit">
+                    <span>🔒</span>
+                    <span>Login Securely</span>
+                </button>
+            </form>
+
+            <div class="social-divider">or continue with</div>
+
+            <!-- Social OAuth -->
+            <div class="social-row">
+                <button class="social-btn">
+                    <span>🌐</span>
+                    <span>Google</span>
+                </button>
+                <button class="social-btn">
+                    <span>🐙</span>
+                    <span>GitHub</span>
+                </button>
+            </div>
+
+            <!-- Secure Login Scan Widget -->
+            <div class="secure-scan-panel">
+                <div class="scan-left">
+                    <div class="scan-title">Secure Login Scan</div>
+                    <div class="scan-item" id="scanItem1">
+                        <span class="scan-check-icon">✓</span>
+                        <span>Checking device integrity...</span>
+                    </div>
+                    <div class="scan-item" id="scanItem2">
+                        <span class="scan-check-icon">✓</span>
+                        <span>Verifying secure connection...</span>
+                    </div>
+                    <div class="scan-item" id="scanItem3">
+                        <span class="scan-check-icon">✓</span>
+                        <span>Authenticating credentials...</span>
+                    </div>
+                </div>
+                <div class="scan-right">
+                    <div class="integrity-ring-container">
+                        <svg viewBox="0 0 36 36" width="70" height="70">
+                            <!-- Background Track -->
+                            <circle cx="18" cy="18" r="15.915" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="2"></circle>
+                            <!-- Foreground green track representing 100% -->
+                            <circle id="integrityRing" cx="18" cy="18" r="15.915" fill="none" stroke="var(--success)" stroke-width="2.5" 
+                                    stroke-dasharray="0 100" stroke-dashoffset="100" style="transition: stroke-dasharray 1.5s ease-out;"></circle>
+                        </svg>
+                        <div class="integrity-inner-text">
+                            <div class="integrity-val" id="integrityVal">0%</div>
+                            <div class="integrity-lbl">Secure</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer links -->
+            <div class="signup-row">
+                Don't have an account? <a href="/signup">Create one</a>
+            </div>
+
         </div>
+
+        <div class="footer-copyright">
+            © 2026 3RD AI KAVACH. All rights reserved.
+        </div>
+
     </div>
 
+    <!-- Interface scripts for high-tech scanning animations and toggles -->
+    <script>
+        // Password field toggle visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("passwordInput");
+            const toggleBtn = document.getElementById("togglePwBtn");
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleBtn.innerText = "🔒";
+            } else {
+                passwordInput.type = "password";
+                toggleBtn.innerText = "👁️";
+            }
+        }
+
+        // Simulate high-tech checklist animation on page load
+        window.addEventListener("DOMContentLoaded", () => {
+            const item1 = document.getElementById("scanItem1");
+            const item2 = document.getElementById("scanItem2");
+            const item3 = document.getElementById("scanItem3");
+            const ring = document.getElementById("integrityRing");
+            const valText = document.getElementById("integrityVal");
+
+            // Step 1: Device Integrity
+            setTimeout(() => {
+                item1.classList.add("complete");
+                ring.setAttribute("stroke-dasharray", "33 67");
+                valText.innerText = "33%";
+            }, 600);
+
+            // Step 2: Secure Connection
+            setTimeout(() => {
+                item2.classList.add("complete");
+                ring.setAttribute("stroke-dasharray", "66 34");
+                valText.innerText = "66%";
+            }, 1200);
+
+            // Step 3: Auth Creds Verified
+            setTimeout(() => {
+                item3.classList.add("complete");
+                ring.setAttribute("stroke-dasharray", "100 0");
+                valText.innerText = "100%";
+                valText.style.textShadow = "0 0 8px var(--success)";
+            }, 1800);
+        });
+    </script>
 </body>
 </html>

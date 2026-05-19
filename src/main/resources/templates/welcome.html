@@ -1,32 +1,34 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>3RD AI KAVACH | Next-Gen Security Command Center</title>
+    <title>3RD AI KAVACH | Autonomous Security Command Center</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00f2fe;
+            --secondary: #0072ff;
             --accent: #9d4edd;
-            --bg-dark: #05070f;
-            --card-bg: rgba(13, 17, 28, 0.45);
-            --border: rgba(255, 255, 255, 0.05);
-            --border-glow: rgba(0, 242, 254, 0.15);
-            --text-dim: #94a3b8;
-            --text-light: #f8fafc;
+            --danger: #ef4444;
+            --success: #10b981;
+            --bg-dark: #03050c;
+            --card-bg: rgba(6, 11, 25, 0.55);
+            --border: rgba(0, 242, 254, 0.1);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --text-dim: #64748b;
+            --text-light: #f1f5f9;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 50% -10%, rgba(0, 242, 254, 0.12) 0%, transparent 60%),
-                radial-gradient(circle at 10% 50%, rgba(157, 78, 221, 0.06) 0%, transparent 50%);
-            background-size: cover;
-            background-attachment: fixed;
             color: var(--text-light);
             min-height: 100vh;
             overflow-x: hidden;
@@ -35,25 +37,35 @@
             position: relative;
         }
 
-        /* Ambient glowing circles */
-        .ambient-glow {
+        /* Scanline & Grid Effect */
+        body::before {
+            content: "";
             position: absolute;
-            width: 500px;
-            height: 500px;
-            border-radius: 50%;
-            background: var(--primary);
-            opacity: 0.04;
-            filter: blur(140px);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(18, 24, 45, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 24, 45, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
             pointer-events: none;
             z-index: 1;
         }
 
-        /* Navbar */
+        /* Ambient Glows */
+        .glow-sphere {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: blur(130px);
+            opacity: 0.15;
+        }
+
+        /* Header Navigation */
         header {
             width: 100%;
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 30px 40px;
+            padding: 24px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -61,332 +73,1111 @@
             z-index: 10;
         }
 
-        .brand {
+        .logo-group {
             display: flex;
-            align-items: center;
-            gap: 12px;
+            flex-direction: column;
             text-decoration: none;
         }
 
-        .brand-shield {
-            font-size: 28px;
-            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));
-            animation: pulse-glow 2s infinite alternate;
+        .logo-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .brand-name {
-            font-size: 22px;
+        .logo-shield {
+            font-size: 26px;
+            filter: drop-shadow(0 0 8px var(--primary));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .logo-title {
+            font-size: 21px;
             font-weight: 900;
             letter-spacing: 2px;
-            background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
+            background: linear-gradient(to right, #ffffff, var(--primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .nav-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            padding: 10px 22px;
-            border-radius: 12px;
-            color: white;
-            font-weight: 600;
+        .logo-status {
+            font-size: 9px;
+            color: var(--success);
+            font-weight: 700;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            margin-top: 2px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        nav a {
+            color: #94a3b8;
             text-decoration: none;
             font-size: 14px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
         }
 
-        .nav-btn:hover {
+        nav a:hover {
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        nav a.active::after {
+            content: "";
+            position: absolute;
+            bottom: -6px; left: 0; width: 100%; height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .header-buttons {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.02);
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 22px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-outline:hover {
             border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-            transform: translateY(-1px);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+            background: rgba(0, 242, 254, 0.04);
         }
 
-        /* Hero Section */
-        .hero {
-            max-width: 1100px;
-            margin: 60px auto 40px auto;
+        .btn-solid {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #030712;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 10px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.3);
+            border: none;
+        }
+
+        .btn-solid:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.55);
+            filter: brightness(1.05);
+        }
+
+        /* Container grid for Hero Layout */
+        .hero-section {
+            max-width: 1400px;
+            margin: 40px auto 30px auto;
             padding: 0 40px;
-            text-align: center;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 40px;
+            align-items: center;
             position: relative;
             z-index: 10;
         }
 
-        .status-badge {
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .badge-ai {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(0, 242, 254, 0.06);
+            background: rgba(0, 242, 254, 0.05);
             border: 1px solid rgba(0, 242, 254, 0.2);
-            padding: 8px 18px;
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 700;
             color: var(--primary);
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 30px;
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.05);
+            padding: 8px 16px;
+            border-radius: 100px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.05);
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: var(--primary);
-            border-radius: 50%;
-            box-shadow: 0 0 10px var(--primary);
-            animation: blink 1.5s infinite;
-        }
-
-        .hero h1 {
-            font-size: 68px;
+        .hero-content h1 {
+            font-size: 54px;
             font-weight: 900;
             line-height: 1.1;
             letter-spacing: -1.5px;
             margin-bottom: 25px;
-            background: linear-gradient(to right, #ffffff, #e2e8f0, var(--primary));
+            background: linear-gradient(135deg, #ffffff 40%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.05);
         }
 
-        .hero p {
-            font-size: 19px;
-            color: var(--text-dim);
-            max-width: 720px;
-            margin: 0 auto 40px auto;
+        .hero-content p {
+            font-size: 16px;
+            color: #94a3b8;
             line-height: 1.6;
+            margin-bottom: 35px;
+            max-width: 580px;
         }
 
-        /* Glowing Call To Action Button */
-        .cta-btn {
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+        }
+
+        .hero-btn-primary {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, #0072ff 100%);
-            border: none;
-            padding: 18px 36px;
-            border-radius: 14px;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: #030712;
+            font-size: 15px;
             font-weight: 800;
-            font-size: 16px;
+            padding: 16px 32px;
+            border-radius: 12px;
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 1px;
-            cursor: pointer;
-            box-shadow: 0 8px 30px rgba(0, 242, 254, 0.35);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s;
+            box-shadow: 0 5px 25px rgba(0, 242, 254, 0.35);
         }
 
-        .cta-btn:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 12px 40px rgba(0, 242, 254, 0.5);
+        .hero-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 35px rgba(0, 242, 254, 0.55);
             filter: brightness(1.08);
         }
 
-        /* Features Section */
-        .features {
-            max-width: 1200px;
-            margin: 60px auto;
+        .hero-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            padding: 16px 32px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .hero-btn-secondary:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15);
+            background: rgba(0, 242, 254, 0.04);
+        }
+
+        /* Threat Map Component */
+        .threat-map-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 25px rgba(0, 242, 254, 0.02);
+            backdrop-filter: blur(20px);
+            position: relative;
+            height: 380px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            z-index: 5;
+        }
+
+        .map-badge {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            padding: 5px 12px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .map-header-right {
+            text-align: right;
+        }
+
+        .map-stat-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+
+        .map-stat-lbl {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .world-map-svg {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 40px;
+            left: 0;
+            opacity: 0.6;
+        }
+
+        /* SVG Map paths styling */
+        .map-continent {
+            fill: #111827;
+            stroke: #1f2937;
+            stroke-width: 0.8;
+        }
+
+        /* SVG Threat Lines & Nodes animation */
+        .threat-line {
+            fill: none;
+            stroke: url(#line-gradient);
+            stroke-width: 1.5;
+            stroke-linecap: round;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 4s linear infinite;
+        }
+
+        .threat-pulse-ring {
+            animation: pulse-ring 2s ease-out infinite;
+            transform-origin: center;
+        }
+
+        .threat-dot {
+            fill: var(--danger);
+            animation: blink-dot 1s infinite alternate;
+        }
+
+        .protected-dot {
+            fill: var(--primary);
+            animation: blink-dot 1.5s infinite alternate;
+        }
+
+        .map-legend {
+            position: absolute;
+            bottom: 20px;
+            left: 24px;
+            display: flex;
+            gap: 15px;
+            font-size: 11px;
+            font-weight: 700;
+            z-index: 5;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #94a3b8;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Telemetry Cards */
+        .telemetry-row {
+            max-width: 1400px;
+            margin: 20px auto 40px auto;
             padding: 0 40px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .telemetry-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 16px;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s;
+        }
+
+        .telemetry-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .telemetry-val {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.05);
+        }
+
+        .telemetry-card:nth-child(1) .telemetry-val { color: var(--primary); }
+        .telemetry-card:nth-child(2) .telemetry-val { color: var(--primary); }
+        .telemetry-card:nth-child(3) .telemetry-val { color: var(--primary); }
+        .telemetry-card:nth-child(4) .telemetry-val { color: var(--primary); }
+
+        .telemetry-lbl {
+            font-size: 11px;
+            color: #ffffff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 2px;
+        }
+
+        .telemetry-desc {
+            font-size: 11px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* Capabilities Grid */
+        .capabilities-section {
+            max-width: 1400px;
+            margin: 20px auto 40px auto;
+            padding: 0 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .cap-title {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .cap-subtitle {
+            text-align: center;
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 40px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .cap-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 30px 24px;
+            border-radius: 16px;
+            backdrop-filter: blur(15px);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cap-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .cap-icon {
+            width: 46px;
+            height: 46px;
+            background: rgba(0, 242, 254, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 5px rgba(0, 242, 254, 0.15));
+        }
+
+        .cap-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+        }
+
+        .cap-card p {
+            font-size: 13px;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .cap-link {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .cap-link:hover {
+            color: #ffffff;
+            text-shadow: 0 0 8px var(--primary);
+        }
+
+        /* Bottom Row: Live Terminal & Threat Pie Chart */
+        .bottom-dashboard-row {
+            max-width: 1400px;
+            margin: 10px auto 60px auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
             gap: 25px;
             position: relative;
             z-index: 10;
         }
 
-        .feature-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(15px);
+        .terminal-panel {
+            background: rgba(3, 5, 12, 0.85);
             border: 1px solid var(--border);
-            padding: 35px 30px;
             border-radius: 20px;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, rgba(0, 242, 254, 0.02) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
-        }
-
-        .feature-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 242, 254, 0.05);
-        }
-
-        .feature-card:hover::before {
-            opacity: 1;
-        }
-
-        .feature-icon {
-            font-size: 32px;
-            margin-bottom: 22px;
-            display: inline-block;
-            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.3));
-        }
-
-        .feature-card h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-            color: #ffffff;
-        }
-
-        .feature-card p {
-            font-size: 14px;
-            color: var(--text-dim);
-            line-height: 1.6;
-        }
-
-        /* Stats Section */
-        .stats-bar {
-            width: 100%;
-            max-width: 1120px;
-            margin: 40px auto 80px auto;
-            background: rgba(13, 17, 28, 0.3);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 30px 40px;
+            padding: 24px;
             display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 30px;
-            position: relative;
-            z-index: 10;
+            flex-direction: column;
+            height: 340px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .stat-item {
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .terminal-title {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .terminal-status {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .terminal-body {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: #10b981;
+            line-height: 1.8;
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 5px;
+        }
+
+        .terminal-line {
+            margin-bottom: 4px;
+            opacity: 0.9;
+        }
+
+        .terminal-line.info { color: #10b981; }
+        .terminal-line.warn { color: #f59e0b; }
+        .terminal-line.alert { color: var(--danger); }
+        .terminal-line.dim { color: #475569; }
+
+        /* Donut Chart Panel */
+        .chart-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            height: 340px;
+            backdrop-filter: blur(20px);
+        }
+
+        .chart-header {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #ffffff;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .chart-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            flex-grow: 1;
+        }
+
+        .chart-visual {
+            position: relative;
+            width: 140px;
+            height: 140px;
+        }
+
+        .chart-inner-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             text-align: center;
         }
 
-        .stat-val {
-            font-size: 32px;
-            font-weight: 900;
-            color: var(--primary);
-            margin-bottom: 5px;
-            text-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        .inner-val {
             font-family: 'JetBrains Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
         }
 
-        .stat-label {
-            font-size: 12px;
+        .inner-lbl {
+            font-size: 9px;
+            color: #64748b;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-dim);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .legend-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .legend-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #94a3b8;
+        }
+
+        .legend-circle {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-val {
+            font-family: 'JetBrains Mono', monospace;
+            color: #ffffff;
+        }
+
+        /* Trusted Partners Slider */
+        .partners-bar {
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            background: rgba(3, 5, 12, 0.4);
+            padding: 40px 0;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .partners-title {
+            font-size: 11px;
             font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: 25px;
+        }
+
+        .partners-logos {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            opacity: 0.65;
+            flex-wrap: wrap;
+            gap: 30px;
+        }
+
+        .logo-item {
+            font-size: 14px;
+            font-weight: 800;
+            color: #94a3b8;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .logo-item span {
+            color: var(--primary);
         }
 
         /* Footer */
         footer {
-            margin-top: auto;
-            padding: 40px;
+            background: rgba(2, 4, 9, 0.85);
+            padding: 24px;
             text-align: center;
-            border-top: 1px solid var(--border);
-            font-size: 13px;
-            color: var(--text-dim);
-            position: relative;
-            z-index: 10;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            font-size: 12px;
+            color: #475569;
+            font-weight: 600;
         }
 
-        /* Animations */
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+        /* Keyframe Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
 
-        @keyframes pulse-glow {
-            0% { filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.3)); }
-            100% { filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.7)); }
+        @keyframes pulse-dot {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 44px; }
-            .hero p { font-size: 16px; }
-            .stats-bar { flex-direction: column; text-align: center; }
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.6); opacity: 0.8; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        @keyframes blink-dot {
+            0% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.15);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 254, 0.35);
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .hero-section { grid-template-columns: 1fr; gap: 30px; text-align: center; }
+            .hero-content { align-items: center; }
+            .hero-content p { margin-left: auto; margin-right: auto; }
+            .telemetry-row { grid-template-columns: repeat(2, 1fr); }
+            .capabilities-grid { grid-template-columns: repeat(2, 1fr); }
+            .bottom-dashboard-row { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 700px) {
+            .telemetry-row { grid-template-columns: 1fr; }
+            .capabilities-grid { grid-template-columns: 1fr; }
+            header { padding: 20px; }
+            .hero-section { padding: 0 20px; }
         }
     </style>
 </head>
 <body>
 
-    <div class="ambient-glow" style="top: -10%; left: -10%;"></div>
-    <div class="ambient-glow" style="bottom: 10%; right: -10%; background: var(--accent);"></div>
+    <!-- Glow Spheres background -->
+    <div class="glow-sphere" style="width: 500px; height: 500px; background: var(--primary); top: -200px; left: -100px;"></div>
+    <div class="glow-sphere" style="width: 450px; height: 450px; background: var(--accent); bottom: -100px; right: -150px;"></div>
 
     <!-- Header Section -->
     <header>
-        <a href="/" class="brand">
-            <span class="brand-shield">🛡️</span>
-            <span class="brand-name">3RD AI KAVACH</span>
-        </a>
-        <a href="/portal" class="nav-btn">Terminal Gate</a>
-    </header>
-
-    <!-- Main Hero -->
-    <main>
-        <section class="hero">
-            <div class="status-badge">
-                <span class="status-dot"></span>
+        <a href="/" class="logo-group">
+            <div class="logo-main">
+                <span class="logo-shield">🛡️</span>
+                <span class="logo-title">3RD AI KAVACH</span>
+            </div>
+            <div class="logo-status">
+                <span class="status-pulse-dot"></span>
                 Security Core Online
             </div>
-            <h1>Autonomous System Protection & Remote Overrides</h1>
-            <p>Deploy the 3RD AI KAVACH lightweight background security agent. Intercept active background breaches, run diagnostic keystroke loggers, whitelists, and perform terminal command execution directly from the cloud.</p>
-            <a href="/portal" class="cta-btn">
-                <span>Get Started</span>
-                <span>⚡</span>
-            </a>
+        </a>
+        
+        <nav>
+            <a href="/" class="active">Home</a>
+            <a href="#features">Features</a>
+            <a href="#solutions">Solutions</a>
+            <a href="/portal">Dashboard</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#docs">Docs</a>
+            <a href="#about">About</a>
+        </nav>
+
+        <div class="header-buttons">
+            <a href="/login" class="btn-outline">Login</a>
+            <a href="/signup" class="btn-solid">Get Started</a>
+        </div>
+    </header>
+
+    <!-- Main Hero layout -->
+    <main>
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="badge-ai">
+                    <span>⚡ AI-Powered Cyber Defense Platform</span>
+                </div>
+                <h1>Autonomous System Protection &amp; Remote Overrides</h1>
+                <p>
+                    AI-driven cybersecurity platform that monitors, detects and neutralizes threats in real-time. Secure endpoints, analyze behavior and respond automatically.
+                </p>
+                <div class="hero-actions">
+                    <a href="/signup" class="hero-btn-primary">Get Started ⚡</a>
+                    <a href="/portal" class="hero-btn-secondary">View Dashboard 📊</a>
+                </div>
+            </div>
+
+            <!-- Threat Map Card -->
+            <div class="threat-map-container">
+                <div class="map-header">
+                    <span class="map-badge">Live Threat Map</span>
+                    <div class="map-header-right">
+                        <div class="map-stat-val">24,891</div>
+                        <div class="map-stat-lbl">Threats Blocked Today</div>
+                    </div>
+                </div>
+
+                <!-- World Map SVG -->
+                <svg class="world-map-svg" viewBox="0 0 1000 500">
+                    <defs>
+                        <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="var(--danger)" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.2"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Continental Silhouette paths -->
+                    <!-- North America -->
+                    <path class="map-continent" d="M120,80 L220,100 L240,150 L270,180 L290,200 L220,230 L180,240 L160,200 L110,160 Z"/>
+                    <!-- South America -->
+                    <path class="map-continent" d="M260,260 L290,280 L320,330 L340,390 L320,430 L290,390 L260,330 L250,290 Z"/>
+                    <!-- Africa -->
+                    <path class="map-continent" d="M460,220 L510,210 L540,250 L560,310 L540,360 L500,380 L480,330 L450,290 L440,240 Z"/>
+                    <!-- Europe / Asia -->
+                    <path class="map-continent" d="M450,120 L550,100 L650,90 L750,110 L850,130 L880,180 L800,200 L730,190 L680,220 L600,220 L550,180 L480,160 Z"/>
+                    <!-- Australia -->
+                    <path class="map-continent" d="M780,320 L840,330 L860,370 L820,400 L760,360 Z"/>
+
+                    <!-- Attack Flow Lines -->
+                    <path class="threat-line" d="M150,140 Q350,160 520,280"/>
+                    <path class="threat-line" style="animation-delay: 1.5s;" d="M680,160 Q500,180 300,320"/>
+                    <path class="threat-line" style="animation-delay: 3s;" d="M800,350 Q600,250 480,260"/>
+                    <path class="threat-line" style="animation-delay: 2.2s;" d="M520,140 Q400,250 180,200"/>
+
+                    <!-- Blinking Attack Nodes -->
+                    <!-- Destination points -->
+                    <g transform="translate(520, 280)">
+                        <circle class="threat-pulse-ring" r="16" fill="var(--danger)" opacity="0.4"/>
+                        <circle class="threat-dot" r="5"/>
+                    </g>
+                    <g transform="translate(300, 320)">
+                        <circle class="threat-pulse-ring" r="14" fill="var(--danger)" opacity="0.4" style="animation-delay: 0.5s;"/>
+                        <circle class="threat-dot" r="4.5"/>
+                    </g>
+                    <!-- Safe nodes -->
+                    <g transform="translate(150, 140)">
+                        <circle class="protected-dot" r="4"/>
+                    </g>
+                    <g transform="translate(680, 160)">
+                        <circle class="protected-dot" r="4"/>
+                    </g>
+                    <g transform="translate(480, 260)">
+                        <circle class="protected-dot" r="4.5"/>
+                    </g>
+                </svg>
+
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: var(--danger);"></span>
+                        <span>ATTACKS</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot" style="background: var(--primary);"></span>
+                        <span>PROTECTED</span>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Stats Bar -->
-        <section class="stats-bar">
-            <div class="stat-item">
-                <div class="stat-val">1,428+</div>
-                <div class="stat-label">Secure Nodes</div>
+        <section class="telemetry-row">
+            <div class="telemetry-card">
+                <div class="telemetry-val">1,428+</div>
+                <div class="telemetry-lbl">Secure Nodes</div>
+                <div class="telemetry-desc">Online &amp; Protected</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-val">99.98%</div>
-                <div class="stat-label">Audit Accuracy</div>
+            <div class="telemetry-card">
+                <div class="telemetry-val">99.98%</div>
+                <div class="telemetry-lbl">Audit Accuracy</div>
+                <div class="telemetry-desc">AI Detection Rate</div>
             </div>
-            <div class="stat-item">
-                <div class="stat-val">&lt; 50ms</div>
-                <div class="stat-label">Command Latency</div>
+            <div class="telemetry-card">
+                <div class="telemetry-val">&lt; 50ms</div>
+                <div class="telemetry-lbl">Command Latency</div>
+                <div class="telemetry-desc">Lightning Fast</div>
+            </div>
+            <div class="telemetry-card">
+                <div class="telemetry-val">12,482+</div>
+                <div class="telemetry-lbl">Threats Blocked</div>
+                <div class="telemetry-desc">24H Protection</div>
             </div>
         </section>
 
-        <!-- Features Grid -->
-        <section class="features">
-            <div class="feature-card">
-                <span class="feature-icon">🔌</span>
-                <h3>Remote System Overrides</h3>
-                <p>Execute safe power commands like shutdown, hibernate, lock, or launch targeted executables with fully delegated admin privileges.</p>
+        <!-- Capabilities Section -->
+        <section class="capabilities-section" id="features">
+            <h2 class="cap-title">Core Capabilities</h2>
+            <p class="cap-subtitle">Advanced features to secure, monitor and respond in real-time</p>
+            
+            <div class="capabilities-grid">
+                <div class="cap-card">
+                    <div class="cap-icon">🔌</div>
+                    <h3>Remote System Overrides</h3>
+                    <p>Execute safe power commands like shutdown, lock or hibernate with full admin privileges.</p>
+                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
+                </div>
+                <div class="cap-card">
+                    <div class="cap-icon">🛡️</div>
+                    <h3>Kavach Active Blocker</h3>
+                    <p>AI-powered system blocker that detects unauthorized access and neutralizes threats instantly.</p>
+                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
+                </div>
+                <div class="cap-card">
+                    <div class="cap-icon">📊</div>
+                    <h3>Real-time Telemetry</h3>
+                    <p>Monitor CPU, memory, disk, network and processes in real-time with advanced telemetry.</p>
+                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
+                </div>
+                <div class="cap-card">
+                    <div class="cap-icon">✉️</div>
+                    <h3>Telegram Alert Bot</h3>
+                    <p>Instant alerts and logs delivered directly to your Telegram for quick action.</p>
+                    <a href="/portal" class="cap-link">Learn more <span>→</span></a>
+                </div>
             </div>
-            <div class="feature-card">
-                <span class="feature-icon">🛡️</span>
-                <h3>Kavach Active Blocker</h3>
-                <p>Our intelligent system blocker detects unauthorized system access or background recording programs, logging and neutralizing them immediately.</p>
+        </section>
+
+        <!-- Bottom Dashboard: Terminal & Threat Distribution -->
+        <section class="bottom-dashboard-row">
+            <!-- Terminal Panel -->
+            <div class="terminal-panel">
+                <div class="terminal-header">
+                    <div class="terminal-title">
+                        <span>⌨️ Live Terminal Console</span>
+                    </div>
+                    <div class="terminal-status">
+                        <span class="status-pulse-dot"></span>
+                        <span>Online</span>
+                    </div>
+                </div>
+                <div class="terminal-body" id="termBody">
+                    <div class="terminal-line dim">&gt; Connection established with core telemetry listener...</div>
+                    <div class="terminal-line info">&gt; Initializing 3RD AI KAVACH Security Agent...</div>
+                    <div class="terminal-line info">&gt; Checking integrity hashes... Done (100% OK)</div>
+                    <div class="terminal-line info">&gt; Kavach active protection shield fully activated.</div>
+                    <div class="terminal-line dim">&gt; Monitoring threads and system interrupts...</div>
+                </div>
             </div>
-            <div class="feature-card">
-                <span class="feature-icon">📊</span>
-                <h3>Real-time Telemetry</h3>
-                <p>Inspect processes activity, CPU performance logs, and keystroke forensic events inside a unified, beautiful management terminal.</p>
+
+            <!-- Threat Distribution Pie Chart -->
+            <div class="chart-panel">
+                <div class="chart-header">Threat Overview (24H)</div>
+                <div class="chart-content">
+                    <div class="chart-visual">
+                        <!-- SVG Ring Donut Chart -->
+                        <svg viewBox="0 0 42 42" width="140" height="140">
+                            <!-- 1. Gray background track -->
+                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#111827" stroke-width="3"></circle>
+                            
+                            <!-- 2. Malware (Cyan) - Value: 42% -->
+                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--primary)" stroke-width="4.2" 
+                                    stroke-dasharray="42 58" stroke-dashoffset="100"></circle>
+                            
+                            <!-- 3. Intrusion (Blue) - Value: 27% -->
+                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--secondary)" stroke-width="4.2" 
+                                    stroke-dasharray="27 73" stroke-dashoffset="58"></circle>
+                            
+                            <!-- 4. Suspicious (Purple) - Value: 18% -->
+                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--accent)" stroke-width="4.2" 
+                                    stroke-dasharray="18 82" stroke-dashoffset="31"></circle>
+                            
+                            <!-- 5. Exploits (Red) - Value: 13% -->
+                            <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="var(--danger)" stroke-width="4.2" 
+                                    stroke-dasharray="13 87" stroke-dashoffset="13"></circle>
+                        </svg>
+                        <div class="chart-inner-text">
+                            <div class="inner-val">12,482</div>
+                            <div class="inner-lbl">Total Blocked</div>
+                        </div>
+                    </div>
+
+                    <!-- Legend panel -->
+                    <div class="chart-legend">
+                        <div class="legend-row">
+                            <div class="legend-left">
+                                <span class="legend-circle" style="background: var(--primary);"></span>
+                                <span>Malware</span>
+                            </div>
+                            <div class="legend-val">5,248</div>
+                        </div>
+                        <div class="legend-row">
+                            <div class="legend-left">
+                                <span class="legend-circle" style="background: var(--secondary);"></span>
+                                <span>Intrusion</span>
+                            </div>
+                            <div class="legend-val">3,421</div>
+                        </div>
+                        <div class="legend-row">
+                            <div class="legend-left">
+                                <span class="legend-circle" style="background: var(--accent);"></span>
+                                <span>Suspicious</span>
+                            </div>
+                            <div class="legend-val">2,193</div>
+                        </div>
+                        <div class="legend-row">
+                            <div class="legend-left">
+                                <span class="legend-circle" style="background: var(--danger);"></span>
+                                <span>Exploits</span>
+                            </div>
+                            <div class="legend-val">1,620</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="feature-card">
-                <span class="feature-icon">🤖</span>
-                <h3>Telegram Alert Bot</h3>
-                <p>Fully integrate with Telegram. Control endpoints directly via instant chats and receive push alert logs when threats are terminated.</p>
+        </section>
+
+        <!-- Partner Section -->
+        <section class="partners-bar">
+            <div class="partners-title">TRUSTED BY SECURITY ENTHUSIASTS &amp; ORGANIZATIONS</div>
+            <div class="partners-logos">
+                <div class="logo-item">💼 Hack The Box</div>
+                <div class="logo-item">🛡️ TryHackMe</div>
+                <div class="logo-item">⚡ <span>paloalto</span></div>
+                <div class="logo-item">🔴 CROWDSTRIKE</div>
+                <div class="logo-item">🌀 SENTINELONE</div>
+                <div class="logo-item">📊 DATADOG</div>
             </div>
         </section>
     </main>
 
     <!-- Footer -->
     <footer>
-        <p>&copy; 2026 3RD AI KAVACH. Built for Advanced Endpoint Immunity.</p>
+        <p>© 2026 3RD AI KAVACH. Built for Advanced Endpoint Immunity.</p>
     </footer>
 
+    <!-- Interactive JS to simulate active terminal scanning -->
+    <script>
+        const terminalBody = document.getElementById("termBody");
+        const logTemplates = [
+            { type: "info", text: "Scanning active file system threads..." },
+            { type: "info", text: "Verification: Integrity check passed." },
+            { type: "warn", text: "Warning: Potential memory leak detected in browser host." },
+            { type: "alert", text: "ALERT: Unauthorized process activity intercepted. neutralizing..." },
+            { type: "info", text: "Successfully blocked PID 10424. Threat cleaned." },
+            { type: "dim", text: "Sending threat intelligence packet to cloud API..." },
+            { type: "info", text: "Sync success: Telegram alert dispatched to security group." },
+            { type: "dim", text: "Sleeping for telemetry interval (1500ms)..." }
+        ];
+
+        function simulateLogs() {
+            const randomLog = logTemplates[Math.floor(Math.random() * logTemplates.length)];
+            const logEl = document.createElement("div");
+            logEl.className = `terminal-line ${randomLog.type}`;
+            logEl.innerText = `> [${new Date().toLocaleTimeString()}] ${randomLog.text}`;
+            
+            terminalBody.appendChild(logEl);
+            
+            // Keep scroll at bottom
+            terminalBody.scrollTop = terminalBody.scrollHeight;
+
+            // Remove extra lines if they exceed 50
+            if (terminalBody.childElementCount > 40) {
+                terminalBody.removeChild(terminalBody.firstChild);
+            }
+
+            // Set next interval
+            setTimeout(simulateLogs, 2500 + Math.random() * 3000);
+        }
+
+        // Start log simulation
+        setTimeout(simulateLogs, 1500);
+    </script>
 </body>
 </html>
