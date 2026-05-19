@@ -4,14 +4,14 @@
     <title>3RD AI KAVACH | Autonomous Security Command Center</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                     },
                     colors: {
@@ -116,37 +116,43 @@
     </nav>
 
     <!-- HERO -->
-    <section class="relative z-10 px-10 py-16 grid lg:grid-cols-2 gap-12 items-center max-w-7xl mx-auto">
-        <div>
+    <section class="relative z-10 px-10 py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center max-w-7xl mx-auto">
+        <div class="lg:col-span-7 flex flex-col justify-center">
             <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/5 text-[#00f2fe] text-xs font-bold tracking-widest uppercase mb-6">
                 <span class="w-1.5 h-1.5 bg-[#00f2fe] rounded-full animate-ping"></span>
                 AI-POWERED CYBER DEFENSE PLATFORM
             </div>
 
-            <h2 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-wide uppercase">
-                INTELLIGENT PROTECTION
-                <span class="block bg-gradient-to-r from-[#00f2fe] to-[#0072ff] bg-clip-text text-transparent">
+            <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-[2.6rem] font-black leading-[1.05] tracking-tighter uppercase whitespace-nowrap">
+                INTELLIGENT PROTECTION<br>
+                <span class="bg-gradient-to-r from-[#00f2fe] to-[#0072ff] bg-clip-text text-transparent py-0.5 inline-block">
                     SYSTEM AGENT
-                </span>
+                </span><br>
                 CYBER THREAT
             </h2>
 
-            <p class="text-gray-400 text-md md:text-lg mt-6 leading-8 max-w-2xl font-medium">
+            <p class="text-gray-400 text-sm md:text-base mt-6 leading-relaxed max-w-2xl font-medium">
                 AI-driven cybersecurity platform that monitors, detects and neutralizes threats in real-time. Secure endpoints, analyze behavior and respond automatically.
             </p>
 
-            <div class="flex gap-5 mt-10">
-                <a href="/signup" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#00f2fe] to-[#0072ff] text-black font-black text-sm uppercase tracking-wider shadow-[0_0_30px_rgba(0,242,254,0.45)] hover:scale-105 transition flex items-center gap-2">
-                    Get Started ⚡
+            <div class="flex gap-5 mt-8">
+                <a href="/signup" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#00f2fe] to-[#0072ff] text-black font-black text-sm uppercase tracking-wider shadow-[0_0_30px_rgba(0,242,254,0.45)] hover:scale-[1.03] active:scale-[0.98] transition flex items-center gap-2">
+                    <span>Get Started</span>
+                    <svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
                 </a>
-                <a href="/portal" class="px-8 py-4 rounded-2xl border border-cyan-500/30 hover:border-cyan-400 text-white font-bold text-sm tracking-wider transition flex items-center gap-2">
-                    View Dashboard 📊
+                <a href="/portal" class="px-8 py-4 rounded-2xl border border-cyan-500/30 hover:border-cyan-400 text-white font-bold text-sm tracking-wider hover:scale-[1.03] active:scale-[0.98] transition flex items-center gap-2">
+                    <span>View Dashboard</span>
+                    <svg class="w-4 h-4 stroke-current text-[#00f2fe]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4zM14 16a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2v-4z"/>
+                    </svg>
                 </a>
             </div>
         </div>
 
         <!-- RIGHT SIDE: World Attack Visualization -->
-        <div class="relative">
+        <div class="lg:col-span-5 relative">
             <div class="absolute inset-0 bg-[#00f2fe]/10 blur-[100px] rounded-full pointer-events-none"></div>
 
             <div class="relative rounded-3xl border border-cyan-500/20 bg-[#070e1a]/85 backdrop-blur-2xl p-6 shadow-2xl">
@@ -168,52 +174,85 @@
 
                 <!-- SVG World Attack Map -->
                 <div class="h-[280px] rounded-2xl border border-cyan-500/10 bg-black/40 relative overflow-hidden flex items-center justify-center">
-                    <svg viewBox="0 0 1000 500" class="w-full h-full opacity-60">
+                    <svg viewBox="0 0 1000 500" class="w-full h-full opacity-70">
                         <defs>
                             <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.9"/>
-                                <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.1"/>
+                                <stop offset="0%" stop-color="#ef4444" stop-opacity="0.95"/>
+                                <stop offset="100%" stop-color="#00f2fe" stop-opacity="0.15"/>
                             </linearGradient>
+                            <pattern id="dot-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                                <circle cx="3" cy="3" r="1.2" fill="#00f2fe" opacity="0.3" />
+                            </pattern>
+                            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
                         </defs>
 
-                        <!-- Continental Paths -->
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M120,80 L220,100 L240,150 L270,180 L290,200 L220,230 L180,240 L160,200 L110,160 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M260,260 L290,280 L320,330 L340,390 L320,430 L290,390 L260,330 L250,290 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M460,220 L510,210 L540,250 L560,310 L540,360 L500,380 L480,330 L450,290 L440,240 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M450,120 L550,100 L650,90 L750,110 L850,130 L880,180 L800,200 L730,190 L680,220 L600,220 L550,180 L480,160 Z"/>
-                        <path class="fill-[#111827] stroke-[#1f2937] stroke-[0.8]" d="M780,320 L840,330 L860,370 L820,400 L760,360 Z"/>
+                        <!-- Continental Paths Filled with Dot Pattern -->
+                        <g stroke="#00f2fe" stroke-width="0.8" stroke-opacity="0.35" fill="url(#dot-pattern)">
+                            <!-- North America -->
+                            <path d="M 80,120 C 90,95 130,65 180,65 C 210,65 220,80 230,90 C 240,100 260,90 280,75 C 290,70 310,85 300,105 C 290,125 260,135 250,145 C 240,155 230,175 210,195 C 190,215 170,235 160,255 C 155,260 150,245 150,235 C 150,225 160,215 160,195 C 160,175 140,165 120,165 C 100,165 90,155 80,135 Z"/>
+                            <!-- Greenland -->
+                            <path d="M 280,55 C 295,45 325,45 335,65 C 345,85 325,105 305,110 C 285,115 265,95 280,55 Z"/>
+                            <!-- South America -->
+                            <path d="M 160,255 C 170,255 180,275 200,295 C 220,315 240,335 250,365 C 260,395 250,435 230,465 C 210,495 190,505 180,505 C 175,505 170,485 170,455 C 170,425 160,395 150,365 C 140,335 130,305 140,285 C 145,275 155,265 160,255 Z"/>
+                            <!-- Africa -->
+                            <path d="M 420,195 C 440,185 480,185 510,205 C 540,225 560,255 570,285 C 580,315 580,345 560,375 C 540,405 520,435 500,445 C 490,450 480,435 480,415 C 480,395 470,375 460,355 C 450,335 420,315 410,285 C 400,255 405,225 420,195 Z"/>
+                            <!-- Madagascar -->
+                            <path d="M 575,355 C 585,355 590,375 585,395 C 580,415 570,415 575,355 Z"/>
+                            <!-- Eurasia & Europe -->
+                            <path d="M 360,125 C 380,105 420,100 450,95 C 500,85 550,75 600,75 C 650,75 700,85 750,85 C 800,85 850,95 900,110 C 930,120 950,140 940,160 C 930,180 900,200 870,220 C 840,240 820,260 800,271 C 780,281 750,271 720,260 C 690,250 670,280 640,290 C 610,300 580,290 560,270 C 540,250 500,240 470,240 C 440,240 420,250 400,260 C 380,270 370,260 365,240 C 360,220 370,200 380,180 C 390,160 380,140 360,125 Z"/>
+                            <!-- India & Indochina Projections -->
+                            <path d="M 625,280 L 640,315 L 655,280 Z"/>
+                            <path d="M 710,260 L 725,305 L 740,260 Z"/>
+                            <!-- Australia -->
+                            <path d="M 780,345 C 800,335 830,335 850,345 C 870,355 880,375 870,405 C 860,435 830,445 800,425 C 780,405 770,375 780,345 Z"/>
+                            <!-- Japan -->
+                            <path d="M 890,155 C 900,165 900,185 890,195 C 880,185 880,165 890,155 Z"/>
+                            <!-- Great Britain & Ireland -->
+                            <path d="M 410,105 C 420,105 420,125 410,125 C 400,125 400,105 410,105 Z"/>
+                        </g>
 
-                        <!-- Active Threat Arcs -->
-                        <path class="threat-line" d="M150,140 Q350,160 520,280"/>
-                        <path class="threat-line" style="animation-delay: 1.8s;" d="M680,160 Q500,180 300,320"/>
-                        <path class="threat-line" style="animation-delay: 3.2s;" d="M800,350 Q600,250 480,260"/>
+                        <!-- Active Threat Arcs (glowing curves) -->
+                        <path class="threat-line" stroke="url(#line-gradient)" stroke-width="2.2" fill="none" stroke-dasharray="8 6" d="M 800,160 Q 500,80 200,150"/>
+                        <path class="threat-line" style="animation-delay: 1.5s;" stroke="url(#line-gradient)" stroke-width="2.2" fill="none" stroke-dasharray="8 6" d="M 480,220 Q 320,260 200,350"/>
+                        <path class="threat-line" style="animation-delay: 3s;" stroke="url(#line-gradient)" stroke-width="2.2" fill="none" stroke-dasharray="8 6" d="M 820,380 Q 730,300 640,280"/>
 
                         <!-- Nodes with Pulsing Rings -->
-                        <g transform="translate(520, 280)">
+                        <g transform="translate(200, 150)">
                             <circle class="threat-pulse-ring" r="14" fill="#ef4444" opacity="0.35"/>
-                            <circle class="threat-dot" r="4.5"/>
+                            <circle class="threat-dot" r="4.5" fill="#ef4444"/>
                         </g>
-                        <g transform="translate(300, 320)">
+                        <g transform="translate(200, 350)">
                             <circle class="threat-pulse-ring" r="12" fill="#ef4444" opacity="0.35" style="animation-delay: 0.8s;"/>
-                            <circle class="threat-dot" r="4"/>
+                            <circle class="threat-dot" r="4" fill="#ef4444"/>
                         </g>
-                        <g transform="translate(150, 140)"><circle class="protected-dot" r="4"/></g>
-                        <g transform="translate(680, 160)"><circle class="protected-dot" r="4"/></g>
+                        <g transform="translate(640, 280)">
+                            <circle class="threat-pulse-ring" r="12" fill="#00f2fe" opacity="0.35" style="animation-delay: 1.2s;"/>
+                            <circle class="threat-dot" r="4.5" fill="#00f2fe"/>
+                        </g>
+
+                        <circle cx="800" cy="160" r="4" fill="#00f2fe" class="protected-dot"/>
+                        <circle cx="480" cy="220" r="4" fill="#00f2fe" class="protected-dot"/>
+                        <circle cx="820" cy="380" r="4" fill="#00f2fe" class="protected-dot"/>
                     </svg>
 
                     <div class="absolute bottom-4 left-4 flex gap-4 text-[10px] font-bold tracking-wider text-gray-500">
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500"></span> ATTACKS</span>
+                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> ATTACKS</span>
                         <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#00f2fe]"></span> PROTECTED</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
     <!-- STATS CARDS -->
     <section class="relative z-10 px-10 py-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="flex items-center gap-5 p-6 rounded-2xl border border-cyan-500/10 bg-[#070e1a]/60 backdrop-blur-xl hover:border-cyan-400 transition">
-            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl shrink-0 text-[#00f2fe]">🛡️</div>
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 text-[#00f2fe]">
+                <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                </svg>
+            </div>
             <div>
                 <h3 class="text-2xl font-black text-white font-mono">1,428+</h3>
                 <p class="text-xs text-gray-400 font-bold tracking-widest mt-1">SECURE NODES</p>
@@ -221,7 +260,11 @@
             </div>
         </div>
         <div class="flex items-center gap-5 p-6 rounded-2xl border border-cyan-500/10 bg-[#070e1a]/60 backdrop-blur-xl hover:border-cyan-400 transition">
-            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl shrink-0 text-[#00f2fe]">🎯</div>
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 text-[#00f2fe]">
+                <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+                </svg>
+            </div>
             <div>
                 <h3 class="text-2xl font-black text-white font-mono">99.98%</h3>
                 <p class="text-xs text-gray-400 font-bold tracking-widest mt-1">AUDIT ACCURACY</p>
@@ -229,7 +272,11 @@
             </div>
         </div>
         <div class="flex items-center gap-5 p-6 rounded-2xl border border-cyan-500/10 bg-[#070e1a]/60 backdrop-blur-xl hover:border-cyan-400 transition">
-            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl shrink-0 text-[#00f2fe]">⚡</div>
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 text-[#00f2fe]">
+                <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+            </div>
             <div>
                 <h3 class="text-2xl font-black text-white font-mono">&lt; 50ms</h3>
                 <p class="text-xs text-gray-400 font-bold tracking-widest mt-1">COMMAND LATENCY</p>
@@ -237,7 +284,11 @@
             </div>
         </div>
         <div class="flex items-center gap-5 p-6 rounded-2xl border border-cyan-500/10 bg-[#070e1a]/60 backdrop-blur-xl hover:border-cyan-400 transition">
-            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl shrink-0 text-[#00f2fe]">🛡️</div>
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0 text-[#00f2fe]">
+                <svg class="w-6 h-6 stroke-current" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+            </div>
             <div>
                 <h3 class="text-2xl font-black text-white font-mono">12,482+</h3>
                 <p class="text-xs text-gray-400 font-bold tracking-widest mt-1">THREATS BLOCKED</p>
