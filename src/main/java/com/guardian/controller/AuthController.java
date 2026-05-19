@@ -20,17 +20,21 @@ public class AuthController {
     @Autowired
     private EmailService emailService;
 
-    private String generatedOtp = null;
-    private String otpRecipient = null;
+    private final java.util.concurrent.ConcurrentHashMap<String, String> otpStorage = new java.util.concurrent.ConcurrentHashMap<>();
 
     @GetMapping("/")
     public String index() {
         return "welcome";
     }
 
+    @GetMapping("/portal")
+    public String showPortal() {
+        return "portal";
+    }
+
     @GetMapping("/login")
     public String showLogin() {
-        return "welcome";
+        return "login";
     }
 
     @GetMapping("/forgot-password")
@@ -56,9 +60,9 @@ public class AuthController {
             User u = user.get();
             u.setPassword(newPassword);
             userRepository.save(u);
-            return "redirect:/?resetSuccess";
+            return "redirect:/login?resetSuccess";
         }
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     @GetMapping("/welcome")
@@ -68,24 +72,28 @@ public class AuthController {
 
     @GetMapping("/signup")
     public String showSignupPage() {
-        return "welcome";
+        return "signup";
     }
 
     @GetMapping("/police/signup")
     public String showPoliceSignupPage() {
-        return "welcome";
+        return "police_signup";
     }
 
     @PostMapping("/send-otp")
     @ResponseBody
     public String sendOtp(@RequestParam String identifier) {
-        generatedOtp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6 digit OTP
-        otpRecipient = identifier;
+        if (identifier.contains("@") && !identifier.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            return "Error: Invalid email format!";
+        }
+        String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6 digit OTP
+        otpStorage.put(identifier, otp);
+        System.out.println("[TESTING] Generated OTP for " + identifier + " is: " + otp);
 
         if (identifier.contains("@")) {
             // Send OTP via Email
             try {
-                emailService.sendOtpEmail(identifier, generatedOtp);
+                emailService.sendOtpEmail(identifier, otp);
                 return "OTP Sent Successfully to Email!";
             } catch (Exception e) {
                 return "Error sending Email: " + e.getMessage();
@@ -95,7 +103,7 @@ public class AuthController {
             try {
                 String botToken = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk";
                 String chatId = "1123697239";
-                String text = "🛡️ Guardian Security Code: " + generatedOtp + "\nRequested for: " + identifier;
+                String text = "🛡️ Guardian Security Code: " + otp + "\nRequested for: " + identifier;
                 String urlString = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatId + "&text=" + java.net.URLEncoder.encode(text, "UTF-8");
 
                 java.net.URL url = new java.net.URL(urlString);
@@ -111,19 +119,30 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public String registerUser(@RequestParam String identifier, @RequestParam String password, Model model) {
+    public String registerUser(@RequestParam String identifier, @RequestParam String password, @RequestParam String otp, Model model) {
+        if (identifier.contains("@") && !identifier.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            model.addAttribute("error", "Invalid email format!");
+            return "signup";
+        }
+        String storedOtp = otpStorage.get(identifier);
+        if (storedOtp == null || !storedOtp.equals(otp)) {
+            model.addAttribute("error", "Invalid or expired OTP!");
+            return "signup";
+        }
         if (userRepository.findByEmail(identifier).isPresent()) {
             model.addAttribute("error", "User already exists!");
-            return "welcome";
+            return "signup";
         }
         User user = new User(identifier, password);
+        user.setRole("ADMIN");
         if (identifier.contains("@")) {
             user.setPhoneNumber(null);
         } else {
             user.setPhoneNumber(identifier);
         }
         userRepository.save(user);
-        return "redirect:/?success";
+        otpStorage.remove(identifier);
+        return "redirect:/login?success";
     }
 
     @PostMapping("/api/register")
@@ -140,6 +159,7 @@ public class AuthController {
         }
         
         User user = new User(email, password);
+        user.setRole("ADMIN");
         if (botToken != null) user.setTelegramBotToken(botToken);
         if (chatId != null) user.setTelegramChatId(chatId);
         
@@ -153,36 +173,51 @@ public class AuthController {
     public String loginUser(@RequestParam String identifier, @RequestParam String password, Model model) {
         Optional<User> user = userRepository.findByEmail(identifier);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
-            String role = "ADMIN";
-            if (identifier.toLowerCase().contains("police") || user.get().getApiKey().startsWith("POLICE")) {
-                role = "POLICE";
-            }
+            String role = user.get().getRole();
+            if (role == null) role = "ADMIN";
             return "redirect:/dashboard?apiKey=" + user.get().getApiKey() + "&role=" + role;
         }
         model.addAttribute("error", "Invalid Credentials!");
-        return "welcome";
+        return "login";
     }
 
     @PostMapping("/police/signup")
-    public String registerPoliceUser(@RequestParam String identifier, @RequestParam String password, Model model) {
+    public String registerPoliceUser(@RequestParam String identifier, @RequestParam String password, @RequestParam(required = false) String otp, Model model) {
+        if (identifier.contains("@") && !identifier.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            model.addAttribute("error", "Invalid email format!");
+            return "police_signup";
+        }
+        if (otp != null && !otp.equals(otpStorage.get(identifier))) {
+            model.addAttribute("error", "Invalid or expired OTP!");
+            return "police_signup";
+        }
         if (userRepository.findByEmail(identifier).isPresent()) {
             model.addAttribute("error", "Officer already registered!");
-            return "welcome";
+            return "police_signup";
         }
         User user = new User(identifier, password);
+        user.setRole("POLICE");
         user.setPhoneNumber(identifier); // just for storing
         userRepository.save(user);
-        return "redirect:/?success";
+        if (otp != null) otpStorage.remove(identifier);
+        return "redirect:/police/login?success";
     }
 
     @GetMapping("/police/login")
     public String showPoliceLogin() {
-        return "redirect:/";
+        return "police_login";
     }
 
     @PostMapping("/police/login")
     public String loginPoliceUser(@RequestParam String identifier, @RequestParam String password, Model model) {
-        return "redirect:/";
+        Optional<User> user = userRepository.findByEmail(identifier);
+        if (user.isPresent() && user.get().getPassword().equals(password)) {
+            String role = user.get().getRole();
+            if (role == null) role = "ADMIN";
+            return "redirect:/dashboard?apiKey=" + user.get().getApiKey() + "&role=" + role;
+        }
+        model.addAttribute("error", "Invalid Credentials!");
+        return "police_login";
     }
 
     @GetMapping("/logout")

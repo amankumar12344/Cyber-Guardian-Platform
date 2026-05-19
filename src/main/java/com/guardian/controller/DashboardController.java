@@ -61,6 +61,13 @@ public class DashboardController {
             return "POLICE".equalsIgnoreCase(role) ? "redirect:/police/login" : "redirect:/login";
         }
 
+        // Secure Role check: Force the role to be the one configured in the database
+        String dbRole = user.get().getRole();
+        if (dbRole == null) {
+            dbRole = "ADMIN";
+        }
+        role = dbRole;
+
         model.addAttribute("user", user.get());
         model.addAttribute("role", role.toUpperCase());
         
@@ -166,7 +173,19 @@ public class DashboardController {
     @PostMapping("/api/kavach/toggle")
     @ResponseBody
     @CrossOrigin
-    public String toggleKavach(@RequestParam boolean active, @RequestParam(required = false, defaultValue = "ADMIN") String role) {
+    public String toggleKavach(
+            @RequestParam boolean active, 
+            @RequestParam(required = false) String apiKey, 
+            @RequestParam(required = false, defaultValue = "ADMIN") String role) {
+        if (apiKey == null || apiKey.isEmpty()) {
+            return "UNAUTHORIZED";
+        }
+        Optional<User> user = userRepository.findAll().stream()
+                .filter(u -> u.getApiKey().equals(apiKey))
+                .findFirst();
+        if (user.isEmpty() || !"ADMIN".equalsIgnoreCase(user.get().getRole())) {
+            return "UNAUTHORIZED";
+        }
         securityService.setKavachActive(active);
         return "KAVACH_" + (active ? "ACTIVATED" : "DEACTIVATED");
     }
@@ -179,6 +198,16 @@ public class DashboardController {
             @RequestParam(required = false) String apiKey,
             @RequestParam(required = false, defaultValue = "ADMIN") String role,
             @RequestParam(required = false, defaultValue = "ALL") String targetId) {
+
+        if (apiKey == null || apiKey.isEmpty()) {
+            return "ERROR: Unauthorized";
+        }
+        Optional<User> user = userRepository.findAll().stream()
+                .filter(u -> u.getApiKey().equals(apiKey))
+                .findFirst();
+        if (user.isEmpty() || !"ADMIN".equalsIgnoreCase(user.get().getRole())) {
+            return "ERROR: Unauthorized";
+        }
 
         String uppercaseAction = action.toUpperCase();
         if ("lock".equalsIgnoreCase(action)) {

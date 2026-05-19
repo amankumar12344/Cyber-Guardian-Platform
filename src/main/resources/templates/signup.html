@@ -1,68 +1,301 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>3RD AI KAVACH | Register Admin Node</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #00f2fe;
-            --bg-dark: #020406;
+            --accent: #9d4edd;
+            --bg-dark: #06070a;
+            --card-bg: rgba(13, 17, 28, 0.45);
+            --border: rgba(255, 255, 255, 0.05);
+            --border-glow: rgba(0, 242, 254, 0.25);
+            --danger: #ff3b30;
+            --success: #10b981;
+            --text-dim: #94a3b8;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
             font-family: 'Outfit', sans-serif;
-            background: #000;
-            height: 100vh;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 50% 10%, rgba(157, 78, 221, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 10% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
+            background-size: cover;
+            background-attachment: fixed;
+            color: #f8fafc;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            background-image: radial-gradient(circle at center, #001a2e 0%, #000 100%);
+            position: relative;
+            overflow: hidden;
         }
+
+        .ambient-glow {
+            position: absolute; width: 350px; height: 350px; border-radius: 50%;
+            background: var(--primary); opacity: 0.03; filter: blur(100px); pointer-events: none; z-index: 1;
+        }
+
+        /* Signup Card */
         .signup-card {
-            width: 400px;
-            padding: 40px;
-            background: rgba(10, 20, 30, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 242, 254, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(0, 242, 254, 0.1);
+            width: 450px;
+            padding: 50px 40px;
+            background: rgba(13, 17, 28, 0.5);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 242, 254, 0.03);
+            position: relative;
+            z-index: 10;
+            transition: all 0.4s ease;
             text-align: center;
         }
-        .logo-text { font-size: 24px; font-weight: 800; letter-spacing: 3px; color: var(--primary); margin-bottom: 30px; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #888; margin-bottom: 8px; display: block; }
-        input, select {
-            width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
-            padding: 12px; border-radius: 8px; color: white; outline: none;
+
+        .signup-card::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
         }
-        input:focus, select:focus { border-color: var(--primary); }
-        .btn {
-            width: 100%; background: var(--primary); color: #000; border: none; padding: 14px;
-            border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; margin-top: 10px;
+
+        .logo-container {
+            margin-bottom: 35px;
         }
-        .footer-link { margin-top: 20px; font-size: 13px; color: #64748b; }
-        .footer-link a { color: var(--primary); text-decoration: none; }
+
+        .logo-icon {
+            font-size: 38px;
+            margin-bottom: 10px;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.3));
+        }
+
+        .logo-text {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-top: 6px;
+            font-weight: 700;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            padding: 14px 18px;
+            border-radius: 12px;
+            color: white;
+            outline: none;
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.15);
+        }
+
+        /* Get OTP Button */
+        .btn-otp {
+            padding: 0 20px;
+            background: rgba(0, 242, 254, 0.08);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-otp:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-otp:disabled {
+            border-color: var(--border);
+            color: var(--text-dim);
+            background: rgba(0,0,0,0.2);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Main Submit Button */
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, #0072ff 100%);
+            color: #000;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 15px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.3);
+        }
+
+        /* Error/Alert box */
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            margin-top: 30px;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
     </style>
+    <script>
+        function requestOtp() {
+            const identifier = document.getElementById("identifier").value;
+            const otpBtn = document.getElementById("otpBtn");
+
+            if (!identifier) {
+                alert("Please enter your email or phone number first!");
+                return;
+            }
+
+            otpBtn.disabled = true;
+            otpBtn.innerText = "Sending...";
+
+            fetch(`/send-otp?identifier=${encodeURIComponent(identifier)}`, { method: 'POST' })
+                .then(r => r.text())
+                .then(data => {
+                    alert(data);
+                    if (data.includes("Successfully")) {
+                        let countdown = 60;
+                        const interval = setInterval(() => {
+                            otpBtn.innerText = `Retry (${countdown}s)`;
+                            countdown--;
+                            if (countdown < 0) {
+                                clearInterval(interval);
+                                otpBtn.disabled = false;
+                                otpBtn.innerText = "Get OTP";
+                            }
+                        }, 1000);
+                    } else {
+                        otpBtn.disabled = false;
+                        otpBtn.innerText = "Get OTP";
+                    }
+                })
+                .catch(err => {
+                    alert("Error dispatching security code: " + err);
+                    otpBtn.disabled = false;
+                    otpBtn.innerText = "Get OTP";
+                });
+        }
+    </script>
 </head>
 <body>
+
+    <div class="ambient-glow" style="top: 10%; left: 10%;"></div>
+    <div class="ambient-glow" style="bottom: 10%; right: 10%; background: var(--accent);"></div>
+
     <div class="signup-card">
-        <div class="logo-text">🛡️ 3RD AI KAVACH</div>
-        <p style="color: #64748b; font-size: 13px; margin-bottom: 25px;">Create Secure Admin Account</p>
-        
-        <form action="/signup" method="post">
+        <div class="logo-container">
+            <span class="logo-icon">🛡️</span>
+            <h1 class="logo-text">3RD AI KAVACH</h1>
+            <p class="logo-sub">Register Admin Node</p>
+        </div>
+
+        <!-- Error Alert -->
+        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+
+        <!-- Signup Form -->
+        <form action="/signup" method="POST">
             <div class="input-group">
-                <label>Email or Phone</label>
-                <input type="text" name="identifier" placeholder="admin@secure.com" required>
+                <label>Account Identifier (Email / Phone)</label>
+                <div class="input-with-btn">
+                    <input type="text" id="identifier" name="identifier" placeholder="admin@secure.com" required>
+                    <button type="button" id="otpBtn" class="btn-otp" onclick="requestOtp()">Get OTP</button>
+                </div>
             </div>
+
             <div class="input-group">
-                <label>Master Password</label>
+                <label>OTP Verification Code</label>
+                <input type="text" name="otp" placeholder="Enter 6-digit OTP" required autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label>Establish Master Password</label>
                 <input type="password" name="password" placeholder="••••••••" required>
             </div>
-            <button type="submit" class="btn">CREATE ADMIN ACCOUNT</button>
+
+            <button type="submit" class="btn-submit">Verify & Register Node</button>
         </form>
-        
-        <div class="footer-link">
-            Already have an account? <a href="/login">Login</a>
+
+        <div class="footer-links">
+            Already registered? <a href="/login">Authenticate Terminal</a>
         </div>
     </div>
+
 </body>
 </html>

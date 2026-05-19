@@ -1,117 +1,265 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>3RD AI POLICE | OFFICER REGISTRATION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>3RD AI POLICE | Officer Registration</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --police-blue: #0066ff;
-            --bg-dark: #010204;
-            --glass-bg: rgba(10, 20, 40, 0.85);
-            --border: rgba(0, 102, 255, 0.3);
+            --accent: #4facfe;
+            --bg-dark: #020408;
+            --glass-bg: rgba(10, 20, 40, 0.7);
+            --border: rgba(0, 102, 255, 0.25);
+            --danger: #ff3b30;
+            --text-dim: #94a3b8;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Outfit', sans-serif;
-            background: #000;
-            height: 100vh;
+            background: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at center, #001133 0%, #000 100%);
+            color: white;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
             overflow: hidden;
-            color: white;
-            background-image: radial-gradient(circle at center, #001133 0%, #000 100%);
         }
 
+        .glow-dot {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--police-blue);
+            filter: blur(100px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* Signup Card */
         .signup-card {
             width: 450px;
             padding: 50px 40px;
             background: var(--glass-bg);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
             border: 1px solid var(--border);
             border-radius: 20px;
-            box-shadow: 0 0 50px rgba(0, 102, 255, 0.2);
+            box-shadow: 0 0 50px rgba(0, 102, 255, 0.15);
+            position: relative;
+            z-index: 10;
             text-align: center;
+            border-top: 4px solid var(--police-blue);
         }
 
         .logo-text {
             font-size: 28px;
             font-weight: 800;
             letter-spacing: 2px;
-            color: var(--police-blue);
+            color: white;
             margin-bottom: 5px;
         }
 
         .logo-sub {
             font-size: 11px;
-            color: #94a3b8;
+            color: var(--police-blue);
             text-transform: uppercase;
             letter-spacing: 4px;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
+            font-weight: 700;
         }
 
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: var(--police-blue); margin-bottom: 8px; font-weight: 600; }
-        
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--police-blue);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .input-with-btn {
+            display: flex;
+            gap: 10px;
+        }
+
         input, select {
             width: 100%;
             background: rgba(0,0,0,0.5);
             border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px;
+            padding: 14px 18px;
             border-radius: 10px;
             color: white;
-            font-size: 14px;
+            font-size: 15px;
             outline: none;
             transition: 0.3s;
         }
 
-        input:focus, select:focus { border-color: var(--police-blue); box-shadow: 0 0 10px rgba(0, 102, 255, 0.3); }
+        input:focus, select:focus {
+            border-color: var(--police-blue);
+            box-shadow: 0 0 10px rgba(0, 102, 255, 0.3);
+        }
 
-        .btn {
+        /* OTP Button */
+        .btn-otp {
+            padding: 0 20px;
+            background: rgba(0, 102, 255, 0.08);
+            border: 1px solid var(--police-blue);
+            color: var(--police-blue);
+            font-weight: 700;
+            font-size: 13px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-otp:hover {
+            background: var(--police-blue);
+            color: white;
+            box-shadow: 0 0 15px rgba(0, 102, 255, 0.35);
+        }
+
+        .btn-otp:disabled {
+            border-color: rgba(255,255,255,0.1);
+            color: var(--text-dim);
+            background: rgba(0,0,0,0.2);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Submit Button */
+        .btn-submit {
             width: 100%;
             background: var(--police-blue);
             color: white;
             border: none;
             padding: 15px;
             border-radius: 10px;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-top: 20px;
+            margin-top: 15px;
             transition: 0.3s;
         }
 
-        .btn:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 102, 255, 0.4); }
+        .btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.4);
+        }
 
-        .footer-link { margin-top: 25px; font-size: 13px; color: #64748b; }
-        .footer-link a { color: var(--police-blue); text-decoration: none; font-weight: 600; }
+        /* Error/Alert box */
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .footer-link {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .footer-link a {
+            color: var(--police-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link a:hover {
+            color: white;
+        }
     </style>
+    <script>
+        function requestOtp() {
+            const identifier = document.getElementById("identifier").value;
+            const otpBtn = document.getElementById("otpBtn");
+
+            if (!identifier) {
+                alert("Please enter your Officer Email or Phone number first!");
+                return;
+            }
+
+            otpBtn.disabled = true;
+            otpBtn.innerText = "Sending...";
+
+            fetch(`/send-otp?identifier=${encodeURIComponent(identifier)}`, { method: 'POST' })
+                .then(r => r.text())
+                .then(data => {
+                    alert(data);
+                    if (data.includes("Successfully")) {
+                        let countdown = 60;
+                        const interval = setInterval(() => {
+                            otpBtn.innerText = `Retry (${countdown}s)`;
+                            countdown--;
+                            if (countdown < 0) {
+                                clearInterval(interval);
+                                otpBtn.disabled = false;
+                                otpBtn.innerText = "Get OTP";
+                            }
+                        }, 1000);
+                    } else {
+                        otpBtn.disabled = false;
+                        otpBtn.innerText = "Get OTP";
+                    }
+                })
+                .catch(err => {
+                    alert("Error sending OTP code: " + err);
+                    otpBtn.disabled = false;
+                    otpBtn.innerText = "Get OTP";
+                });
+        }
+    </script>
 </head>
 <body>
 
+    <div class="glow-dot" style="top: -50px; left: -50px;"></div>
+    <div class="glow-dot" style="bottom: -50px; right: -50px; background: var(--accent);"></div>
+
     <div class="signup-card">
         <div class="logo-text">🛡️ 3RD AI POLICE</div>
-        <div class="logo-sub">OFFICER ONBOARDING PORTAL</div>
+        <div class="logo-sub">Officer Onboarding Portal</div>
 
-        <form action="/signup" method="POST">
-            <input type="hidden" name="role" value="POLICE">
+        <!-- Error Alert -->
+        <div th:if="${error}" class="error-msg" th:text="${error}"></div>
+
+        <!-- Signup Form -->
+        <form action="/police/signup" method="POST">
             
             <div class="input-group">
                 <label>Officer Email / ID</label>
-                <input type="text" name="identifier" placeholder="officer@3rdai.gov" required>
+                <div class="input-with-btn">
+                    <input type="text" id="identifier" name="identifier" placeholder="officer@3rdai.gov" required>
+                    <button type="button" id="otpBtn" class="btn-otp" onclick="requestOtp()">Get OTP</button>
+                </div>
             </div>
 
             <div class="input-group">
-                <label>Assigned Branch</label>
-                <select name="branch" required>
-                    <option value="DELHI">DELHI BRANCH</option>
-                    <option value="KOLKATA">KOLKATA BRANCH</option>
-                    <option value="MUMBAI">MUMBAI BRANCH</option>
-                    <option value="CHENNAI">CHENNAI BRANCH</option>
-                    <option value="BANGALORE">BANGALORE BRANCH</option>
-                </select>
+                <label>OTP Verification Code</label>
+                <input type="text" name="otp" placeholder="Enter 6-digit OTP" required autocomplete="off">
             </div>
 
             <div class="input-group">
@@ -119,11 +267,11 @@
                 <input type="password" name="password" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn">INITIALIZE ACCOUNT</button>
+            <button type="submit" class="btn-submit">Initialize Account</button>
         </form>
 
         <div class="footer-link">
-            Already registered? <a href="/login">Officer Login</a>
+            Already onboarded? <a href="/police/login">Officer Login</a>
         </div>
     </div>
 

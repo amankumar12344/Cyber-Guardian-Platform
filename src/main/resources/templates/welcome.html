@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>3rd AI | Operational Portal Gateway</title>
+    <title>3RD AI KAVACH | Next-Gen Security Command Center</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -9,14 +9,12 @@
         :root {
             --primary: #00f2fe;
             --accent: #9d4edd;
-            --bg-dark: #06070a;
+            --bg-dark: #05070f;
             --card-bg: rgba(13, 17, 28, 0.45);
             --border: rgba(255, 255, 255, 0.05);
-            --border-glow: rgba(0, 242, 254, 0.25);
-            --danger: #ff3b30;
-            --success: #10b981;
+            --border-glow: rgba(0, 242, 254, 0.15);
             --text-dim: #94a3b8;
-            --police-blue: #0066ff;
+            --text-light: #f8fafc;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -25,603 +23,370 @@
             font-family: 'Outfit', sans-serif;
             background: var(--bg-dark);
             background-image: 
-                radial-gradient(circle at 50% 10%, rgba(157, 78, 221, 0.08) 0%, transparent 60%),
-                radial-gradient(circle at 10% 50%, rgba(0, 242, 254, 0.05) 0%, transparent 50%);
+                radial-gradient(circle at 50% -10%, rgba(0, 242, 254, 0.12) 0%, transparent 60%),
+                radial-gradient(circle at 10% 50%, rgba(157, 78, 221, 0.06) 0%, transparent 50%);
             background-size: cover;
             background-attachment: fixed;
-            color: #f8fafc;
+            color: var(--text-light);
             min-height: 100vh;
+            overflow-x: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            overflow-x: hidden;
             position: relative;
         }
 
+        /* Ambient glowing circles */
         .ambient-glow {
-            position: absolute; width: 400px; height: 400px; border-radius: 50%;
-            background: var(--primary); opacity: 0.02; filter: blur(120px); pointer-events: none; z-index: 1;
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: var(--primary);
+            opacity: 0.04;
+            filter: blur(140px);
+            pointer-events: none;
+            z-index: 1;
         }
 
+        /* Navbar */
         header {
-            padding: 25px 50px;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 30px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border);
-            background: rgba(10, 12, 20, 0.4);
-            backdrop-filter: blur(15px);
             position: relative;
-            z-index: 20;
+            z-index: 10;
         }
 
-        .brand-logo {
-            font-size: 24px;
-            font-weight: 900;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(0, 242, 254, 0.3);
+        .brand {
             display: flex;
             align-items: center;
             gap: 12px;
+            text-decoration: none;
         }
 
-        .system-status {
-            font-size: 11px;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--success);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .brand-shield {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.5));
+            animation: pulse-glow 2s infinite alternate;
         }
 
-        .status-dot {
-            width: 8px; height: 8px; background: var(--success); border-radius: 50%;
-            box-shadow: 0 0 10px var(--success);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.4; }
-            50% { opacity: 1; }
-            100% { opacity: 0.4; }
-        }
-
-        /* Split Layout Main Container */
-        .main-container {
-            max-width: 1400px;
-            width: 100%;
-            margin: auto;
-            padding: 40px 50px;
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 60px;
-            align-items: center;
-            position: relative;
-            z-index: 10;
-            flex-grow: 1;
-        }
-
-        /* Left Side Specs & Stats */
-        .info-side {
-            text-align: left;
-        }
-
-        .hero-badge {
-            background: rgba(0, 242, 254, 0.08);
-            border: 1px solid rgba(0, 242, 254, 0.2);
-            color: var(--primary);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 25px;
-        }
-
-        .hero-title {
-            font-size: 58px;
+        .brand-name {
+            font-size: 22px;
             font-weight: 900;
-            line-height: 1.1;
-            letter-spacing: -1px;
-            margin-bottom: 20px;
-            background: linear-gradient(to right, #ffffff, #d8b4fe, var(--primary));
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 30%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .hero-desc {
-            font-size: 16px;
-            color: var(--text-dim);
-            line-height: 1.6;
-            margin-bottom: 40px;
-            max-width: 620px;
-        }
-
-        /* Interactive Stats Panel */
-        .specs-panel {
-            background: rgba(13, 17, 28, 0.3);
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 30px;
-            box-shadow: inset 0 0 20px rgba(255,255,255,0.01);
-            position: relative;
-        }
-
-        .spec-item {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .spec-val {
-            font-size: 26px;
-            font-weight: 800;
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .spec-lbl {
-            font-size: 11px;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-        }
-
-        /* Right Side Master Console */
-        .console-wrapper {
-            position: relative;
-        }
-
-        .console-card {
-            background: rgba(13, 17, 28, 0.45);
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--border);
-            border-radius: 28px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 35px rgba(0, 242, 254, 0.03);
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-        }
-
-        .console-card::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary), var(--accent), transparent);
-            opacity: 0.4;
-        }
-
-        /* Sector Tabs Switcher */
-        .sector-tabs {
-            display: flex;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 6px;
-            border-radius: 14px;
-            border: 1px solid var(--border);
-            margin-bottom: 35px;
-            gap: 4px;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            background: transparent;
-            color: var(--text-dim);
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-            outline: none;
-        }
-
-        .tab-btn:hover {
-            color: #fff;
-            background: rgba(255,255,255,0.02);
-        }
-
-        .tab-btn.active {
-            color: #000;
-            font-weight: 900;
-            background: var(--primary);
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.2);
-        }
-
-        .tab-btn.active.police-tab {
-            background: var(--police-blue);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.3);
-        }
-
-        .tab-btn.active.signup-tab {
-            background: var(--accent);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);
-        }
-
-        /* Form contents (hidden by default, animated on transition) */
-        .form-panel {
-            display: none;
-            opacity: 0;
-            transform: translateY(10px) scale(0.98);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-        }
-
-        .form-panel.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .form-title {
-            font-size: 20px;
-            font-weight: 800;
-            color: #fff;
-            margin-bottom: 6px;
-            letter-spacing: 0.5px;
-        }
-
-        .form-desc {
-            font-size: 13px;
-            color: var(--text-dim);
-            margin-bottom: 25px;
-            line-height: 1.4;
-        }
-
-        /* Inputs */
-        .input-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 700;
-        }
-
-        .input-group input {
-            width: 100%;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--border);
-            padding: 13px 16px;
+            padding: 10px 22px;
             border-radius: 12px;
             color: white;
-            outline: none;
-            font-family: 'Outfit', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .input-group input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.12);
-        }
-
-        .input-group input.police-focus:focus {
-            border-color: var(--police-blue);
-            box-shadow: 0 0 15px rgba(0, 102, 255, 0.15);
-        }
-
-        .input-group input.signup-focus:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(157, 78, 221, 0.15);
-        }
-
-        /* Interactive Form Buttons */
-        .btn-action {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary) 0%, #0072ff 100%);
-            color: #000;
-            font-weight: 800;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-top: 5px;
-        }
-
-        .btn-action:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 242, 254, 0.25);
-        }
-
-        .btn-action.btn-police {
-            background: linear-gradient(135deg, var(--police-blue) 0%, #00d2ff 100%);
-            color: #fff;
-        }
-        .btn-action.btn-police:hover {
-            box-shadow: 0 8px 25px rgba(0, 102, 255, 0.3);
-        }
-
-        .btn-action.btn-signup {
-            background: linear-gradient(135deg, var(--accent) 0%, #d8b4fe 100%);
-            color: #fff;
-        }
-        .btn-action.btn-signup:hover {
-            box-shadow: 0 8px 25px rgba(157, 78, 221, 0.3);
-        }
-
-        /* Agent download wrapper */
-        .agent-download-bar {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border);
-            padding: 15px;
-            border-radius: 14px;
-            margin-top: 25px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 15px;
-        }
-
-        .agent-info {
-            text-align: left;
-        }
-
-        .agent-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .agent-version {
-            font-size: 11px;
-            color: var(--text-dim);
-            font-family: 'JetBrains Mono', monospace;
-            margin-top: 2px;
-        }
-
-        .btn-download {
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            border: 1px solid var(--border);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 700;
+            font-weight: 600;
             text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
-        .btn-download:hover {
-            background: #fff;
-            color: #000;
-            border-color: #fff;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.15);
+        .nav-btn:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+            transform: translateY(-1px);
         }
 
-        /* Error/Alert Banners */
-        .banner-alert {
-            background: rgba(239, 68, 68, 0.1);
-            color: #fca5a5;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 13px;
-            border: 1px solid rgba(239, 68, 68, 0.15);
-            margin-bottom: 25px;
+        /* Hero Section */
+        .hero {
+            max-width: 1100px;
+            margin: 60px auto 40px auto;
+            padding: 0 40px;
             text-align: center;
-            font-weight: 600;
-        }
-
-        .banner-success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #a7f3d0;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 13px;
-            border: 1px solid rgba(16, 185, 129, 0.15);
-            margin-bottom: 25px;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        footer {
-            padding: 25px;
-            text-align: center;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.15);
-            border-top: 1px solid var(--border);
-            background: rgba(10, 12, 20, 0.2);
             position: relative;
             z-index: 10;
         }
 
-        @media(max-width: 1024px) {
-            .main-container { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-            .info-side { text-align: center; }
-            .hero-desc { margin: 0 auto 30px auto; }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 242, 254, 0.06);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.05);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+            animation: blink 1.5s infinite;
+        }
+
+        .hero h1 {
+            font-size: 68px;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 25px;
+            background: linear-gradient(to right, #ffffff, #e2e8f0, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 19px;
+            color: var(--text-dim);
+            max-width: 720px;
+            margin: 0 auto 40px auto;
+            line-height: 1.6;
+        }
+
+        /* Glowing Call To Action Button */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, #0072ff 100%);
+            border: none;
+            padding: 18px 36px;
+            border-radius: 14px;
+            color: #030712;
+            font-weight: 800;
+            font-size: 16px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(0, 242, 254, 0.35);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0, 242, 254, 0.5);
+            filter: brightness(1.08);
+        }
+
+        /* Features Section */
+        .features {
+            max-width: 1200px;
+            margin: 60px auto;
+            padding: 0 40px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--border);
+            padding: 35px 30px;
+            border-radius: 20px;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, rgba(0, 242, 254, 0.02) 0%, transparent 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 242, 254, 0.05);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 22px;
+            display: inline-block;
+            filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.3));
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* Stats Section */
+        .stats-bar {
+            width: 100%;
+            max-width: 1120px;
+            margin: 40px auto 80px auto;
+            background: rgba(13, 17, 28, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--primary);
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            font-weight: 700;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes pulse-glow {
+            0% { filter: drop-shadow(0 0 4px rgba(0, 242, 254, 0.3)); }
+            100% { filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.7)); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 44px; }
+            .hero p { font-size: 16px; }
+            .stats-bar { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
 <body>
 
-    <div class="ambient-glow" style="top: 15%; left: 15%;"></div>
-    <div class="ambient-glow" style="bottom: 20%; right: 15%;"></div>
+    <div class="ambient-glow" style="top: -10%; left: -10%;"></div>
+    <div class="ambient-glow" style="bottom: 10%; right: -10%; background: var(--accent);"></div>
 
-    <!-- Header Operations -->
+    <!-- Header Section -->
     <header>
-        <div class="brand-logo">
-            <span>🛡️</span> 3RD AI
-        </div>
-        <div class="system-status">
-            <div class="status-dot"></div>
-            Security Shield Active
-        </div>
+        <a href="/" class="brand">
+            <span class="brand-shield">🛡️</span>
+            <span class="brand-name">3RD AI KAVACH</span>
+        </a>
+        <a href="/portal" class="nav-btn">Terminal Gate</a>
     </header>
 
-    <!-- Main Grid Content -->
-    <div class="main-container">
-        <!-- Left Side Info -->
-        <div class="info-side">
-            <span class="hero-badge">3RD AI OPERATIONAL PLATFORM</span>
-            <h1 class="hero-title">Defensive Cyber Command Center</h1>
-            <p class="hero-desc">
-                Deploy dynamic real-time shielding, audit system logs under regulatory frameworks, and investigate malicious process breaches through our split-level forensic node telemetry interface.
-            </p>
-
-            <div class="specs-panel">
-                <div class="spec-item">
-                    <div class="spec-val">1,428</div>
-                    <div class="spec-lbl">monitored nodes</div>
-                </div>
-                <div class="spec-item" style="border-left: 1px solid var(--border); padding-left: 30px;">
-                    <div class="spec-val" style="color: var(--primary);">99.98%</div>
-                    <div class="spec-lbl">audit uptime</div>
-                </div>
+    <!-- Main Hero -->
+    <main>
+        <section class="hero">
+            <div class="status-badge">
+                <span class="status-dot"></span>
+                Security Core Online
             </div>
-        </div>
+            <h1>Autonomous System Protection & Remote Overrides</h1>
+            <p>Deploy the 3RD AI KAVACH lightweight background security agent. Intercept active background breaches, run diagnostic keystroke loggers, whitelists, and perform terminal command execution directly from the cloud.</p>
+            <a href="/portal" class="cta-btn">
+                <span>Get Started</span>
+                <span>⚡</span>
+            </a>
+        </section>
 
-        <!-- Right Side Interactive Master Console -->
-        <div class="console-wrapper">
-            <div class="console-card">
-                <!-- Banners inside console card -->
-                <div th:if="${param.success}" class="banner-success">
-                    ✅ Account created successfully! Please login.
-                </div>
-                <div th:if="${error}" class="banner-alert" th:text="${error}">
-                    ⚠️ Invalid credentials.
-                </div>
-                <div th:if="${param.resetSuccess}" class="banner-success" style="border-color: var(--primary); color: var(--primary); background: rgba(0, 242, 254, 0.05);">
-                    🔑 Security Key Reset successful.
-                </div>
-
-                <!-- Three Sector Tabs Selector -->
-                <div class="sector-tabs">
-                    <button class="tab-btn active" onclick="switchForm('admin')">👑 Admin Login</button>
-                    <button class="tab-btn" onclick="switchForm('police')">🛡️ Police Login</button>
-                    <button class="tab-btn" onclick="switchForm('signup')">⚙️ New Account</button>
-                </div>
-
-                <!-- 1. Admin Login Panel -->
-                <div id="admin-panel" class="form-panel active">
-                    <h2 class="form-title">Root Admin Console</h2>
-                    <p class="form-desc">Initialize connection to edit configurations, trigger action controls, and customize shield blocks.</p>
-                    
-                    <form th:action="@{/login}" method="post">
-                        <div class="input-group">
-                            <label>Admin Identifier</label>
-                            <input type="text" name="identifier" placeholder="admin@3rdai.gov" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Security Override Password</label>
-                            <input type="password" name="password" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn-action">Authenticate Admin</button>
-                    </form>
-                </div>
-
-                <!-- 2. Police Login Panel -->
-                <div id="police-panel" class="form-panel">
-                    <h2 class="form-title">Forensic Threat Intelligence</h2>
-                    <p class="form-desc">Authenticate under statutory enforcement credentials to audit forensic screen streams and breaches history.</p>
-                    
-                    <form th:action="@{/login}" method="post">
-                        <div class="input-group">
-                            <label>Officer ID / Email</label>
-                            <input type="text" name="identifier" class="police-focus" placeholder="police@3rdai.gov" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Credential Security Password</label>
-                            <input type="password" name="password" class="police-focus" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn-action btn-police">Initialize Forensic Command</button>
-                    </form>
-                </div>
-
-                <!-- 3. New Account Signup Panel -->
-                <div id="signup-panel" class="form-panel">
-                    <h2 class="form-title">Register Core Admin Node</h2>
-                    <p class="form-desc">Create a new local security administrator workspace instance to start remote process monitoring.</p>
-                    
-                    <form th:action="@{/signup}" method="post">
-                        <div class="input-group">
-                            <label>Account Identifier (Email / Phone)</label>
-                            <input type="text" name="identifier" class="signup-focus" placeholder="node@3rdai.gov" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Establish Master Password</label>
-                            <input type="password" name="password" class="signup-focus" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn-action btn-signup">Verify & Register Node</button>
-                    </form>
-
-                    <!-- Stealth Agent Installer Download Embedded -->
-                    <div class="agent-download-bar">
-                        <div class="agent-info">
-                            <div class="agent-title">📥 Silent Installer (.exe)</div>
-                            <div class="agent-version">Ver 1.0.4 - Windows Background</div>
-                        </div>
-                        <a href="/3rd-AI-Agent.exe" class="btn-download">Download</a>
-                    </div>
-                </div>
+        <!-- Stats Bar -->
+        <section class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-val">1,428+</div>
+                <div class="stat-label">Secure Nodes</div>
             </div>
-        </div>
-    </div>
+            <div class="stat-item">
+                <div class="stat-val">99.98%</div>
+                <div class="stat-label">Audit Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-val">&lt; 50ms</div>
+                <div class="stat-label">Command Latency</div>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="features">
+            <div class="feature-card">
+                <span class="feature-icon">🔌</span>
+                <h3>Remote System Overrides</h3>
+                <p>Execute safe power commands like shutdown, hibernate, lock, or launch targeted executables with fully delegated admin privileges.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🛡️</span>
+                <h3>Kavach Active Blocker</h3>
+                <p>Our intelligent system blocker detects unauthorized system access or background recording programs, logging and neutralizing them immediately.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">📊</span>
+                <h3>Real-time Telemetry</h3>
+                <p>Inspect processes activity, CPU performance logs, and keystroke forensic events inside a unified, beautiful management terminal.</p>
+            </div>
+            <div class="feature-card">
+                <span class="feature-icon">🤖</span>
+                <h3>Telegram Alert Bot</h3>
+                <p>Fully integrate with Telegram. Control endpoints directly via instant chats and receive push alert logs when threats are terminated.</p>
+            </div>
+        </section>
+    </main>
 
     <!-- Footer -->
     <footer>
-        🛡️ 3RD AI © 2026. SECURE GATEWAY OPERATIONS HOSTED ON VERIFIED CRYPTOGRAPHIC LAYERS.
+        <p>&copy; 2026 3RD AI KAVACH. Built for Advanced Endpoint Immunity.</p>
     </footer>
 
-    <!-- Interactive dynamic JS for tab transitions -->
-    <script>
-        function switchForm(sector) {
-            // Remove active classes from all buttons
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('active');
-                btn.classList.remove('police-tab');
-                btn.classList.remove('signup-tab');
-            });
-
-            // Remove active class from all panels
-            const panels = document.querySelectorAll('.form-panel');
-            panels.forEach(panel => {
-                panel.classList.remove('active');
-            });
-
-            // Select elements based on target
-            const activeBtn = event.currentTarget;
-            activeBtn.classList.add('active');
-
-            if (sector === 'admin') {
-                document.getElementById('admin-panel').classList.add('active');
-            } else if (sector === 'police') {
-                activeBtn.classList.add('police-tab');
-                document.getElementById('police-panel').classList.add('active');
-            } else if (sector === 'signup') {
-                activeBtn.classList.add('signup-tab');
-                document.getElementById('signup-panel').classList.add('active');
-            }
-        }
-    </script>
 </body>
 </html>

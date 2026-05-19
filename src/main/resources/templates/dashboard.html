@@ -1008,10 +1008,11 @@
         // Toggle Kavach active shield
         function toggleKavach() {
             const role = [[${role}]] || 'ADMIN';
+            const apiKey = [[${user.apiKey}]];
             const shieldBtn = document.getElementById('hubKavachBtn');
             let isActivating = shieldBtn.innerText.includes('Enable');
             
-            fetch(`/api/kavach/toggle?active=${isActivating}&role=${role}`, { method: 'POST' })
+            fetch(`/api/kavach/toggle?active=${isActivating}&role=${role}&apiKey=${apiKey}`, { method: 'POST' })
                 .then(r => r.text())
                 .then(data => {
                     if(data.includes("UNAUTHORIZED")) {

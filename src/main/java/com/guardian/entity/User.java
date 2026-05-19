@@ -22,6 +22,9 @@ public class User {
     private String telegramBotToken;
     private String telegramChatId;
     private java.time.LocalDateTime lastSeen;
+    
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'ADMIN'")
+    private String role = "ADMIN";
 
     public User() {}
 
@@ -47,4 +50,7 @@ public class User {
     public void setTelegramChatId(String id) { this.telegramChatId = id; }
     public java.time.LocalDateTime getLastSeen() { return lastSeen; }
     public void setLastSeen(java.time.LocalDateTime lastSeen) { this.lastSeen = lastSeen; }
+    
+    public String getRole() { return role; }
+    public void setRole(String role) { this.role = role; }
 }
