@@ -92,7 +92,7 @@
     <div class="absolute bottom-20 right-1/4 w-[500px] h-[500px] bg-[#9d4edd]/5 blur-[140px] rounded-full pointer-events-none z-0"></div>
 
     <!-- NAVBAR -->
-    <nav class="relative z-10 flex items-center justify-between px-10 py-6 border-b border-cyan-500/10 backdrop-blur-xl max-w-7xl mx-auto">
+    <nav class="sticky top-0 z-50 flex items-center justify-between px-10 py-6 border-b border-cyan-500/10 backdrop-blur-xl bg-[#02040a]/90 max-w-7xl mx-auto w-full">
         <a href="/" class="flex flex-col">
             <div class="flex items-center gap-2">
                 <span class="text-2xl filter drop-shadow-[0_0_8px_#00f2fe]">🛡️</span>
@@ -107,10 +107,8 @@
         <div class="hidden lg:flex gap-8 text-sm text-gray-400 font-semibold">
             <a href="/" class="text-[#00f2fe] transition">Home</a>
             <a href="#features" class="hover:text-white transition">Features</a>
-            <a href="#capabilities" class="hover:text-white transition">Solutions</a>
-            <a href="/portal" class="hover:text-white transition">Dashboard</a>
-            <a href="#pricing" class="hover:text-white transition">Pricing</a>
-            <a href="#docs" class="hover:text-white transition">Docs</a>
+            <a href="#solutions" class="hover:text-white transition">Solutions</a>
+            <a href="#dashboard" class="hover:text-white transition">Dashboard</a>
             <a href="#about" class="hover:text-white transition">About</a>
         </div>
 
@@ -135,9 +133,11 @@
             <h2 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight tracking-wide uppercase">
                 INTELLIGENT PROTECTION
                 <span class="block bg-gradient-to-r from-[#00f2fe] to-[#0072ff] bg-clip-text text-transparent">
-                    SYSTEM AGENT
+                    SYSTEM AGAINST
                 </span>
-                CYBER THREAT
+                <span class="block bg-gradient-to-r from-[#ef4444] to-[#f87171] bg-clip-text text-transparent filter drop-shadow-[0_0_8px_rgba(239,68,68,0.2)]">
+                    CYBER THREAT
+                </span>
             </h2>
 
             <p class="text-gray-400 text-md md:text-lg mt-6 leading-8 max-w-2xl font-medium">
@@ -145,12 +145,12 @@
             </p>
 
             <div class="flex gap-5 mt-10">
-                <a href="/signup" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-[#00f2fe] to-[#0072ff] text-black font-black text-sm uppercase tracking-wider shadow-[0_0_30px_rgba(0,242,254,0.45)] hover:scale-105 transition flex items-center gap-2">
-                    Get Started ⚡
-                </a>
-                <a href="/portal" class="px-8 py-4 rounded-2xl border border-cyan-500/30 hover:border-cyan-400 text-white font-bold text-sm tracking-wider transition flex items-center gap-2">
-                    View Dashboard 📊
-                </a>
+                <button onclick="openRedAlert()" class="w-16 h-16 rounded-2xl bg-[#070e1a] border border-[#ef4444]/40 flex items-center justify-center text-[#ef4444] shadow-[0_0_20px_rgba(239,68,68,0.3)] hover:scale-110 hover:border-[#ef4444] transition-all hover:shadow-[0_0_40px_rgba(239,68,68,0.6)] group">
+                    <svg class="w-8 h-8 group-hover:animate-ping" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </button>
+                <button onclick="openBlueInfo()" class="w-16 h-16 rounded-2xl bg-[#070e1a] border border-[#00f2fe]/40 flex items-center justify-center text-[#00f2fe] shadow-[0_0_20px_rgba(0,242,254,0.3)] hover:scale-110 hover:border-[#00f2fe] transition-all hover:shadow-[0_0_40px_rgba(0,242,254,0.6)] group">
+                    <svg class="w-8 h-8 group-hover:animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </button>
             </div>
         </div>
 
@@ -449,6 +449,171 @@
         </div>
     </section>
 
+    <!-- SOLUTIONS SECTION -->
+    <section id="solutions" class="relative z-10 px-10 py-24 max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <h3 class="text-3xl md:text-5xl font-black text-white uppercase tracking-wider mb-4">Core <span class="text-[#00f2fe]">Solutions</span></h3>
+            <p class="text-gray-400 max-w-2xl mx-auto">Comprehensive AI-driven cybersecurity modules designed to protect your endpoints autonomously.</p>
+        </div>
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div onclick="openCapabilityModal('remote')" class="cursor-pointer group bg-cardBg border border-white/5 rounded-2xl p-6 hover:border-[#00f2fe]/50 transition-all hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,242,254,0.15)] relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-[#00f2fe]/10 rounded-full blur-2xl group-hover:bg-[#00f2fe]/20 transition"></div>
+                <div class="w-12 h-12 bg-black rounded-xl border border-white/10 flex items-center justify-center text-[#00f2fe] mb-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+                <h4 class="text-lg font-bold text-white mb-2">Remote Overrides</h4>
+                <p class="text-xs text-gray-500 font-medium">Take full control of compromised systems remotely.</p>
+            </div>
+            
+            <div onclick="openCapabilityModal('kavach')" class="cursor-pointer group bg-cardBg border border-white/5 rounded-2xl p-6 hover:border-[#ef4444]/50 transition-all hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(239,68,68,0.15)] relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-[#ef4444]/10 rounded-full blur-2xl group-hover:bg-[#ef4444]/20 transition"></div>
+                <div class="w-12 h-12 bg-black rounded-xl border border-white/10 flex items-center justify-center text-[#ef4444] mb-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <h4 class="text-lg font-bold text-white mb-2">Active Blocker</h4>
+                <p class="text-xs text-gray-500 font-medium">AI heuristic defense to stop zero-day payloads.</p>
+            </div>
+
+            <div onclick="openCapabilityModal('telemetry')" class="cursor-pointer group bg-cardBg border border-white/5 rounded-2xl p-6 hover:border-[#9d4edd]/50 transition-all hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(157,78,221,0.15)] relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-[#9d4edd]/10 rounded-full blur-2xl group-hover:bg-[#9d4edd]/20 transition"></div>
+                <div class="w-12 h-12 bg-black rounded-xl border border-white/10 flex items-center justify-center text-[#9d4edd] mb-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9-7h2a2 2 0 012 2v5a2 2 0 01-2 2h-2a2 2 0 01-2-2v-5a2 2 0 012-2z"/></svg>
+                </div>
+                <h4 class="text-lg font-bold text-white mb-2">Telemetry</h4>
+                <p class="text-xs text-gray-500 font-medium">Real-time metrics and endpoint health status.</p>
+            </div>
+
+            <div onclick="openCapabilityModal('telegram')" class="cursor-pointer group bg-cardBg border border-white/5 rounded-2xl p-6 hover:border-[#0072ff]/50 transition-all hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(0,114,255,0.15)] relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-[#0072ff]/10 rounded-full blur-2xl group-hover:bg-[#0072ff]/20 transition"></div>
+                <div class="w-12 h-12 bg-black rounded-xl border border-white/10 flex items-center justify-center text-[#0072ff] mb-4">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 10.742L12 14.058l3.316-3.316m-6.632 0a2.5 2.5 0 114.95 0m-4.95 0H5a2 2 0 00-2 2v3a2 2 0 00-2-2h-3.316M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
+                </div>
+                <h4 class="text-lg font-bold text-white mb-2">Telegram Bot</h4>
+                <p class="text-xs text-gray-500 font-medium">Instant alerts directly to your mobile device.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- DASHBOARD PREVIEW SECTION -->
+    <section id="dashboard" class="relative z-10 px-10 py-24 bg-gradient-to-b from-black/0 via-[#00f2fe]/5 to-black/0">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h3 class="text-3xl md:text-5xl font-black text-white uppercase tracking-wider mb-4">Live <span class="text-[#00f2fe]">Dashboard</span></h3>
+                <p class="text-gray-400 max-w-2xl mx-auto">Experience the unified command interface. Real-time telemetry, threat isolation, and global oversight in one screen.</p>
+            </div>
+            
+            <div class="relative rounded-3xl p-[1px] bg-gradient-to-b from-white/10 to-transparent">
+                <div class="absolute inset-0 bg-[#00f2fe] blur-[100px] opacity-10 rounded-3xl"></div>
+                <div class="relative bg-cardBg/90 backdrop-blur-xl rounded-[23px] overflow-hidden border border-white/5 flex flex-col md:flex-row shadow-2xl">
+                    
+                    <div class="p-8 md:w-1/3 border-r border-white/5">
+                        <div class="flex items-center justify-between mb-8">
+                            <h4 class="text-xl font-bold text-white">System Status</h4>
+                            <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-400 font-bold mb-2"><span>Network Threat Level</span><span class="text-green-400">Low</span></div>
+                                <div class="w-full bg-black rounded-full h-1.5"><div class="bg-green-500 h-1.5 rounded-full w-[15%]"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-400 font-bold mb-2"><span>Node active connections</span><span class="text-[#00f2fe]">124 / 500</span></div>
+                                <div class="w-full bg-black rounded-full h-1.5"><div class="bg-gradient-to-r from-[#00f2fe] to-[#0072ff] h-1.5 rounded-full w-[25%]"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs text-gray-400 font-bold mb-2"><span>Malware Definitions</span><span class="text-white">Up to date</span></div>
+                                <div class="w-full bg-black rounded-full h-1.5"><div class="bg-white h-1.5 rounded-full w-[100%]"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 grid grid-cols-2 gap-4">
+                            <a href="/login" class="block text-center py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-sm font-bold text-white transition">Admin Portal</a>
+                            <a href="/police/login" class="block text-center py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 rounded-xl text-sm font-bold text-red-400 transition">Police Portal</a>
+                        </div>
+                    </div>
+                    
+                    <div class="p-8 md:w-2/3 bg-black/50">
+                        <h4 class="text-sm font-bold text-gray-400 mb-6 uppercase tracking-widest">Recent Neutralizations</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-4 rounded-xl bg-cardBg border border-white/5">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">Ransomware Payload Blocked</p>
+                                        <p class="text-xs text-gray-500">Node: DESKTOP-X9Y2 • Process: svchost.exe</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 bg-green-500/10 text-green-400 border border-green-500/20 rounded-full text-xs font-bold uppercase tracking-wider">Neutralized</span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-4 rounded-xl bg-cardBg border border-white/5">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 rounded-full bg-yellow-500/10 flex items-center justify-center text-yellow-500">
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-bold text-white">Unauthorized Access Attempt</p>
+                                        <p class="text-xs text-gray-500">Node: SERVER-DB1 • Origin: 185.12.4.99</p>
+                                    </div>
+                                </div>
+                                <span class="px-3 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-full text-xs font-bold uppercase tracking-wider">Intercepted</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="relative z-10 px-10 py-24 max-w-7xl mx-auto">
+        <div class="flex flex-col lg:flex-row items-center gap-16">
+            <div class="lg:w-1/2">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#9d4edd]/30 bg-[#9d4edd]/10 text-[#9d4edd] text-xs font-bold tracking-widest uppercase mb-6">
+                    <span class="text-lg">👁️</span> 
+                    Vision & Mission
+                </div>
+                <h3 class="text-4xl md:text-5xl font-black text-white uppercase tracking-wide leading-tight mb-6">
+                    Welcome to the <br>
+                    <span class="bg-gradient-to-r from-[#9d4edd] to-[#00f2fe] bg-clip-text text-transparent">Future of Defense</span>
+                </h3>
+                <p class="text-gray-400 text-lg mb-8 leading-relaxed">
+                    <strong class="text-white">3RD AI KAVACH</strong> is not just an antivirus. It is an autonomous, self-healing cyber-defense grid powered by advanced artificial intelligence. 
+                </p>
+                <p class="text-gray-500 text-sm mb-8 leading-relaxed">
+                    Our platform is designed to provide military-grade security to enterprises and individuals alike. From intercepting zero-day malware to providing police departments with forensic telemetry, Kavach acts as the ultimate shield in the digital frontier. Welcome to intelligent protection.
+                </p>
+                
+                <div class="flex gap-4">
+                    <div class="flex flex-col">
+                        <span class="text-4xl font-black text-white">10M+</span>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Threats Blocked</span>
+                    </div>
+                    <div class="w-px bg-white/10 h-16 mx-4"></div>
+                    <div class="flex flex-col">
+                        <span class="text-4xl font-black text-white">99.9%</span>
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">Uptime</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="lg:w-1/2 relative w-full aspect-square md:aspect-video lg:aspect-square flex justify-center items-center">
+                <div class="absolute inset-0 bg-gradient-to-tr from-[#00f2fe]/20 to-[#9d4edd]/20 rounded-full blur-[100px] animate-pulse"></div>
+                <div class="w-64 h-64 md:w-80 md:h-80 border border-white/10 rounded-full flex items-center justify-center relative shadow-[0_0_100px_rgba(157,78,221,0.2)] bg-black/40 backdrop-blur-sm">
+                    <div class="w-48 h-48 md:w-60 md:h-60 border border-[#00f2fe]/30 rounded-full flex items-center justify-center relative animate-[spin_10s_linear_infinite]">
+                        <div class="absolute inset-0 border-t-2 border-[#00f2fe] rounded-full"></div>
+                    </div>
+                    <div class="absolute w-32 h-32 md:w-40 md:h-40 bg-gradient-to-tr from-[#00f2fe] to-[#9d4edd] rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(0,242,254,0.5)]">
+                        <span class="text-5xl md:text-7xl">🛡️</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- TRUSTED BY -->
     <section class="border-t border-white/5 bg-black/35 py-10 relative z-10">
         <h4 class="text-center text-[10px] font-bold text-gray-600 tracking-[3px] mb-6 uppercase">TRUSTED BY SECURITY ENTHUSIASTS &amp; ORGANIZATIONS</h4>
@@ -461,6 +626,40 @@
             <span class="font-black text-sm text-white tracking-widest uppercase">📊 DATADOG</span>
         </div>
     </section>
+
+    <!-- RED ALERT MODAL -->
+    <div id="redAlertModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div id="redAlertContent" class="bg-[#070e1a] border border-[#ef4444]/40 rounded-3xl p-8 max-w-lg w-full scale-95 transition-transform duration-300 relative shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+            <button onclick="closeRedAlert()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="w-16 h-16 rounded-full bg-[#ef4444]/10 border border-[#ef4444]/30 flex items-center justify-center text-[#ef4444] mb-6 animate-pulse mx-auto">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            </div>
+            <h3 class="text-2xl font-black text-white text-center uppercase tracking-widest mb-4">Live Threat <span class="text-[#ef4444]">Alerts</span></h3>
+            <p class="text-gray-400 text-sm text-center mb-6">Our system continuously blocks advanced hacking attempts, zero-day malware, and unauthorized intrusions in real-time. Do not panic—Kavach is active.</p>
+            <ul class="space-y-3 text-sm text-gray-300">
+                <li class="flex items-start gap-3"><span class="text-[#ef4444] mt-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span> <span>Blocking Brute-Force SSH Attempts</span></li>
+                <li class="flex items-start gap-3"><span class="text-[#ef4444] mt-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span> <span>Neutralizing Ransomware Payloads (svchost.exe)</span></li>
+                <li class="flex items-start gap-3"><span class="text-[#ef4444] mt-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span> <span>Intercepting C2 Server Pingbacks</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- BLUE INFO MODAL -->
+    <div id="blueInfoModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div id="blueInfoContent" class="bg-[#070e1a] border border-[#00f2fe]/40 rounded-3xl p-8 max-w-lg w-full scale-95 transition-transform duration-300 relative shadow-[0_0_50px_rgba(0,242,254,0.2)]">
+            <button onclick="closeBlueInfo()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div class="w-16 h-16 rounded-full bg-[#00f2fe]/10 border border-[#00f2fe]/30 flex items-center justify-center text-[#00f2fe] mb-6 animate-pulse mx-auto">
+                <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <h3 class="text-2xl font-black text-white text-center uppercase tracking-widest mb-4">Advanced <span class="text-[#00f2fe]">Cybersecurity</span></h3>
+            <p class="text-gray-400 text-sm text-center mb-6">3RD AI KAVACH employs next-generation heuristics and behavior analysis to secure endpoints completely autonomously.</p>
+            <ul class="space-y-3 text-sm text-gray-300">
+                <li class="flex items-start gap-3"><span class="text-[#00f2fe] mt-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span> <span>99.9% Autonomous Threat Mitigation</span></li>
+                <li class="flex items-start gap-3"><span class="text-[#00f2fe] mt-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span> <span>Real-time Forensic Telemetry via Dashboard</span></li>
+                <li class="flex items-start gap-3"><span class="text-[#00f2fe] mt-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></span> <span>Silent Operation mode for zero performance impact</span></li>
+            </ul>
+        </div>
+    </div>
 
     <!-- FOOTER -->
     <footer class="bg-black/60 border-t border-white/5 py-8 text-center text-xs text-gray-500 font-semibold relative z-10">
@@ -634,6 +833,30 @@
                 closeCapabilityModal();
             }
         });
+        function openRedAlert() {
+            const m = document.getElementById('redAlertModal');
+            const c = document.getElementById('redAlertContent');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            setTimeout(() => { m.classList.remove('opacity-0'); m.classList.add('opacity-100'); c.classList.remove('scale-95'); c.classList.add('scale-100'); }, 10);
+        }
+        function closeRedAlert() {
+            const m = document.getElementById('redAlertModal');
+            const c = document.getElementById('redAlertContent');
+            m.classList.remove('opacity-100'); m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95');
+            setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
+        }
+        function openBlueInfo() {
+            const m = document.getElementById('blueInfoModal');
+            const c = document.getElementById('blueInfoContent');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            setTimeout(() => { m.classList.remove('opacity-0'); m.classList.add('opacity-100'); c.classList.remove('scale-95'); c.classList.add('scale-100'); }, 10);
+        }
+        function closeBlueInfo() {
+            const m = document.getElementById('blueInfoModal');
+            const c = document.getElementById('blueInfoContent');
+            m.classList.remove('opacity-100'); m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95');
+            setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
+        }
     </script>
 </body>
 </html>
