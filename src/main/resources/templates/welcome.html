@@ -104,12 +104,12 @@
             </p>
         </a>
 
-        <div class="hidden lg:flex gap-8 text-sm text-gray-400 font-semibold">
-            <a href="/" class="text-[#00f2fe] transition">Home</a>
-            <a href="#features" class="hover:text-white transition">Features</a>
-            <a href="#solutions" class="hover:text-white transition">Solutions</a>
-            <a href="#dashboard" class="hover:text-white transition">Dashboard</a>
-            <a href="#about" class="hover:text-white transition">About</a>
+        <div class="hidden lg:flex gap-8 text-sm font-semibold">
+            <a href="#home" class="nav-link text-[#00f2fe] transition">Home</a>
+            <a href="#features" class="nav-link text-gray-400 hover:text-white transition">Features</a>
+            <a href="#solutions" class="nav-link text-gray-400 hover:text-white transition">Solutions</a>
+            <a href="#dashboard" class="nav-link text-gray-400 hover:text-white transition">Dashboard</a>
+            <a href="#about" class="nav-link text-gray-400 hover:text-white transition">About</a>
         </div>
 
         <div class="flex gap-4">
@@ -1011,6 +1011,64 @@
             m.classList.remove('opacity-100'); m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95');
             setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
         }
+    </script>
+    <!-- Dynamic Navbar Script -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const sections = document.querySelectorAll("section");
+            const navLinks = document.querySelectorAll(".nav-link");
+
+            // Assign IDs to sections automatically based on order
+            const sectionIds = ["home", "features", "solutions", "dashboard", "about"];
+            sections.forEach((sec, idx) => {
+                if (idx < sectionIds.length && !sec.id) {
+                    sec.id = sectionIds[idx];
+                }
+            });
+
+            // Intersection Observer for Active State
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const activeId = entry.target.getAttribute("id");
+                        
+                        navLinks.forEach(link => {
+                            if (link.getAttribute("href") === `#${activeId}`) {
+                                link.classList.remove("text-gray-400");
+                                link.classList.add("text-[#00f2fe]");
+                            } else {
+                                link.classList.remove("text-[#00f2fe]");
+                                link.classList.add("text-gray-400");
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.3 });
+
+            sections.forEach(sec => observer.observe(sec));
+
+            // Smooth scrolling for navigation clicks
+            navLinks.forEach(link => {
+                link.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute("href").substring(1);
+                    const targetSection = document.getElementById(targetId);
+                    if (targetSection) {
+                        window.scrollTo({
+                            top: targetSection.offsetTop - 80,
+                            behavior: "smooth"
+                        });
+                        // Manually set active state immediately on click
+                        navLinks.forEach(l => {
+                            l.classList.remove("text-[#00f2fe]");
+                            l.classList.add("text-gray-400");
+                        });
+                        this.classList.remove("text-gray-400");
+                        this.classList.add("text-[#00f2fe]");
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
