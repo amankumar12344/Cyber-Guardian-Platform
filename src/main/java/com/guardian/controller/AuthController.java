@@ -4,14 +4,14 @@ import com.guardian.entity.User;
 import com.guardian.repository.UserRepository;
 import com.guardian.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
-@Controller
-@CrossOrigin
+@RestController
+@CrossOrigin(origins = "*") // Allows requests from Vercel
 public class AuthController {
 
     @Autowired
@@ -22,84 +22,59 @@ public class AuthController {
 
     private final java.util.concurrent.ConcurrentHashMap<String, String> otpStorage = new java.util.concurrent.ConcurrentHashMap<>();
 
-    @GetMapping("/")
-    public String index() {
-        return "welcome";
-    }
-
-    @GetMapping("/portal")
-    public String showPortal() {
-        return "portal";
-    }
-
-    @GetMapping("/login")
-    public String showLogin() {
-        return "login";
-    }
-
-    @GetMapping("/forgot-password")
-    public String showForgotPassword() {
-        return "forgot-password";
-    }
-
-    @PostMapping("/forgot-password")
-    public String verifyReset(@RequestParam String email, @RequestParam String phone, Model model) {
+    @PostMapping("/api/forgot-password")
+    public Map<String, Object> verifyReset(@RequestParam String email, @RequestParam String phone) {
+        Map<String, Object> response = new HashMap<>();
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent() && user.get().getPhoneNumber().equals(phone)) {
-            model.addAttribute("email", email);
-            return "reset-password";
+            response.put("success", true);
+            response.put("email", email);
+            return response;
         }
-        model.addAttribute("error", "Email or Phone Number is incorrect!");
-        return "forgot-password";
+        response.put("success", false);
+        response.put("message", "Email or Phone Number is incorrect!");
+        return response;
     }
 
-    @PostMapping("/reset-password")
-    public String resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+    @PostMapping("/api/reset-password")
+    public Map<String, Object> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+        Map<String, Object> response = new HashMap<>();
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             User u = user.get();
             u.setPassword(newPassword);
             userRepository.save(u);
-            return "redirect:/login?resetSuccess";
+            response.put("success", true);
+            response.put("message", "Password reset successful!");
+            return response;
         }
-        return "redirect:/login";
+        response.put("success", false);
+        response.put("message", "User not found!");
+        return response;
     }
 
-    @GetMapping("/welcome")
-    public String showWelcomePage() {
-        return "welcome";
-    }
-
-    @GetMapping("/signup")
-    public String showSignupPage() {
-        return "signup";
-    }
-
-    @GetMapping("/police/signup")
-    public String showPoliceSignupPage() {
-        return "police_signup";
-    }
-
-    @PostMapping("/send-otp")
-    @ResponseBody
-    public String sendOtp(@RequestParam String identifier) {
+    @PostMapping("/api/send-otp")
+    public Map<String, Object> sendOtp(@RequestParam String identifier) {
+        Map<String, Object> response = new HashMap<>();
         if (identifier.contains("@") && !identifier.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            return "Error: Invalid email format!";
+            response.put("success", false);
+            response.put("message", "Invalid email format!");
+            return response;
         }
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6 digit OTP
         otpStorage.put(identifier, otp);
         System.out.println("[TESTING] Generated OTP for " + identifier + " is: " + otp);
 
         if (identifier.contains("@")) {
-            // Send OTP via Email
             try {
                 emailService.sendOtpEmail(identifier, otp);
-                return "OTP Sent Successfully to Email!";
+                response.put("success", true);
+                response.put("message", "OTP Sent Successfully to Email!");
             } catch (Exception e) {
-                return "Error sending Email: " + e.getMessage();
+                response.put("success", false);
+                response.put("message", "Error sending Email: " + e.getMessage());
             }
         } else {
-            // Send OTP via Telegram
             try {
                 String botToken = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk";
                 String chatId = "1123697239";
@@ -111,27 +86,34 @@ public class AuthController {
                 conn.setRequestMethod("GET");
                 conn.getInputStream().close();
 
-                return "OTP Sent Successfully to Telegram!";
+                response.put("success", true);
+                response.put("message", "OTP Sent Successfully to Telegram!");
             } catch (Exception e) {
-                return "Error sending Telegram OTP: " + e.getMessage();
+                response.put("success", false);
+                response.put("message", "Error sending Telegram OTP: " + e.getMessage());
             }
         }
+        return response;
     }
 
-    @PostMapping("/signup")
-    public String registerUser(@RequestParam String identifier, @RequestParam String password, @RequestParam String otp, Model model) {
+    @PostMapping("/api/signup")
+    public Map<String, Object> registerUser(@RequestParam String identifier, @RequestParam String password, @RequestParam String otp) {
+        Map<String, Object> response = new HashMap<>();
         if (identifier.contains("@") && !identifier.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            model.addAttribute("error", "Invalid email format!");
-            return "signup";
+            response.put("success", false);
+            response.put("message", "Invalid email format!");
+            return response;
         }
         String storedOtp = otpStorage.get(identifier);
         if (storedOtp == null || !storedOtp.equals(otp)) {
-            model.addAttribute("error", "Invalid or expired OTP!");
-            return "signup";
+            response.put("success", false);
+            response.put("message", "Invalid or expired OTP!");
+            return response;
         }
         if (userRepository.findByEmail(identifier).isPresent()) {
-            model.addAttribute("error", "User already exists!");
-            return "signup";
+            response.put("success", false);
+            response.put("message", "User already exists!");
+            return response;
         }
         User user = new User(identifier, password);
         user.setRole("ADMIN");
@@ -142,12 +124,13 @@ public class AuthController {
         }
         userRepository.save(user);
         otpStorage.remove(identifier);
-        return "redirect:/login?success";
+        
+        response.put("success", true);
+        response.put("message", "Account Created successfully!");
+        return response;
     }
 
     @PostMapping("/api/register")
-    @ResponseBody
-    @CrossOrigin
     public java.util.Map<String, Object> apiRegister(@RequestParam String email, @RequestParam String password, 
                                                    @RequestParam(required = false) String botToken, 
                                                    @RequestParam(required = false) String chatId) {
@@ -169,59 +152,67 @@ public class AuthController {
         return response;
     }
 
-    @PostMapping("/login")
-    public String loginUser(@RequestParam String identifier, @RequestParam String password, Model model) {
+    @PostMapping("/api/login")
+    public Map<String, Object> loginUser(@RequestParam String identifier, @RequestParam String password) {
+        Map<String, Object> response = new HashMap<>();
         Optional<User> user = userRepository.findByEmail(identifier);
+        
         if (user.isPresent() && user.get().getPassword().equals(password)) {
             String role = user.get().getRole();
             if (role == null) role = "ADMIN";
-            return "redirect:/dashboard?apiKey=" + user.get().getApiKey() + "&role=" + role;
+            response.put("success", true);
+            response.put("apiKey", user.get().getApiKey());
+            response.put("role", role);
+            return response;
         }
-        model.addAttribute("error", "Invalid Credentials!");
-        return "login";
+        response.put("success", false);
+        response.put("message", "Invalid Credentials!");
+        return response;
     }
 
-    @PostMapping("/police/signup")
-    public String registerPoliceUser(@RequestParam String identifier, @RequestParam String password, @RequestParam(required = false) String otp, Model model) {
+    @PostMapping("/api/police/signup")
+    public Map<String, Object> registerPoliceUser(@RequestParam String identifier, @RequestParam String password, @RequestParam(required = false) String otp) {
+        Map<String, Object> response = new HashMap<>();
         if (identifier.contains("@") && !identifier.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            model.addAttribute("error", "Invalid email format!");
-            return "police_signup";
+            response.put("success", false);
+            response.put("message", "Invalid email format!");
+            return response;
         }
         if (otp != null && !otp.equals(otpStorage.get(identifier))) {
-            model.addAttribute("error", "Invalid or expired OTP!");
-            return "police_signup";
+            response.put("success", false);
+            response.put("message", "Invalid or expired OTP!");
+            return response;
         }
         if (userRepository.findByEmail(identifier).isPresent()) {
-            model.addAttribute("error", "Officer already registered!");
-            return "police_signup";
+            response.put("success", false);
+            response.put("message", "Officer already registered!");
+            return response;
         }
         User user = new User(identifier, password);
         user.setRole("POLICE");
         user.setPhoneNumber(identifier); // just for storing
         userRepository.save(user);
         if (otp != null) otpStorage.remove(identifier);
-        return "redirect:/police/login?success";
+        
+        response.put("success", true);
+        response.put("message", "Police account registered successfully!");
+        return response;
     }
 
-    @GetMapping("/police/login")
-    public String showPoliceLogin() {
-        return "police_login";
-    }
-
-    @PostMapping("/police/login")
-    public String loginPoliceUser(@RequestParam String identifier, @RequestParam String password, Model model) {
+    @PostMapping("/api/police/login")
+    public Map<String, Object> loginPoliceUser(@RequestParam String identifier, @RequestParam String password) {
+        Map<String, Object> response = new HashMap<>();
         Optional<User> user = userRepository.findByEmail(identifier);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
             String role = user.get().getRole();
             if (role == null) role = "ADMIN";
-            return "redirect:/dashboard?apiKey=" + user.get().getApiKey() + "&role=" + role;
+            response.put("success", true);
+            response.put("apiKey", user.get().getApiKey());
+            response.put("role", role);
+            return response;
         }
-        model.addAttribute("error", "Invalid Credentials!");
-        return "police_login";
-    }
-
-    @GetMapping("/logout")
-    public String logoutUser() {
-        return "redirect:/";
+        response.put("success", false);
+        response.put("message", "Invalid Credentials!");
+        return response;
     }
 }

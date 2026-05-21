@@ -44,7 +44,7 @@ public class Main {
     private static TrayIcon trayIcon;
     private static HttpClient httpClient;
     private static SecurityService securityService;
-    private static String SERVER_URL = "http://localhost:8085";
+    private static String SERVER_URL = "http://localhost:8081";
     private static String API_KEY = "ADMIN-777";
     private static String TARGET_ID = "UNKNOWN-PC";
 
@@ -96,7 +96,7 @@ public class Main {
             if (json.has("botToken")) botToken = json.getString("botToken");
             if (json.has("chatId")) chatId = json.getString("chatId");
             if (json.has("scanInterval")) scanInterval = json.getInt("scanInterval");
-            SERVER_URL = json.optString("server_url", "http://localhost:8085");
+            SERVER_URL = json.optString("server_url", "http://localhost:8081");
             API_KEY = json.optString("api_key", "ADMIN-777");
             if (json.has("blacklist")) {
                 JSONArray arr = json.getJSONArray("blacklist");
@@ -147,7 +147,7 @@ public class Main {
         ConfigurableApplicationContext context = null;
         try {
             SpringApplicationBuilder builder = new SpringApplicationBuilder(Main.class)
-                    .properties("spring.jmx.enabled=false", "spring.main.banner-mode=off", "server.port=8085")
+                    .properties("spring.jmx.enabled=false", "spring.main.banner-mode=off", "server.port=8081")
                     .headless(false);
 
             if (isAgent) {
