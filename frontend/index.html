@@ -87,9 +87,11 @@
 <body class="bg-bgDark text-white font-sans overflow-x-hidden min-h-screen relative">
 
     <!-- Grid and Ambient Glows -->
-    <div class="absolute inset-0 grid-overlay pointer-events-none z-0"></div>
-    <div class="absolute top-0 left-1/3 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-[#00f2fe]/5 blur-[100px] md:blur-[140px] rounded-full pointer-events-none z-0"></div>
-    <div class="absolute bottom-20 right-1/4 w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-[#9d4edd]/5 blur-[100px] md:blur-[140px] rounded-full pointer-events-none z-0"></div>
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div class="absolute inset-0 grid-overlay"></div>
+        <div class="absolute top-0 left-1/3 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-[#00f2fe]/5 blur-[100px] md:blur-[140px] rounded-full"></div>
+        <div class="absolute bottom-20 right-1/4 w-[250px] md:w-[500px] h-[250px] md:h-[500px] bg-[#9d4edd]/5 blur-[100px] md:blur-[140px] rounded-full"></div>
+    </div>
 
     <!-- NAVBAR -->
     <nav class="sticky top-0 z-50 flex items-center justify-between px-4 md:px-10 py-4 md:py-6 border-b border-cyan-500/10 backdrop-blur-xl bg-[#02040a]/90 max-w-7xl mx-auto w-full overflow-hidden">
@@ -291,7 +293,7 @@
     </section>
 
     <!-- STATS CARDS -->
-    <section class="relative z-10 px-10 py-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <section class="relative z-10 px-4 sm:px-6 md:px-10 py-10 max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="flex items-center gap-5 p-6 rounded-2xl border border-cyan-500/10 bg-[#070e1a]/60 backdrop-blur-xl hover:border-cyan-400 transition">
             <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-xl shrink-0 text-[#00f2fe]">🛡️</div>
             <div>
@@ -327,7 +329,7 @@
     </section>
 
     <!-- CORE CAPABILITIES -->
-    <section class="relative z-10 px-10 py-14 max-w-7xl mx-auto" id="features">
+    <section class="relative z-10 px-4 sm:px-6 md:px-10 py-14 max-w-7xl mx-auto" id="features">
         <h2 class="text-3xl font-black text-center mb-2 tracking-wider">CORE CAPABILITIES</h2>
         <p class="text-center text-xs text-gray-500 font-semibold tracking-wide uppercase mb-12">Advanced features to secure, monitor and respond in real-time</p>
 
@@ -379,8 +381,8 @@
     </section>
 
     <!-- 3RD AI KAVACH DYNAMIC HACKER INFO SLIDER -->
-    <section class="relative z-10 px-10 pb-24 max-w-7xl mx-auto">
-        <div class="rounded-[2.5rem] border border-cyan-500/20 bg-gradient-to-r from-[#02040a] to-[#070e1a]/80 backdrop-blur-2xl p-8 lg:p-12 shadow-2xl flex flex-col lg:flex-row items-center gap-12 group overflow-hidden relative">
+    <section class="relative z-10 px-4 sm:px-6 md:px-10 pb-24 max-w-7xl mx-auto">
+        <div class="rounded-[2.5rem] border border-cyan-500/20 bg-gradient-to-r from-[#02040a] to-[#070e1a]/80 backdrop-blur-2xl p-5 sm:p-8 lg:p-12 shadow-2xl flex flex-col lg:flex-row items-center gap-12 group overflow-hidden relative">
             
             <!-- Background Glow -->
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#00f2fe]/5 blur-[100px] pointer-events-none rounded-full transition duration-700 group-hover:bg-[#00f2fe]/10 group-hover:scale-110"></div>
@@ -391,7 +393,7 @@
                     <!-- Scanline effect overlay -->
                     <div class="absolute inset-0 bg-[linear-gradient(rgba(0,242,254,0.1)_1px,transparent_1px)] bg-[size:100%_4px] opacity-20 pointer-events-none mix-blend-overlay z-20"></div>
                     
-                    <img id="slider-image" src="/images/kavach_hero.png" alt="3RD AI KAVACH" class="w-full h-[350px] object-cover scale-100 transition-opacity duration-300 opacity-100">
+                    <img id="slider-image" src="/images/kavach_hero.png" alt="3RD AI KAVACH" class="w-full h-[220px] sm:h-[300px] lg:h-[350px] object-cover scale-100 transition-opacity duration-300 opacity-100">
                     
                     <!-- Slider Navigation Arrows -->
                     <button onclick="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/60 border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500 hover:text-black transition flex items-center justify-center">
@@ -533,7 +535,7 @@
     </script>
 
     <!-- LIVE TERMINAL & THREAT OVERVIEW -->
-    <section class="relative z-10 px-10 pb-20 max-w-7xl mx-auto grid lg:grid-cols-2 gap-8">
+    <section class="relative z-10 px-4 sm:px-6 md:px-10 pb-20 max-w-7xl mx-auto grid lg:grid-cols-2 gap-8">
         <!-- Live Terminal -->
         <div class="rounded-3xl border border-cyan-500/20 bg-black/60 backdrop-blur-2xl p-6 shadow-2xl flex flex-col h-[340px]">
             <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
@@ -558,11 +560,11 @@
         </div>
 
         <!-- Threat Overview Donut -->
-        <div class="rounded-3xl border border-cyan-500/20 bg-[#070e1a]/85 backdrop-blur-2xl p-6 shadow-2xl flex flex-col h-[340px]">
+        <div class="rounded-3xl border border-cyan-500/20 bg-[#070e1a]/85 backdrop-blur-2xl p-6 shadow-2xl flex flex-col h-auto min-h-[340px]">
             <div class="text-xs font-bold tracking-widest text-gray-300 uppercase mb-6 border-b border-white/5 pb-3">
                 THREAT OVERVIEW (24H)
             </div>
-            <div class="flex items-center justify-around flex-grow">
+            <div class="flex flex-col sm:flex-row items-center justify-around gap-6 flex-grow pb-4 sm:pb-0">
                 <div class="relative w-36 h-36 flex items-center justify-center shrink-0">
                     <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
                         <circle cx="18" cy="18" r="15.915" fill="none" stroke="#111827" stroke-width="3"></circle>
@@ -609,7 +611,7 @@
     </section>
 
     <!-- SOLUTIONS SECTION -->
-    <section id="solutions" class="relative z-10 px-10 py-24 max-w-7xl mx-auto">
+    <section id="solutions" class="relative z-10 px-4 sm:px-6 md:px-10 py-24 max-w-7xl mx-auto">
         <div class="text-center mb-16">
             <h3 class="text-3xl md:text-5xl font-black text-white uppercase tracking-wider mb-4">Core <span class="text-[#00f2fe]">Solutions</span></h3>
             <p class="text-gray-400 max-w-2xl mx-auto">Comprehensive AI-driven cybersecurity modules designed to protect your endpoints autonomously.</p>
@@ -654,7 +656,7 @@
     </section>
 
     <!-- DASHBOARD PREVIEW SECTION -->
-    <section id="dashboard" class="relative z-10 px-10 py-24 bg-gradient-to-b from-black/0 via-[#00f2fe]/5 to-black/0">
+    <section id="dashboard" class="relative z-10 px-4 sm:px-6 md:px-10 py-24 bg-gradient-to-b from-black/0 via-[#00f2fe]/5 to-black/0">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
                 <h3 class="text-3xl md:text-5xl font-black text-white uppercase tracking-wider mb-4">Live <span class="text-[#00f2fe]">Dashboard</span></h3>
@@ -665,7 +667,7 @@
                 <div class="absolute inset-0 bg-[#00f2fe] blur-[100px] opacity-10 rounded-3xl"></div>
                 <div class="relative bg-cardBg/90 backdrop-blur-xl rounded-[23px] overflow-hidden border border-white/5 flex flex-col md:flex-row shadow-2xl">
                     
-                    <div class="p-8 md:w-1/3 border-r border-white/5">
+                    <div class="p-5 sm:p-8 md:w-1/3 border-b md:border-b-0 md:border-r border-white/5">
                         <div class="flex items-center justify-between mb-8">
                             <h4 class="text-xl font-bold text-white">System Status</h4>
                             <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span>
@@ -692,7 +694,7 @@
                         </div>
                     </div>
                     
-                    <div class="p-8 md:w-2/3 bg-black/50">
+                    <div class="p-5 sm:p-8 md:w-2/3 bg-black/50">
                         <h4 class="text-sm font-bold text-gray-400 mb-6 uppercase tracking-widest">Recent Neutralizations</h4>
                         <div class="space-y-3">
                             <div class="flex items-center justify-between p-4 rounded-xl bg-cardBg border border-white/5">
@@ -728,7 +730,7 @@
     </section>
 
     <!-- ABOUT SECTION -->
-    <section id="about" class="relative z-10 px-10 py-24 max-w-7xl mx-auto">
+    <section id="about" class="relative z-10 px-4 sm:px-6 md:px-10 py-24 max-w-7xl mx-auto">
         <div class="flex flex-col lg:flex-row items-center gap-16">
             <div class="lg:w-1/2">
                 <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[#9d4edd]/30 bg-[#9d4edd]/10 text-[#9d4edd] text-xs font-bold tracking-widest uppercase mb-6">
@@ -785,6 +787,25 @@
             <span class="font-black text-sm text-white tracking-widest uppercase">📊 DATADOG</span>
         </div>
     </section>
+
+    <!-- CAPABILITY DETAIL MODAL -->
+    <div id="capabilityModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div id="capabilityModalContent" class="bg-[#070e1a] border border-[#00f2fe]/40 rounded-3xl p-5 sm:p-8 max-w-lg w-full scale-95 transition-transform duration-300 relative shadow-[0_0_50px_rgba(0,242,254,0.2)]">
+            <button onclick="closeCapabilityModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <div id="modalIcon" class="w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-[#00f2fe] mb-6 animate-pulse mx-auto">
+                <!-- Dynamic Icon -->
+            </div>
+            <h3 id="modalTitle" class="text-2xl font-black text-white text-center uppercase tracking-widest mb-4">
+                <!-- Dynamic Title -->
+            </h3>
+            <p id="modalDescription" class="text-gray-400 text-sm text-center mb-6">
+                <!-- Dynamic Description -->
+            </p>
+            <ul id="modalFeatures" class="space-y-3 text-sm text-gray-300">
+                <!-- Dynamic Features -->
+            </ul>
+        </div>
+    </div>
 
     <!-- RED ALERT MODAL -->
     <div id="redAlertModal" class="fixed inset-0 z-50 hidden items-center justify-center px-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
