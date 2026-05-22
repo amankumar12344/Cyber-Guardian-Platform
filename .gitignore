@@ -40,3 +40,5 @@ linux_jre.tar.gz
 !src/main/resources/static/images/*.png
 !src/main/resources/static/images/*.jpg
 !src/main/resources/static/css/*.css
+!frontend/images/*.png
+!frontend/images/*.jpg
