@@ -12,7 +12,7 @@ if (!apiKey) {
 function logoutUser() {
     localStorage.removeItem('apiKey');
     localStorage.removeItem('role');
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
 }
 
 function changeTarget(targetId) {

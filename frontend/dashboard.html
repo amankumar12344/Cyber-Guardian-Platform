@@ -5,7 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <style>
+    <script>
+if (!localStorage.getItem('apiKey')) {
+    window.location.replace('login.html');
+}
+window.addEventListener('pageshow', function (e) {
+    if (e.persisted) {
+        if (!localStorage.getItem('apiKey')) {
+            window.location.replace('login.html');
+        } else {
+            window.location.reload();
+        }
+    }
+});
+</script>
+<style>
         :root {
             --primary: #00f2fe;
             --accent: #9d4edd;
