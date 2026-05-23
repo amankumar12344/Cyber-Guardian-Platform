@@ -46,6 +46,11 @@ public class PageController {
         return "police_forgot_password";
     }
 
+    @GetMapping("/police/reset-password")
+    public String policeResetPassword() {
+        return "police_reset_password";
+    }
+
     @GetMapping("/dashboard")
     public String dashboard() {
         return "dashboard";
