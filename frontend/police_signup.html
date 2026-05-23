@@ -196,9 +196,16 @@
         }
 
         @media (max-width: 480px) {
+            html, body {
+                overflow-x: hidden !important;
+                max-width: 100% !important;
+            }
             body {
                 padding: 10px;
                 overflow-y: auto;
+            }
+            .glow-dot {
+                display: none !important;
             }
             .signup-card {
                 padding: 30px 20px;
