@@ -264,6 +264,9 @@ public class DashboardController {
     @PostMapping("/api/upload")
     public String handleFileUpload(@RequestParam("file") MultipartFile file, @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
         if (file.isEmpty()) return "FAIL";
+        if (targetId == null || targetId.contains("..") || targetId.contains("/") || targetId.contains("\\")) {
+            return "ERROR: Invalid targetId";
+        }
         try {
             java.io.File dir = new java.io.File(UPLOAD_DIR + targetId + "/");
             if (!dir.exists()) dir.mkdirs();
@@ -277,6 +280,9 @@ public class DashboardController {
 
     @PostMapping("/api/live-upload")
     public String handleLiveUpload(@RequestParam("file") MultipartFile file, @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
+        if (targetId == null || targetId.contains("..") || targetId.contains("/") || targetId.contains("\\")) {
+            return "ERROR";
+        }
         try {
             java.io.File dir = new java.io.File(UPLOAD_DIR + targetId + "/");
             if (!dir.exists()) dir.mkdirs();
@@ -288,6 +294,9 @@ public class DashboardController {
 
     @GetMapping("/api/live-stream")
     public org.springframework.http.ResponseEntity<?> getLiveStream(@RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
+        if (targetId != null && (targetId.contains("..") || targetId.contains("/") || targetId.contains("\\"))) {
+            return org.springframework.http.ResponseEntity.badRequest().build();
+        }
         String pathStr = UPLOAD_DIR + targetId + "/live_now.jpg";
         
         if ("ALL".equals(targetId) || "UNKNOWN".equals(targetId)) {
@@ -320,18 +329,36 @@ public class DashboardController {
     }
 
     @GetMapping("/api/logs")
-    public java.util.List<com.guardian.entity.LogEntry> apiLogs() {
+    public java.util.List<com.guardian.entity.LogEntry> apiLogs(@RequestParam String apiKey) {
+        Optional<User> user = userRepository.findAll().stream()
+                .filter(u -> u.getApiKey().equals(apiKey))
+                .findFirst();
+        if (user.isEmpty()) {
+            return Collections.emptyList();
+        }
         return securityService.getAllLogs();
     }
 
     @PostMapping("/api/logs/clear")
-    public String clearLogs() {
+    public String clearLogs(@RequestParam String apiKey) {
+        Optional<User> user = userRepository.findAll().stream()
+                .filter(u -> u.getApiKey().equals(apiKey))
+                .findFirst();
+        if (user.isEmpty() || !"ADMIN".equalsIgnoreCase(user.get().getRole())) {
+            return "UNAUTHORIZED";
+        }
         securityService.clearAllLogs();
         return "LOGS_CLEARED";
     }
 
     @GetMapping("/api/screenshots/{filename}")
     public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> getScreenshot(@PathVariable String filename, @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
+        if (targetId != null && (targetId.contains("..") || targetId.contains("/") || targetId.contains("\\"))) {
+            return org.springframework.http.ResponseEntity.badRequest().build();
+        }
+        if (filename != null && (filename.contains("..") || filename.contains("/") || filename.contains("\\"))) {
+            return org.springframework.http.ResponseEntity.badRequest().build();
+        }
         String path = "ALL".equals(targetId) || "UNKNOWN".equals(targetId) ? UPLOAD_DIR + filename : UPLOAD_DIR + targetId + "/" + filename;
         java.io.File file = new java.io.File(path);
         

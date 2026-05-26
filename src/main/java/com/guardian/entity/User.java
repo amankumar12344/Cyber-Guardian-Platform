@@ -31,7 +31,7 @@ public class User {
     public User(String email, String password) {
         this.email = email;
         this.password = password;
-        this.apiKey = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        this.apiKey = UUID.randomUUID().toString().toUpperCase();
     }
 
     // Getters and Setters

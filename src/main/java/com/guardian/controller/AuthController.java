@@ -6,6 +6,7 @@ import com.guardian.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,6 +14,8 @@ import java.util.Optional;
 @RestController
 @CrossOrigin(origins = "*") // Allows requests from Vercel
 public class AuthController {
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Autowired
     private UserRepository userRepository;
@@ -42,7 +45,7 @@ public class AuthController {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             User u = user.get();
-            u.setPassword(newPassword);
+            u.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(u);
             response.put("success", true);
             response.put("message", "Password reset successful!");
@@ -115,7 +118,7 @@ public class AuthController {
             response.put("message", "User already exists!");
             return response;
         }
-        User user = new User(identifier, password);
+        User user = new User(identifier, passwordEncoder.encode(password));
         user.setRole("ADMIN");
         if (identifier.contains("@")) {
             user.setPhoneNumber(null);
@@ -141,7 +144,7 @@ public class AuthController {
             return response;
         }
         
-        User user = new User(email, password);
+        User user = new User(email, passwordEncoder.encode(password));
         user.setRole("ADMIN");
         if (botToken != null) user.setTelegramBotToken(botToken);
         if (chatId != null) user.setTelegramChatId(chatId);
@@ -157,7 +160,7 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         Optional<User> user = userRepository.findByEmail(identifier);
         
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
+        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
             String role = user.get().getRole();
             if (role == null) role = "ADMIN";
             response.put("success", true);
@@ -188,7 +191,7 @@ public class AuthController {
             response.put("message", "Officer already registered!");
             return response;
         }
-        User user = new User(identifier, password);
+        User user = new User(identifier, passwordEncoder.encode(password));
         user.setRole("POLICE");
         user.setPhoneNumber(identifier); // just for storing
         userRepository.save(user);
@@ -203,7 +206,7 @@ public class AuthController {
     public Map<String, Object> loginPoliceUser(@RequestParam String identifier, @RequestParam String password) {
         Map<String, Object> response = new HashMap<>();
         Optional<User> user = userRepository.findByEmail(identifier);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
+        if (user.isPresent() && passwordEncoder.matches(password, user.get().getPassword())) {
             String role = user.get().getRole();
             if (role == null) role = "ADMIN";
             response.put("success", true);

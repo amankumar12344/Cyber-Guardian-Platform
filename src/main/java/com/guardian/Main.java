@@ -3,6 +3,8 @@ package com.guardian;
 import com.guardian.entity.User;
 import com.guardian.repository.UserRepository;
 import com.guardian.service.SecurityService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -219,10 +221,20 @@ public class Main {
 
             // Initialize Default Admin if no users exist
             UserRepository repo = finalContext.getBean(UserRepository.class);
-            if (repo.count() == 0) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            
+            Optional<User> adminOpt = repo.findByEmail("admin@guardian.com");
+            if (adminOpt.isPresent()) {
+                User admin = adminOpt.get();
+                if (!admin.getPassword().startsWith("$2a$")) {
+                    admin.setPassword(encoder.encode("admin"));
+                    repo.save(admin);
+                    System.out.println("👤 [INFO] Default Admin Password Securely Hashed");
+                }
+            } else {
                 User admin = new User();
                 admin.setEmail("admin@guardian.com");
-                admin.setPassword("admin");
+                admin.setPassword(encoder.encode("admin"));
                 admin.setPhoneNumber("0000000000");
                 admin.setTelegramBotToken(PLATFORM_BOT_TOKEN);
                 admin.setTelegramChatId(ADMIN_CHAT_ID);
@@ -231,12 +243,29 @@ public class Main {
                 System.out.println("👤 [INFO] Default Admin Created: admin@guardian.com / admin");
             }
             
-            if (repo.findByEmail("police@3rdai.gov").isEmpty()) {
+            Optional<User> policeOpt = repo.findByEmail("police@3rdai.gov");
+            if (policeOpt.isPresent()) {
+                User police = policeOpt.get();
+                boolean updated = false;
+                if (!police.getPassword().startsWith("$2a$")) {
+                    police.setPassword(encoder.encode("police123"));
+                    updated = true;
+                }
+                if (!"POLICE".equalsIgnoreCase(police.getRole())) {
+                    police.setRole("POLICE");
+                    updated = true;
+                }
+                if (updated) {
+                    repo.save(police);
+                    System.out.println("🚔 [INFO] Default Police Account Securely Synced and Role Set to POLICE");
+                }
+            } else {
                 User police = new User();
                 police.setEmail("police@3rdai.gov");
-                police.setPassword("police123");
+                police.setPassword(encoder.encode("police123"));
                 police.setPhoneNumber("100");
                 police.setApiKey("POLICE-999");
+                police.setRole("POLICE");
                 repo.save(police);
                 System.out.println("🚔 [INFO] Default Police Created: police@3rdai.gov / police123");
             }
