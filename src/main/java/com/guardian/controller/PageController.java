@@ -171,8 +171,38 @@ public class PageController {
         return "dashboard";
     }
 
+    @GetMapping("/decoy")
+    public String decoy() {
+        return "decoy";
+    }
+
     @GetMapping("/portal")
     public String portal() {
         return "portal";
+    }
+
+    @GetMapping("/3rd-AI-Agent.exe")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadAgent() {
+        java.io.File file = new java.io.File("3rd-AI-Agent.exe");
+        if (!file.exists()) {
+            file = new java.io.File("kockroch.exe");
+        }
+        if (!file.exists()) {
+            file = new java.io.File("target/kockroch.exe");
+        }
+        if (!file.exists()) {
+            file = new java.io.File("../kockroch.exe");
+        }
+
+        if (!file.exists()) {
+            return org.springframework.http.ResponseEntity.notFound().build();
+        }
+
+        org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(file);
+        return org.springframework.http.ResponseEntity.ok()
+                .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"3rd-AI-Agent.exe\"")
+                .body(resource);
     }
 }
