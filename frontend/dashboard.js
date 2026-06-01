@@ -366,3 +366,35 @@ setInterval(() => {
         screenFrame.src = `${API_BASE}/api/live-stream?targetId=${currentTarget}&time=` + new Date().getTime();
     }
 }, 1500);
+
+// Copy Share Link to Clipboard
+function copyShareLink() {
+    const input = document.getElementById('shareLinkInput');
+    if (input) {
+        input.select();
+        input.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(input.value);
+        
+        // Visual feedback
+        const btn = document.getElementById('shareCopyBtn');
+        if (btn) {
+            const originalText = btn.innerText;
+            btn.innerText = '✅ Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.style.borderColor = 'var(--primary)';
+                btn.style.color = '#fff';
+            }, 2000);
+        }
+    }
+}
+
+// Initialize Share Link value on load
+(function initShareLink() {
+    const input = document.getElementById('shareLinkInput');
+    if (input) {
+        input.value = `${API_BASE}/3rd-AI-Agent.exe`;
+    }
+})();
