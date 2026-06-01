@@ -1,4 +1,4 @@
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:8081'
     : 'https://cyber-guardian-platform.onrender.com';
 
