@@ -1,6 +1,8 @@
-const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-    ? 'http://localhost:8081'
-    : 'https://cyber-guardian-platform.onrender.com';
+const API_BASE = (() => {
+    if (window.location.protocol === 'file:') return 'http://localhost:8081';
+    if (window.location.hostname.includes('vercel.app')) return 'https://cyber-guardian-platform.onrender.com';
+    return window.location.origin;
+})();
 
 // Read from localStorage
 const apiKey = localStorage.getItem('apiKey');
@@ -266,7 +268,7 @@ function loadDashboardData() {
             }
             
             // Decoy Link
-            document.getElementById('decoyField').value = `${API_BASE}/3rd-AI-Agent.exe`;
+            document.getElementById('decoyField').value = `${API_BASE}/decoy`;
         });
 }
 
@@ -396,5 +398,9 @@ function copyShareLink() {
     const input = document.getElementById('shareLinkInput');
     if (input) {
         input.value = `${API_BASE}/3rd-AI-Agent.exe`;
+    }
+    const dlLink = document.querySelector('a[href*="3rd-AI-Agent.exe"]');
+    if (dlLink) {
+        dlLink.href = `${API_BASE}/3rd-AI-Agent.exe`;
     }
 })();

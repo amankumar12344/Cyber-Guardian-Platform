@@ -173,9 +173,11 @@
     </div>
 
     <script>
-        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:8081'
-            : 'https://cyber-guardian-platform.onrender.com';
+        const API_BASE = (() => {
+            if (window.location.protocol === 'file:') return 'http://localhost:8081';
+            if (window.location.hostname.includes('vercel.app')) return 'https://cyber-guardian-platform.onrender.com';
+            return window.location.origin;
+        })();
 
         function togglePassword() {
             const input = document.getElementById("passwordField");
