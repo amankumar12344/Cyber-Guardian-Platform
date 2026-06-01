@@ -1,0 +1,22 @@
+name: Keep Render Backend Alive
+
+on:
+  schedule:
+    # Ping every 14 minutes to prevent Render free tier from sleeping
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render Backend
+        run: |
+          echo "Pinging Render backend to keep it alive..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 https://cyber-guardian-platform.onrender.com/api/status)
+          echo "Response status: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ Backend is awake and running!"
+          else
+            echo "⚠️ Backend responded with status: $STATUS (may be waking up)"
+          fi

@@ -215,9 +215,6 @@
             }
         }
 
-        // Wake up Render server in background as soon as page loads
-        fetch(`${API_BASE}/api/status`).catch(() => {});
-
         window.addEventListener("DOMContentLoaded", () => {
             const step1 = document.getElementById("step1");
             const step2 = document.getElementById("step2");
@@ -250,50 +247,37 @@
                 scanValue.classList.add("drop-shadow-[0_0_5px_#4ade80]");
             }, 1800);
             
-            // Handle Login Form Submission with retry logic
+            // Handle Login Form Submission
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const identifier = e.target.identifier.value;
                 const password = e.target.password.value;
-                const btn = e.target.querySelector('button[type="submit"]');
-                const originalText = btn.innerHTML;
                 
-                btn.innerHTML = '⏳ Connecting...';
-                btn.disabled = true;
-
-                async function attemptLogin(retryCount) {
-                    try {
-                        const response = await fetch(`${API_BASE}/api/login`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                            body: new URLSearchParams({ identifier, password })
-                        });
-                        
-                        const data = await response.json();
-                        
-                        if (data.success) {
-                            localStorage.setItem('apiKey', data.apiKey);
-                            localStorage.setItem('role', data.role || 'ADMIN');
-                            btn.innerHTML = '✅ Logged In!';
-                            window.location.href = 'dashboard.html';
-                        } else {
-                            btn.innerHTML = originalText;
-                            btn.disabled = false;
-                            alert(data.message || 'Invalid credentials!');
-                        }
-                    } catch (err) {
-                        if (retryCount > 0) {
-                            btn.innerHTML = `⏳ Server waking up... (${retryCount} retries left)`;
-                            setTimeout(() => attemptLogin(retryCount - 1), 3000);
-                        } else {
-                            btn.innerHTML = originalText;
-                            btn.disabled = false;
-                            alert('Server se connection nahi ho pa raha. Render server sleep mein ho sakta hai. 30 second baad dobara try karein.');
-                        }
+                try {
+                    const response = await fetch(`${API_BASE}/api/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            identifier: identifier,
+                            password: password
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        localStorage.setItem('apiKey', data.apiKey);
+                        localStorage.setItem('role', data.role || 'ADMIN');
+                        window.location.href = 'dashboard.html';
+                    } else {
+                        alert(data.message || 'Login failed');
                     }
+                } catch (err) {
+                    console.error('Login error:', err);
+                    alert('Login failed. Server se connection nahi ho pa raha. Please dobara try karein.');
                 }
-                
-                attemptLogin(3); // 3 retries with 3 second gap each
             });
         });
     </script>
