@@ -138,7 +138,7 @@ public class Main {
         try {
             SpringApplicationBuilder builder = new SpringApplicationBuilder(Main.class)
                     .properties("spring.jmx.enabled=false", "spring.main.banner-mode=off", "server.port=8081")
-                    .headless(false);
+                    .headless(!isAgent);
 
             if (isAgent) {
                 builder.web(org.springframework.boot.WebApplicationType.NONE);
