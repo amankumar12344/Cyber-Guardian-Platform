@@ -194,23 +194,21 @@
     </div>
 
     <script>
-        const API_BASE = (() => {
-    const customBase = localStorage.getItem('custom_api_base');
-    if (customBase) return customBase;
+        // Clear any stale custom API base that was set by old popup code
+        localStorage.removeItem('custom_api_base');
 
-    // 1. Localhost development
+        const API_BASE = (() => {
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8081';
     }
-    // 2. Opened as local static file (file://)
     if (window.location.protocol === 'file:') {
         return 'https://cyber-guardian-platform.onrender.com';
     }
-    // 3. Served directly by the Java backend on Render
     if (window.location.hostname === 'cyber-guardian-platform.onrender.com') {
         return window.location.origin;
     }
-    // 4. Any other static hosting (Vercel, Netlify, GitHub Pages, custom domains) -> Use Vercel Proxy to bypass ISP blocks!
+    // Vercel / Custom domain (kavach.3rdai.co) - use Vercel's built-in proxy rewrite
+    // This routes API calls through Vercel's servers, bypassing ISP blocks on onrender.com
     return window.location.origin + '/api/proxy';
 })();
 
@@ -283,18 +281,8 @@
                         alert(data.message || 'Login failed');
                     }
                 } catch (err) {
-                    const changeBase = confirm('Server connection error.\n\nKya aap custom Backend URL set karna chahte hain? (Jaise aapke PC ka IP: http://192.168.1.15:8081 ya custom domain)');
-                    if (changeBase) {
-                        const newBase = prompt('Apna Backend API URL enter karein (Empty chhodne par default use hoga):', API_BASE);
-                        if (newBase !== null) {
-                            if (newBase.trim() === '') {
-                                localStorage.removeItem('custom_api_base');
-                            } else {
-                                localStorage.setItem('custom_api_base', newBase.trim());
-                            }
-                            window.location.reload();
-                        }
-                    }
+                    console.error('Login error:', err);
+                    alert('Login failed. Server se connection nahi ho pa raha. Please dobara try karein.');
                 }
             });
         });
