@@ -230,6 +230,9 @@
     </style>
     <script>
         const API_BASE = (() => {
+    const customBase = localStorage.getItem('custom_api_base');
+    if (customBase) return customBase;
+
     // 1. Localhost development
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         return 'http://localhost:8081';
@@ -325,7 +328,20 @@
                 } catch (err) {
                     const errBanner = document.getElementById('errorBanner');
                     errBanner.style.display = 'block';
-                    errBanner.innerText = 'Server connection error. Ensure backend is running.';
+                    errBanner.innerText = 'Server connection error.';
+                    
+                    const changeBase = confirm('Server connection error.\n\nKya aap custom Backend URL set karna chahte hain? (Jaise aapke PC ka IP: http://192.168.1.15:8081 ya custom domain)');
+                    if (changeBase) {
+                        const newBase = prompt('Apna Backend API URL enter karein (Empty chhodne par default use hoga):', API_BASE);
+                        if (newBase !== null) {
+                            if (newBase.trim() === '') {
+                                localStorage.removeItem('custom_api_base');
+                            } else {
+                                localStorage.setItem('custom_api_base', newBase.trim());
+                            }
+                            window.location.reload();
+                        }
+                    }
                 }
             });
         });
