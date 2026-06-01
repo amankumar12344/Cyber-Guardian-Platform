@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3RD AI KAVACH | System Diagnostics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #020617;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+        }
+        .glow-shadow-green {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        }
+        .glow-shadow-cyan {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+        }
+    </style>
+</head>
+<body class="text-gray-100 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
+        
+        <!-- Background tech lines -->
+        <div class="absolute inset-0 opacity-5 pointer-events-none font-mono text-[9px] select-none overflow-hidden">
+            01010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101
+            SYS_INIT_SEQUENCE_SUCCESSFUL // PORT_STATUS_CHECK // NET_DIAGNOSTICS_V1.0
+            LOCAL_IP_VERIFY: 127.0.0.1 // REMOTE_IP_VERIFY: 216.24.57.251
+        </div>
+
+        <div class="flex items-center gap-4 mb-6 border-b border-slate-800 pb-4">
+            <span class="text-4xl">🛠️</span>
+            <div>
+                <h1 class="text-2xl font-black tracking-wide text-emerald-400 font-mono">CONNECTION DIAGNOSTIC SUITE</h1>
+                <p class="text-xs text-slate-400 uppercase tracking-widest font-semibold">3RD AI KAVACH Network & Server Health System</p>
+            </div>
+        </div>
+
+        <p class="text-sm text-slate-300 mb-6 leading-relaxed">
+            Agar aapko login ya password reset karte waqt <strong class="text-cyan-400">"Server connection error"</strong> aa raha hai, toh niche diye gaye system scan ko run kijiye. Yeh scan aapke browser se live check karega aur aapko exact problem aur uska solution batayega.
+        </p>
+
+        <!-- Diagnostic Actions -->
+        <div class="flex justify-center mb-8">
+            <button onclick="startDiagnosticScan()" id="scanBtn" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-black tracking-wider uppercase text-xs hover:scale-[1.02] active:scale-[0.98] transition-all glow-shadow-green flex items-center gap-2">
+                <span>⚡</span> Run Connection Scan
+            </button>
+        </div>
+
+        <!-- Diagnostic Progress / Logs -->
+        <div class="mb-6">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 font-mono">Scan Telemetry:</h3>
+            <div id="consoleLogs" class="w-full h-48 bg-slate-950/90 border border-slate-800 rounded-xl p-4 font-mono text-xs overflow-y-auto text-emerald-400/90 space-y-1">
+                <div class="text-slate-500">// Ready to scan. Click the button above to begin.</div>
+            </div>
+        </div>
+
+        <!-- Diagnostics Results Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Localhost Card -->
+            <div class="border border-slate-800 bg-slate-950/40 rounded-2xl p-4 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Local Backend</span>
+                        <span id="localStatusTag" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 uppercase">Unknown</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-mono mb-2">Endpoint: http://localhost:8081</p>
+                    <p id="localDesc" class="text-xs text-slate-400 leading-relaxed">Runs on your local computer to execute active monitoring features.</p>
+                </div>
+                <div id="localAction" class="mt-4 pt-3 border-t border-slate-800/50 hidden">
+                    <!-- Dynamic Suggestion -->
+                </div>
+            </div>
+
+            <!-- Render Card -->
+            <div class="border border-slate-800 bg-slate-950/40 rounded-2xl p-4 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Cloud Production</span>
+                        <span id="cloudStatusTag" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 uppercase">Unknown</span>
+                    </div>
+                    <p class="text-[11px] text-slate-500 font-mono mb-2">Endpoint: https://cyber-guardian-platform.onrender.com</p>
+                    <p id="cloudDesc" class="text-xs text-slate-400 leading-relaxed">Central server deployed on Render platform storing user credentials securely.</p>
+                </div>
+                <div id="cloudAction" class="mt-4 pt-3 border-t border-slate-800/50 hidden">
+                    <!-- Dynamic Suggestion -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Actionable Summary -->
+        <div id="summaryBox" class="mt-6 p-4 rounded-2xl border border-slate-800 bg-slate-950/60 hidden">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 font-mono">🔧 FIX RECOMMENDATION:</h4>
+            <p id="summaryText" class="text-sm text-slate-300 leading-relaxed"></p>
+        </div>
+
+        <div class="mt-8 text-center text-xs text-slate-500 font-semibold border-t border-slate-800/60 pt-4">
+            <a href="login.html" class="text-cyan-400 hover:underline">← Go Back to Login Page</a>
+        </div>
+
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const consoleBox = document.getElementById("consoleLogs");
+            const div = document.createElement("div");
+            const time = new Date().toLocaleTimeString();
+            
+            let color = 'text-emerald-400/90';
+            if (type === 'error') color = 'text-red-400';
+            if (type === 'success') color = 'text-cyan-400';
+            if (type === 'warn') color = 'text-yellow-400';
+            
+            div.className = `${color} font-mono`;
+            div.innerHTML = `<span class="text-slate-600">[${time}]</span> ${message}`;
+            consoleBox.appendChild(div);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        async function startDiagnosticScan() {
+            const scanBtn = document.getElementById("scanBtn");
+            const consoleBox = document.getElementById("consoleLogs");
+            consoleBox.innerHTML = '';
+            
+            scanBtn.disabled = true;
+            scanBtn.innerText = "Scanning Systems...";
+            
+            log("Initializing Connection Diagnostic Suite...", "success");
+            log("Client Environment detected: Hostname = " + window.location.hostname + ", Protocol = " + window.location.protocol);
+            
+            let localOnline = false;
+            let cloudOnline = false;
+            
+            // 1. TEST LOCAL SERVER (localhost:8081)
+            log("Testing connection to Local Spring Boot Server (http://localhost:8081)...");
+            try {
+                const start = Date.now();
+                const res = await fetch("http://localhost:8081/api/status", { mode: 'cors' });
+                const duration = Date.now() - start;
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    localOnline = true;
+                    log(`✅ Local Server ONLINE! Response time: ${duration}ms. Telemetry data: ` + JSON.stringify(data), "success");
+                    
+                    const tag = document.getElementById("localStatusTag");
+                    tag.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 uppercase";
+                    tag.innerText = "Online";
+                    document.getElementById("localDesc").innerText = `Successfully connected to local backend running on port 8081. Local monitoring shield is functional.`;
+                } else {
+                    log(`⚠️ Local server returned status code ${res.status}`, "warn");
+                }
+            } catch (err) {
+                log(`❌ Local Server OFFLINE / Unreachable. Reason: Connection refused.`, "error");
+                const tag = document.getElementById("localStatusTag");
+                tag.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-400 uppercase";
+                tag.innerText = "Offline";
+                document.getElementById("localDesc").innerText = `Local backend is not running on port 8081 or is blocked.`;
+            }
+
+            // 2. TEST CLOUD RENDER SERVER
+            log("Testing connection to Deployed Cloud Backend (cyber-guardian-platform.onrender.com)...");
+            try {
+                const start = Date.now();
+                const res = await fetch("https://cyber-guardian-platform.onrender.com/api/status", { mode: 'cors' });
+                const duration = Date.now() - start;
+                
+                if (res.ok) {
+                    const data = await res.json();
+                    cloudOnline = true;
+                    log(`✅ Cloud Server ONLINE! Response time: ${duration}ms. Status: ` + JSON.stringify(data), "success");
+                    
+                    const tag = document.getElementById("cloudStatusTag");
+                    tag.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 uppercase";
+                    tag.innerText = "Online";
+                    document.getElementById("cloudDesc").innerText = `Cloud database server is fully operational on Render. Access keys and authentication API routes are functional.`;
+                } else {
+                    log(`⚠️ Cloud server returned status code ${res.status}`, "warn");
+                }
+            } catch (err) {
+                log(`❌ Cloud Server UNREACHABLE. Reason: ${err.message}`, "error");
+                const tag = document.getElementById("cloudStatusTag");
+                tag.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-red-950 text-red-400 uppercase";
+                tag.innerText = "Unreachable";
+                document.getElementById("cloudDesc").innerText = `Cloud service is sleeping, suspended, or blocked by local network firewall/CORS.`;
+            }
+
+            // 3. ANALYZE AND ADVISE
+            log("Diagnostic checks completed. Generating fix guidelines...", "success");
+            
+            const summaryBox = document.getElementById("summaryBox");
+            const summaryText = document.getElementById("summaryText");
+            summaryBox.classList.remove("hidden");
+            
+            if (window.location.protocol === 'file:') {
+                log("📌 Note: You are running the frontend directly from a static file path (file:// protocol).", "warn");
+            }
+
+            // Scenario Analysis
+            if (localOnline && !cloudOnline) {
+                summaryText.innerHTML = `Aapka <strong>Local Server chal raha hai</strong> lekin cloud server se contact nahi ho pa raha hai. Aap login karne ke liye local dashboard page use karein: <a href="http://localhost:8081/login" class="text-cyan-400 underline font-bold">http://localhost:8081/login</a>.`;
+            } 
+            else if (!localOnline && cloudOnline) {
+                summaryText.innerHTML = `Aapka <strong>Cloud Server running aur online hai</strong>.<br><br>
+                1. Agar aap production check karna chahte hain toh direct online login open kijiye.<br>
+                2. Agar aap local check kar rahe hain, toh aapka local Java application (Spring Boot) band hai. Apne terminal me <code>mvn spring-boot:run</code> chalakar local server active kijiye, phir <a href="http://localhost:8081/login" class="text-cyan-400 underline font-bold">http://localhost:8081/login</a> par click karke login kijiye.`;
+            } 
+            else if (localOnline && cloudOnline) {
+                summaryText.innerHTML = `✅ <strong>Dono servers (Local & Cloud) online hain!</strong><br><br>
+                Agar aapko abhi bhi login me error aa raha hai, toh kripya direct browser route use karein: <a href="http://localhost:8081/login" class="text-cyan-400 underline font-bold">http://localhost:8081/login</a> taaki local session trigger ho sake.`;
+            } 
+            else {
+                // Both offline
+                summaryText.innerHTML = `<strong>Dono server (Local aur Cloud) unreachable hain.</strong><br><br>
+                1. Apne computer me Spring Boot start kijiye: <code>mvn spring-boot:run</code><br>
+                2. Apne internet/network check kijiye aur local firewall ya anti-virus band kijiye jo port <code>8081</code> ko block kar sakta hai.`;
+            }
+            
+            scanBtn.disabled = false;
+            scanBtn.innerText = "Run Connection Scan";
+        }
+    </script>
+</body>
+</html>
