@@ -1,24 +1,19 @@
 {
     "version": 2,
-    "outputDirectory": "frontend",
     "builds": [
         {
-            "src": "frontend/api/proxy.js",
+            "src": "api/proxy.js",
             "use": "@vercel/node"
-        },
-        {
-            "src": "frontend/**",
-            "use": "@vercel/static"
         }
     ],
     "routes": [
         {
             "src": "/api/proxy(.*)",
-            "dest": "/frontend/api/proxy.js"
+            "dest": "/api/proxy.js"
         },
         {
             "src": "/(.*)",
-            "dest": "/frontend/$1"
+            "dest": "/$1"
         }
     ]
 }
