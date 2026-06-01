@@ -1,6 +1,13 @@
 const API_BASE = (() => {
-    if (window.location.protocol === 'file:') return 'http://localhost:8081';
-    if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('3rdai.co')) return 'https://cyber-guardian-platform.onrender.com';
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return 'http://localhost:8081';
+    }
+    if (window.location.protocol === 'file:') {
+        return 'https://cyber-guardian-platform.onrender.com';
+    }
+    if (window.location.hostname.includes('vercel.app') || window.location.hostname.includes('3rdai.co')) {
+        return 'https://cyber-guardian-platform.onrender.com';
+    }
     return window.location.origin;
 })();
 
