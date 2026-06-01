@@ -14,8 +14,8 @@ const API_BASE = (() => {
     if (window.location.hostname === 'cyber-guardian-platform.onrender.com') {
         return window.location.origin;
     }
-    // 4. Any other static hosting (Vercel, Netlify, GitHub Pages, custom domains)
-    return 'https://cyber-guardian-platform.onrender.com';
+    // 4. Any other static hosting (Vercel, Netlify, GitHub Pages, custom domains) -> Use Vercel Proxy to bypass ISP blocks!
+    return window.location.origin + '/api/proxy';
 })();
 
 // Read from localStorage
