@@ -6,8 +6,9 @@ RUN mvn clean package -DskipTests
 
 # Run stage
 FROM eclipse-temurin:17-jre
+WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 COPY --from=build /app/kockroch.exe kockroch.exe
 EXPOSE 8081
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
 

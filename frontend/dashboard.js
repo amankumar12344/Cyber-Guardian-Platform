@@ -1,4 +1,6 @@
-const API_BASE = 'https://cyber-guardian-platform.onrender.com';
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+    ? 'http://localhost:8081'
+    : 'https://cyber-guardian-platform.onrender.com';
 
 // Read from localStorage
 const apiKey = localStorage.getItem('apiKey');

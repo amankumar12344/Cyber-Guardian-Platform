@@ -29,7 +29,34 @@ import java.util.Properties;
 
 @SpringBootApplication
 public class Main {
-    private static final String WORK_DIR = System.getProperty("user.home") + java.io.File.separator + "CyberGuardian_Data";
+    private static final String WORK_DIR = initWorkDir();
+
+    private static String initWorkDir() {
+        String path = System.getProperty("user.home") + java.io.File.separator + "CyberGuardian_Data";
+        try {
+            java.io.File dir = new java.io.File(path);
+            if (!dir.exists()) {
+                boolean created = dir.mkdirs();
+                if (!created) {
+                    path = System.getProperty("user.dir") + java.io.File.separator + "CyberGuardian_Data";
+                    new java.io.File(path).mkdirs();
+                }
+            } else {
+                java.io.File testFile = new java.io.File(dir, "write_test.tmp");
+                if (testFile.createNewFile()) {
+                    testFile.delete();
+                } else {
+                    path = System.getProperty("user.dir") + java.io.File.separator + "CyberGuardian_Data";
+                    new java.io.File(path).mkdirs();
+                }
+            }
+        } catch (Exception e) {
+            path = System.getProperty("user.dir") + java.io.File.separator + "CyberGuardian_Data";
+            try { new java.io.File(path).mkdirs(); } catch (Exception ignored) {}
+        }
+        return path;
+    }
+
     private static List<String> blacklist = new ArrayList<>();
     private static int scanInterval = 2000;
     private static String masterPassword = "admin";

@@ -229,6 +229,10 @@
         }
     </style>
     <script>
+        const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:')
+            ? 'http://localhost:8081'
+            : 'https://cyber-guardian-platform.onrender.com';
+
         function requestOtp() {
             const identifier = document.getElementById("identifier").value;
             const otpBtn = document.getElementById("otpBtn");
@@ -241,7 +245,7 @@
             otpBtn.disabled = true;
             otpBtn.innerText = "Sending...";
 
-            fetch(`https://cyber-guardian-platform.onrender.com/api/send-otp?identifier=${encodeURIComponent(identifier)}`, { method: 'POST' })
+            fetch(`${API_BASE}/api/send-otp?identifier=${encodeURIComponent(identifier)}`, { method: 'POST' })
                 .then(r => r.json())
                 .then(data => {
                     alert(data.message);
@@ -276,7 +280,7 @@
                 const password = e.target.password.value;
                 
                 try {
-                    const response = await fetch('https://cyber-guardian-platform.onrender.com/api/police/signup', {
+                    const response = await fetch(`${API_BASE}/api/police/signup`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
