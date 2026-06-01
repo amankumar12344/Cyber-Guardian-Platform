@@ -1,8 +1,31 @@
 {
-    "rewrites": [
+    "version": 2,
+    "builds": [
         {
-            "source": "/api/proxy/:path*",
-            "destination": "https://cyber-guardian-platform.onrender.com/:path*"
+            "src": "api/proxy.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "frontend/**",
+            "use": "@vercel/static"
+        }
+    ],
+    "routes": [
+        {
+            "src": "/api/(.*)",
+            "dest": "/api/proxy.js"
+        },
+        {
+            "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot))",
+            "dest": "/frontend/$1"
+        },
+        {
+            "src": "/",
+            "dest": "/frontend/index.html"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/frontend/$1"
         }
     ]
 }
