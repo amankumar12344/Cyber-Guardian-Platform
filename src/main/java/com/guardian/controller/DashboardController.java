@@ -44,20 +44,24 @@ public class DashboardController {
 
     @GetMapping("/api/dashboard-data")
     public Map<String, Object> getDashboardData(
-            @RequestParam String apiKey, 
+            @RequestHeader(value = "X-API-Key", required = false) String apiKeyHeader,
+            @RequestParam(required = false) String apiKey, 
             @RequestParam(required = false, defaultValue = "ALL") String targetId, 
-            @RequestParam(required = false, defaultValue = "ADMIN") String role) {
+            @RequestHeader(value = "Role", required = false) String roleHeader,
+            @RequestParam(required = false) String role) {
+        
+        String finalApiKey = (apiKeyHeader != null && !apiKeyHeader.isEmpty()) ? apiKeyHeader : apiKey;
         
         Map<String, Object> response = new HashMap<>();
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        if (finalApiKey == null || finalApiKey.isEmpty()) {
             response.put("success", false);
             response.put("message", "Unauthorized");
             return response;
         }
 
         Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getApiKey().equals(apiKey))
+                .filter(u -> u.getApiKey().equals(finalApiKey))
                 .findFirst();
 
         if (user.isEmpty()) {
@@ -134,21 +138,32 @@ public class DashboardController {
 
     @PostMapping("/api/save-telegram")
     public Map<String, Object> saveTelegram(
-            @RequestParam String apiKey, 
+            @RequestHeader(value = "X-API-Key", required = false) String apiKeyHeader,
+            @RequestParam(required = false) String apiKey, 
             @RequestParam String botToken, 
             @RequestParam String chatId,
-            @RequestParam(required = false, defaultValue = "ADMIN") String role) {
+            @RequestHeader(value = "Role", required = false) String roleHeader,
+            @RequestParam(required = false) String role) {
+        
+        String finalApiKey = (apiKeyHeader != null && !apiKeyHeader.isEmpty()) ? apiKeyHeader : apiKey;
+        String finalRole = (roleHeader != null && !roleHeader.isEmpty()) ? roleHeader : (role != null ? role : "ADMIN");
         
         Map<String, Object> response = new HashMap<>();
 
-        if ("POLICE".equalsIgnoreCase(role)) {
+        if ("POLICE".equalsIgnoreCase(finalRole)) {
             response.put("success", false);
             response.put("message", "Unauthorized for Police role");
             return response;
         }
 
+        if (finalApiKey == null || finalApiKey.isEmpty()) {
+            response.put("success", false);
+            response.put("message", "Unauthorized");
+            return response;
+        }
+
         Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getApiKey().equals(apiKey))
+                .filter(u -> u.getApiKey().equals(finalApiKey))
                 .findFirst();
 
         if (user.isPresent()) {
@@ -176,13 +191,16 @@ public class DashboardController {
     @PostMapping("/api/kavach/toggle")
     public String toggleKavach(
             @RequestParam boolean active, 
+            @RequestHeader(value = "X-API-Key", required = false) String apiKeyHeader,
             @RequestParam(required = false) String apiKey, 
-            @RequestParam(required = false, defaultValue = "ADMIN") String role) {
-        if (apiKey == null || apiKey.isEmpty()) {
+            @RequestHeader(value = "Role", required = false) String roleHeader,
+            @RequestParam(required = false) String role) {
+        String finalApiKey = (apiKeyHeader != null && !apiKeyHeader.isEmpty()) ? apiKeyHeader : apiKey;
+        if (finalApiKey == null || finalApiKey.isEmpty()) {
             return "UNAUTHORIZED";
         }
         Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getApiKey().equals(apiKey))
+                .filter(u -> u.getApiKey().equals(finalApiKey))
                 .findFirst();
         if (user.isEmpty() || !"ADMIN".equalsIgnoreCase(user.get().getRole())) {
             return "UNAUTHORIZED";
@@ -194,15 +212,18 @@ public class DashboardController {
     @PostMapping("/api/control")
     public String controlSystem(
             @RequestParam String action, 
+            @RequestHeader(value = "X-API-Key", required = false) String apiKeyHeader,
             @RequestParam(required = false) String apiKey,
-            @RequestParam(required = false, defaultValue = "ADMIN") String role,
+            @RequestHeader(value = "Role", required = false) String roleHeader,
+            @RequestParam(required = false) String role,
             @RequestParam(required = false, defaultValue = "ALL") String targetId) {
 
-        if (apiKey == null || apiKey.isEmpty()) {
+        String finalApiKey = (apiKeyHeader != null && !apiKeyHeader.isEmpty()) ? apiKeyHeader : apiKey;
+        if (finalApiKey == null || finalApiKey.isEmpty()) {
             return "ERROR: Unauthorized";
         }
         Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getApiKey().equals(apiKey))
+                .filter(u -> u.getApiKey().equals(finalApiKey))
                 .findFirst();
         if (user.isEmpty() || !"ADMIN".equalsIgnoreCase(user.get().getRole())) {
             return "ERROR: Unauthorized";
@@ -232,11 +253,13 @@ public class DashboardController {
 
     @GetMapping("/api/commands/poll")
     public Map<String, String> pollCommands(
+            @RequestHeader(value = "X-API-Key", required = false) String apiKeyHeader,
             @RequestParam(required = false) String apiKey,
             @RequestParam(required = false, defaultValue = "UNKNOWN") String targetId) {
-        if (apiKey != null) {
+        String finalApiKey = (apiKeyHeader != null && !apiKeyHeader.isEmpty()) ? apiKeyHeader : apiKey;
+        if (finalApiKey != null && !finalApiKey.isEmpty()) {
             userRepository.findAll().stream()
-                .filter(u -> u.getApiKey().equals(apiKey))
+                .filter(u -> u.getApiKey().equals(finalApiKey))
                 .findFirst()
                 .ifPresent(u -> {
                     u.setLastSeen(java.time.LocalDateTime.now());
@@ -270,7 +293,15 @@ public class DashboardController {
         try {
             java.io.File dir = new java.io.File(UPLOAD_DIR + targetId + "/");
             if (!dir.exists()) dir.mkdirs();
-            java.nio.file.Path path = Paths.get(dir.getAbsolutePath() + "/" + file.getOriginalFilename());
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null) {
+                return "ERROR: Invalid filename";
+            }
+            String filename = new java.io.File(originalFilename).getName();
+            if (filename.contains("..") || filename.contains("/") || filename.contains("\\")) {
+                return "ERROR: Invalid filename path";
+            }
+            java.nio.file.Path path = Paths.get(dir.getAbsolutePath() + "/" + filename);
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             return "SUCCESS";
         } catch (Exception e) {
@@ -329,9 +360,15 @@ public class DashboardController {
     }
 
     @GetMapping("/api/logs")
-    public java.util.List<com.guardian.entity.LogEntry> apiLogs(@RequestParam String apiKey) {
+    public java.util.List<com.guardian.entity.LogEntry> apiLogs(
+            @RequestHeader(value = "X-API-Key", required = false) String apiKeyHeader,
+            @RequestParam(required = false) String apiKey) {
+        String finalApiKey = (apiKeyHeader != null && !apiKeyHeader.isEmpty()) ? apiKeyHeader : apiKey;
+        if (finalApiKey == null || finalApiKey.isEmpty()) {
+            return Collections.emptyList();
+        }
         Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getApiKey().equals(apiKey))
+                .filter(u -> u.getApiKey().equals(finalApiKey))
                 .findFirst();
         if (user.isEmpty()) {
             return Collections.emptyList();
@@ -340,9 +377,15 @@ public class DashboardController {
     }
 
     @PostMapping("/api/logs/clear")
-    public String clearLogs(@RequestParam String apiKey) {
+    public String clearLogs(
+            @RequestHeader(value = "X-API-Key", required = false) String apiKeyHeader,
+            @RequestParam(required = false) String apiKey) {
+        String finalApiKey = (apiKeyHeader != null && !apiKeyHeader.isEmpty()) ? apiKeyHeader : apiKey;
+        if (finalApiKey == null || finalApiKey.isEmpty()) {
+            return "UNAUTHORIZED";
+        }
         Optional<User> user = userRepository.findAll().stream()
-                .filter(u -> u.getApiKey().equals(apiKey))
+                .filter(u -> u.getApiKey().equals(finalApiKey))
                 .findFirst();
         if (user.isEmpty() || !"ADMIN".equalsIgnoreCase(user.get().getRole())) {
             return "UNAUTHORIZED";

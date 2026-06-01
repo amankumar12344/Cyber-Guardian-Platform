@@ -16,6 +16,8 @@ import java.util.Optional;
 public class AuthController {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final java.security.SecureRandom secureRandom = new java.security.SecureRandom();
+    private final java.util.concurrent.ConcurrentHashMap<String, String> resetTokens = new java.util.concurrent.ConcurrentHashMap<>();
 
     @Autowired
     private UserRepository userRepository;
@@ -30,8 +32,11 @@ public class AuthController {
         Map<String, Object> response = new HashMap<>();
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent() && user.get().getPhoneNumber().equals(phone)) {
+            String token = java.util.UUID.randomUUID().toString();
+            resetTokens.put(token, email);
             response.put("success", true);
             response.put("email", email);
+            response.put("token", token);
             return response;
         }
         response.put("success", false);
@@ -40,13 +45,23 @@ public class AuthController {
     }
 
     @PostMapping("/api/reset-password")
-    public Map<String, Object> resetPassword(@RequestParam String email, @RequestParam String newPassword) {
+    public Map<String, Object> resetPassword(
+            @RequestParam String email, 
+            @RequestParam String newPassword,
+            @RequestParam String token) {
         Map<String, Object> response = new HashMap<>();
+        String storedEmail = resetTokens.get(token);
+        if (storedEmail == null || !storedEmail.equalsIgnoreCase(email)) {
+            response.put("success", false);
+            response.put("message", "Invalid or expired reset token!");
+            return response;
+        }
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             User u = user.get();
             u.setPassword(passwordEncoder.encode(newPassword));
             userRepository.save(u);
+            resetTokens.remove(token);
             response.put("success", true);
             response.put("message", "Password reset successful!");
             return response;
@@ -64,7 +79,7 @@ public class AuthController {
             response.put("message", "Invalid email format!");
             return response;
         }
-        String otp = String.valueOf((int) (Math.random() * 900000) + 100000); // 6 digit OTP
+        String otp = String.valueOf(100000 + secureRandom.nextInt(900000)); // Secure 6 digit OTP
         otpStorage.put(identifier, otp);
         System.out.println("[TESTING] Generated OTP for " + identifier + " is: " + otp);
 
@@ -79,8 +94,8 @@ public class AuthController {
             }
         } else {
             try {
-                String botToken = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk";
-                String chatId = "1123697239";
+                String botToken = System.getenv().getOrDefault("TELEGRAM_BOT_TOKEN", "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk");
+                String chatId = System.getenv().getOrDefault("TELEGRAM_CHAT_ID", "1123697239");
                 String text = "🛡️ Guardian Security Code: " + otp + "\nRequested for: " + identifier;
                 String urlString = "https://api.telegram.org/bot" + botToken + "/sendMessage?chat_id=" + chatId + "&text=" + java.net.URLEncoder.encode(text, "UTF-8");
 

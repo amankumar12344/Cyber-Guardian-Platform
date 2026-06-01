@@ -950,6 +950,10 @@
     </main>
 
     <script th:inline="javascript">
+        // Global Authentication Credentials
+        const role = [[${role}]] || 'ADMIN';
+        const apiKey = [[${user.apiKey}]];
+
         // Sidebar navigation switcher
         function switchTab(tabId, clickedElement) {
             // Hide all tab contents
@@ -982,10 +986,14 @@
 
         // Send active command override (Admin only)
         function sendCommand(action) {
-            const role = [[${role}]] || 'ADMIN';
-            const apiKey = [[${user.apiKey}]];
             const targetId = [[${currentTarget}]] || 'ALL';
-            fetch(`/api/control?action=${action}&apiKey=${apiKey}&role=${role}&targetId=${targetId}`, { method: 'POST' })
+            fetch(`/api/control?action=${action}&targetId=${targetId}`, { 
+                method: 'POST',
+                headers: {
+                    'X-API-Key': apiKey,
+                    'Role': role
+                }
+            })
                 .then(r => r.text())
                 .then(data => {
                     if(data.includes("ERROR")) {
@@ -1007,12 +1015,16 @@
 
         // Toggle Kavach active shield
         function toggleKavach() {
-            const role = [[${role}]] || 'ADMIN';
-            const apiKey = [[${user.apiKey}]];
             const shieldBtn = document.getElementById('hubKavachBtn');
             let isActivating = shieldBtn.innerText.includes('Enable');
             
-            fetch(`/api/kavach/toggle?active=${isActivating}&role=${role}&apiKey=${apiKey}`, { method: 'POST' })
+            fetch(`/api/kavach/toggle?active=${isActivating}`, { 
+                method: 'POST',
+                headers: {
+                    'X-API-Key': apiKey,
+                    'Role': role
+                }
+            })
                 .then(r => r.text())
                 .then(data => {
                     if(data.includes("UNAUTHORIZED")) {
@@ -1024,6 +1036,7 @@
         }
 
         // Poll security shield state
+        // Status endpoint is public, no headers needed
         function verifyShieldState() {
             fetch('/api/status')
                 .then(r => r.json())
@@ -1076,7 +1089,12 @@
         // Live logs feed scroller polling
         let loggedLines = 0;
         function pollTelemetryLogs() {
-            fetch('/api/logs')
+            fetch('/api/logs', {
+                headers: {
+                    'X-API-Key': apiKey,
+                    'Role': role
+                }
+            })
                 .then(r => r.json())
                 .then(logs => {
                     const hubFeed = document.getElementById('liveFeedHub');

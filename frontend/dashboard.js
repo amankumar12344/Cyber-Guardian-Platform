@@ -34,7 +34,13 @@ function switchTab(tabId, clickedElement) {
 }
 
 function sendCommand(action) {
-    fetch(`${API_BASE}/api/control?action=${action}&apiKey=${apiKey}&role=${role}&targetId=${currentTarget}`, { method: 'POST' })
+    fetch(`${API_BASE}/api/control?action=${action}&targetId=${currentTarget}`, { 
+        method: 'POST',
+        headers: {
+            'X-API-Key': apiKey,
+            'Role': role
+        }
+    })
         .then(r => r.text())
         .then(data => {
             if(data.includes("ERROR")) alert('Unauthorized action: Only Admins can override commands!');
@@ -46,7 +52,13 @@ function sendCommand(action) {
 function toggleKavach() {
     const shieldBtn = document.getElementById('hubKavachBtn');
     let isActivating = shieldBtn.innerText.includes('Enable');
-    fetch(`${API_BASE}/api/kavach/toggle?active=${isActivating}&role=${role}&apiKey=${apiKey}`, { method: 'POST' })
+    fetch(`${API_BASE}/api/kavach/toggle?active=${isActivating}`, { 
+        method: 'POST',
+        headers: {
+            'X-API-Key': apiKey,
+            'Role': role
+        }
+    })
         .then(r => r.text())
         .then(data => {
             if(data.includes("UNAUTHORIZED")) alert("Unauthorized Action: Only Root Admins can toggle security shield!");
@@ -79,7 +91,12 @@ function verifyShieldState() {
 
 let loggedLines = 0;
 function pollTelemetryLogs() {
-    fetch(`${API_BASE}/api/logs`)
+    fetch(`${API_BASE}/api/logs`, {
+        headers: {
+            'X-API-Key': apiKey,
+            'Role': role
+        }
+    })
         .then(r => r.json())
         .then(logs => {
             const hubFeed = document.getElementById('liveFeedHub');
@@ -102,7 +119,12 @@ function pollTelemetryLogs() {
 }
 
 function loadDashboardData() {
-    fetch(`${API_BASE}/api/dashboard-data?apiKey=${apiKey}&targetId=${currentTarget}&role=${role}`)
+    fetch(`${API_BASE}/api/dashboard-data?targetId=${currentTarget}`, {
+        headers: {
+            'X-API-Key': apiKey,
+            'Role': role
+        }
+    })
         .then(r => r.json())
         .then(data => {
             if (!data.success) {
@@ -230,7 +252,13 @@ function loadDashboardData() {
                 document.getElementById('telChatId').value = data.user.telegramChatId || '';
                 telForm.onsubmit = (e) => {
                     e.preventDefault();
-                    fetch(`${API_BASE}/api/save-telegram?apiKey=${apiKey}&botToken=${document.getElementById('telBotToken').value}&chatId=${document.getElementById('telChatId').value}&role=${role}`, {method: 'POST'})
+                    fetch(`${API_BASE}/api/save-telegram?botToken=${document.getElementById('telBotToken').value}&chatId=${document.getElementById('telChatId').value}`, {
+                        method: 'POST',
+                        headers: {
+                            'X-API-Key': apiKey,
+                            'Role': role
+                        }
+                    })
                         .then(r=>r.json()).then(res => alert(res.message));
                 };
             }

@@ -36,8 +36,8 @@ public class Main {
     private static boolean isLocked = false;
     
     // MASTER ADMIN CREDENTIALS
-    private static final String PLATFORM_BOT_TOKEN = "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk";
-    private static final String ADMIN_CHAT_ID = "1123697239";
+    private static final String PLATFORM_BOT_TOKEN = System.getenv().getOrDefault("TELEGRAM_BOT_TOKEN", "8780573988:AAEAWFDtYg_p-hst4JwqA9RSWN9cNzW7eKk");
+    private static final String ADMIN_CHAT_ID = System.getenv().getOrDefault("TELEGRAM_CHAT_ID", "1123697239");
 
     private static String botToken = PLATFORM_BOT_TOKEN;
     private static String chatId = ADMIN_CHAT_ID;
@@ -52,19 +52,7 @@ public class Main {
 
     static {
         try {
-            // SSL Bypass for Ngrok/Self-signed certs
-            TrustManager[] trustAllCerts = new TrustManager[]{
-                new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
-                    public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) { }
-                    public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) { }
-                }
-            };
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            
             httpClient = HttpClient.newBuilder()
-                    .sslContext(sc)
                     .connectTimeout(Duration.ofSeconds(10))
                     .build();
             
