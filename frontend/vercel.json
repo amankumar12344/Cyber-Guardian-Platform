@@ -1,11 +1,14 @@
 {
+  "redirects": [
+    {
+      "source": "/3rd-AI-Agent.exe",
+      "destination": "https://cyber-guardian-platform.onrender.com/3rd-AI-Agent.exe",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/api/((?!proxy).*)",
-      "destination": "/api/proxy"
-    },
-    {
-      "source": "/3rd-AI-Agent.exe",
       "destination": "/api/proxy"
     }
   ]
