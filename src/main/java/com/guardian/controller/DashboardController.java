@@ -335,12 +335,18 @@ public class DashboardController {
             if (uploadDir.exists() && uploadDir.isDirectory()) {
                 java.io.File[] dirs = uploadDir.listFiles(java.io.File::isDirectory);
                 if (dirs != null && dirs.length > 0) {
+                    // Find the most recently updated live_now.jpg
+                    java.io.File freshestFile = null;
+                    long freshestTime = 0;
                     for (java.io.File dir : dirs) {
                         java.io.File liveFile = new java.io.File(dir, "live_now.jpg");
-                        if (liveFile.exists()) {
-                            pathStr = liveFile.getAbsolutePath();
-                            break;
+                        if (liveFile.exists() && liveFile.lastModified() > freshestTime) {
+                            freshestTime = liveFile.lastModified();
+                            freshestFile = liveFile;
                         }
+                    }
+                    if (freshestFile != null) {
+                        pathStr = freshestFile.getAbsolutePath();
                     }
                 }
             }
@@ -348,6 +354,12 @@ public class DashboardController {
 
         java.io.File checkFile = new java.io.File(pathStr);
         if (!checkFile.exists()) {
+            return org.springframework.http.ResponseEntity.noContent().build();
+        }
+
+        // STALENESS CHECK: If file hasn't been updated in 5 seconds, agent is offline
+        long ageMs = System.currentTimeMillis() - checkFile.lastModified();
+        if (ageMs > 5000) {
             return org.springframework.http.ResponseEntity.noContent().build();
         }
 
