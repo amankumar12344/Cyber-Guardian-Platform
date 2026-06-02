@@ -399,6 +399,50 @@ function copyShareLink() {
     }
 }
 
+// Share Download Link using Web Share API
+function shareDownloadLink() {
+    const input = document.getElementById('shareLinkInput');
+    if (input) {
+        if (navigator.share) {
+            navigator.share({
+                title: '3rd-AI-Agent Download',
+                text: 'Download the 3rd-AI-Agent installation package:',
+                url: input.value
+            }).then(() => {
+                const btn = document.getElementById('shareLinkBtn');
+                if (btn) {
+                    const originalText = btn.innerText;
+                    btn.innerText = '✅ Shared!';
+                    btn.style.borderColor = '#10b981';
+                    btn.style.color = '#10b981';
+                    setTimeout(() => {
+                        btn.innerText = originalText;
+                        btn.style.borderColor = 'var(--success)';
+                        btn.style.color = '#fff';
+                    }, 2000);
+                }
+            }).catch(err => {
+                console.log('Sharing cancelled or failed:', err);
+            });
+        } else {
+            // Fallback: Copy to clipboard and show feedback on Share button
+            copyShareLink();
+            const btn = document.getElementById('shareLinkBtn');
+            if (btn) {
+                const originalText = btn.innerText;
+                btn.innerText = '📋 Copied & Shared!';
+                btn.style.borderColor = '#eab308';
+                btn.style.color = '#eab308';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.borderColor = 'var(--success)';
+                    btn.style.color = '#fff';
+                }, 2000);
+            }
+        }
+    }
+}
+
 // Initialize Share Link value on load
 (function initShareLink() {
     const input = document.getElementById('shareLinkInput');
