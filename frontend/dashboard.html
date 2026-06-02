@@ -276,6 +276,53 @@ window.addEventListener('pageshow', function (e) {
             100% { top: 100%; }
         }
 
+        /* Offline overlay for live stream */
+        .stream-offline-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 16px; z-index: 20;
+            background: radial-gradient(ellipse at center, rgba(6,7,10,0.85) 0%, rgba(6,7,10,0.97) 100%);
+        }
+        .stream-offline-overlay .offline-icon {
+            font-size: 52px;
+            animation: offlinePulse 2.5s ease-in-out infinite;
+            filter: drop-shadow(0 0 16px rgba(255,59,48,0.5));
+        }
+        .stream-offline-overlay .offline-title {
+            font-size: 17px; font-weight: 800; letter-spacing: 2px;
+            color: #fff; text-transform: uppercase;
+        }
+        .stream-offline-overlay .offline-sub {
+            font-size: 12px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1px;
+        }
+        .stream-offline-overlay .offline-blink {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--danger); display: inline-block; margin-right: 6px;
+            animation: blinkDot 1.2s step-start infinite;
+        }
+        @keyframes offlinePulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.08); opacity: 0.7; }
+        }
+        @keyframes blinkDot {
+            0%, 100% { opacity: 1; } 50% { opacity: 0; }
+        }
+        .stream-live-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 800; text-transform: uppercase;
+            padding: 5px 14px; border-radius: 20px; letter-spacing: 1px;
+        }
+        .stream-live-badge.live {
+            background: rgba(255,59,48,0.15); color: #ff3b30;
+            border: 1px solid rgba(255,59,48,0.35);
+            animation: pulse-ring 2s infinite;
+        }
+        .stream-live-badge.offline {
+            background: rgba(100,116,139,0.15); color: var(--text-dim);
+            border: 1px solid rgba(100,116,139,0.25);
+        }
+
         /* Buttons and Inputs */
         .btn-custom {
             display: inline-flex;
@@ -613,12 +660,20 @@ window.addEventListener('pageshow', function (e) {
             <div class="card" style="padding: 10px; margin-bottom: 30px;">
                 <div class="card-header-custom" style="padding: 20px 20px 10px 20px;">
                     <h2 class="card-title-custom"><span class="dot"></span> Live Screen Stream Frame</h2>
-                    <div class="status-pill status-breach" style="animation: pulse-ring 2s infinite;">🔴 LIVE MONITOR</div>
+                    <div id="streamStatusBadge" class="stream-live-badge offline">⬛ NO SIGNAL</div>
                 </div>
                 <div class="stream-frame">
                     <div class="scanline-hud"></div>
-                    <div class="laser-sweep"></div>
-                    <img id="liveMonitorSrc" src="" alt="Live Stream Monitor">
+                    <div class="laser-sweep" id="laserSweep"></div>
+                    <!-- Offline Overlay -->
+                    <div id="streamOfflineOverlay" class="stream-offline-overlay">
+                        <span class="offline-icon">📡</span>
+                        <div class="offline-title">No Agent Connected</div>
+                        <div class="offline-sub"><span class="offline-blink"></span>Waiting for live feed from target node...</div>
+                        <div style="margin-top:8px; font-size:11px; color:rgba(100,116,139,0.6); font-family:monospace;">Deploy agent on target system to begin stream</div>
+                    </div>
+                    <!-- Live Image -->
+                    <img id="liveMonitorSrc" src="" alt="Live Stream Monitor" style="display:none; width:100%; height:100%; object-fit:contain;">
                 </div>
             </div>
 

@@ -368,12 +368,57 @@ setInterval(loadDashboardData, 10000); // Reload stats every 10s
 setInterval(verifyShieldState, 8000);
 setInterval(pollTelemetryLogs, 3000);
 
-setInterval(() => {
-    const screenFrame = document.getElementById('liveMonitorSrc');
-    if (screenFrame) {
-        screenFrame.src = `${API_BASE}/api/live-stream?targetId=${currentTarget}&time=` + new Date().getTime();
+// ─── Live Stream Polling with Online/Offline state ───────────────────────────
+let streamConsecutiveErrors = 0;
+
+function pollLiveStream() {
+    const img = document.getElementById('liveMonitorSrc');
+    const overlay = document.getElementById('streamOfflineOverlay');
+    const badge = document.getElementById('streamStatusBadge');
+    const laser = document.getElementById('laserSweep');
+    if (!img) return;
+
+    const url = `${API_BASE}/api/live-stream?targetId=${currentTarget}&t=` + Date.now();
+
+    // Use fetch to check status code before assigning src
+    fetch(url)
+        .then(res => {
+            if (res.ok && res.status === 200) {
+                // Stream is live — show image, hide overlay
+                img.src = url;
+                img.style.display = 'block';
+                if (overlay) overlay.style.display = 'none';
+                if (laser) laser.style.display = 'block';
+                if (badge) {
+                    badge.className = 'stream-live-badge live';
+                    badge.innerHTML = '🔴 LIVE';
+                }
+                streamConsecutiveErrors = 0;
+            } else {
+                // No content (204) or error — show offline
+                setStreamOffline(img, overlay, badge, laser);
+            }
+        })
+        .catch(() => {
+            streamConsecutiveErrors++;
+            setStreamOffline(img, overlay, badge, laser);
+        });
+}
+
+function setStreamOffline(img, overlay, badge, laser) {
+    img.style.display = 'none';
+    img.src = '';
+    if (overlay) overlay.style.display = 'flex';
+    if (laser) laser.style.display = 'none';
+    if (badge) {
+        badge.className = 'stream-live-badge offline';
+        badge.innerHTML = '⬛ NO SIGNAL';
     }
-}, 1500);
+}
+
+// Poll every 1.5 seconds
+setInterval(pollLiveStream, 1500);
+pollLiveStream(); // immediate first call
 
 // Copy Share Link to Clipboard
 function copyShareLink() {
