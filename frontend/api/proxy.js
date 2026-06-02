@@ -49,12 +49,15 @@ module.exports = async (req, res) => {
         });
 
         const contentType = response.headers.get('content-type');
-        const data = await response.text();
-
         if (contentType) {
             res.setHeader('Content-Type', contentType);
         }
-        res.status(response.status).send(data);
+
+        // Use arrayBuffer to prevent binary data corruption and size inflation
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        res.status(response.status).send(buffer);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
