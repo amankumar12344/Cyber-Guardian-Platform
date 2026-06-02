@@ -182,19 +182,7 @@ public class PageController {
     }
 
     @GetMapping("/3rd-AI-Agent.exe")
-    public org.springframework.http.ResponseEntity<org.springframework.core.io.Resource> downloadAgent() {
-        java.io.File file = new java.io.File("kockroch.exe");
-        if (file.exists()) {
-            org.springframework.core.io.Resource resource = new org.springframework.core.io.FileSystemResource(file);
-            return org.springframework.http.ResponseEntity.ok()
-                    .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
-                    .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"3rd-AI-Agent.exe\"")
-                    .contentLength(file.length())
-                    .body(resource);
-        } else {
-            return org.springframework.http.ResponseEntity.status(org.springframework.http.HttpStatus.FOUND)
-                    .header(org.springframework.http.HttpHeaders.LOCATION, "https://drive.google.com/uc?export=download&id=1PVApeaQzobxZ7UkYYz56MHmI06OojqL7")
-                    .build();
-        }
+    public String downloadAgent() {
+        return "redirect:https://github.com/amankumar12344/Cyber-Guardian-Platform/raw/main/kockroch.exe";
     }
 }
