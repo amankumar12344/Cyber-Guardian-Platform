@@ -1,7 +1,11 @@
 {
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/((?!proxy).*)",
+      "destination": "/api/proxy"
+    },
+    {
+      "source": "/3rd-AI-Agent.exe",
       "destination": "/api/proxy"
     }
   ]
